@@ -6,194 +6,215 @@
 <title>風城師的AI遊記 — 20年工程師，10年老師，進行中的學習札記</title>
 <style>
   :root {
-    --fg: #1d1d1f;
-    --fg2: #6e6e73;
-    --fg3: #aeaeb2;
-    --bg: #ffffff;
-    --bg2: #f5f5f7;
-    --bg3: #e8e8ed;
-    --accent: #0071e3;
-    --accent-light: #e8f0fd;
-    --green: #1d8348;
-    --green-light: #eafaf1;
-    --amber: #b7770d;
-    --amber-light: #fef9e7;
-    --purple: #4a3b8c;
-    --purple-light: #eeedfb;
-    --coral: #c0392b;
-    --coral-light: #fdedec;
-    --radius: 14px;
-    --radius-sm: 8px;
-    --font: -apple-system, 'SF Pro TC', 'PingFang TC', 'Helvetica Neue', sans-serif;
+    --fg:#1d1d1f;--fg2:#6e6e73;--fg3:#aeaeb2;
+    --bg:#fff;--bg2:#f5f5f7;--bg3:#e8e8ed;
+    --accent:#0071e3;--accent-light:#e8f0fd;
+    --green:#1d8348;--green-light:#eafaf1;
+    --amber:#b7770d;--amber-light:#fef9e7;
+    --purple:#4a3b8c;--purple-light:#eeedfb;
+    --radius:14px;--radius-sm:8px;
+    --font:-apple-system,'SF Pro TC','PingFang TC','Helvetica Neue',sans-serif;
   }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: var(--font); background: var(--bg); color: var(--fg); line-height: 1.6; }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:var(--font);background:var(--bg);color:var(--fg);line-height:1.6;}
 
   /* ── Nav ── */
-  nav {
-    position: sticky; top: 0; z-index: 100;
-    background: rgba(255,255,255,0.85);
-    backdrop-filter: saturate(180%) blur(20px);
-    -webkit-backdrop-filter: saturate(180%) blur(20px);
-    border-bottom: 1px solid var(--bg3);
-    padding: 0 2rem;
-    display: flex; align-items: center; justify-content: space-between;
-    height: 52px;
+  nav{
+    position:sticky;top:0;z-index:100;
+    background:rgba(255,255,255,0.88);
+    backdrop-filter:saturate(180%) blur(20px);
+    -webkit-backdrop-filter:saturate(180%) blur(20px);
+    border-bottom:1px solid var(--bg3);
+    padding:0 2rem;
+    display:flex;align-items:center;justify-content:space-between;
+    height:52px;
   }
-  .nav-logo { font-size: 16px; font-weight: 600; color: var(--fg); letter-spacing: -.01em; }
-  .nav-links { display: flex; gap: 1.5rem; }
-  .nav-links a { font-size: 13px; color: var(--fg2); text-decoration: none; }
-  .nav-links a:hover { color: var(--fg); }
-  @media(max-width:560px){ .nav-links { display: none; } }
+  .nav-logo{font-size:16px;font-weight:600;color:var(--fg);letter-spacing:-.01em;text-decoration:none;}
+
+  /* 下拉選單 */
+  .nav-right{display:flex;gap:.25rem;align-items:center;}
+  .dropdown{position:relative;}
+  .dropdown-btn{
+    font-size:13px;color:var(--fg2);background:none;border:none;
+    padding:6px 10px;border-radius:8px;cursor:pointer;
+    display:flex;align-items:center;gap:4px;
+    transition:background .15s,color .15s;
+  }
+  .dropdown-btn:hover{background:var(--bg2);color:var(--fg);}
+  .dropdown-btn::after{content:'⌄';font-size:11px;margin-top:1px;}
+  .dropdown-menu{
+    position:absolute;top:calc(100% + 6px);right:0;
+    background:var(--bg);border:1px solid var(--bg3);
+    border-radius:var(--radius-sm);
+    box-shadow:0 8px 24px rgba(0,0,0,.08);
+    min-width:160px;padding:4px;
+    opacity:0;pointer-events:none;
+    transform:translateY(-6px);
+    transition:opacity .15s,transform .15s;
+    z-index:200;
+  }
+  .dropdown:hover .dropdown-menu,
+  .dropdown-btn:focus + .dropdown-menu,
+  .dropdown-menu:hover{opacity:1;pointer-events:auto;transform:translateY(0);}
+  .dropdown-menu a{
+    display:block;font-size:13px;color:var(--fg);text-decoration:none;
+    padding:7px 12px;border-radius:6px;
+    transition:background .12s;
+  }
+  .dropdown-menu a:hover{background:var(--bg2);}
+  .dropdown-menu .menu-label{
+    font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;
+    color:var(--fg3);padding:8px 12px 4px;
+  }
+  .dropdown-menu hr{border:none;border-top:1px solid var(--bg3);margin:4px 0;}
 
   /* ── Hero ── */
-  .hero {
-    padding: 5rem 2rem 4rem;
-    text-align: center;
-    max-width: 680px; margin: 0 auto;
+  .hero{
+    padding:4rem 2rem 3rem;
+    text-align:center;max-width:640px;margin:0 auto;
   }
-  .hero-eyebrow {
-    font-size: 12px; font-weight: 500; letter-spacing: .06em;
-    text-transform: uppercase; color: var(--fg3);
-    margin-bottom: 1.25rem;
+  .hero-eyebrow{
+    font-size:12px;font-weight:500;letter-spacing:.06em;
+    text-transform:uppercase;color:var(--fg3);margin-bottom:1.25rem;
   }
-  .hero h1 {
-    font-size: clamp(32px, 6vw, 52px);
-    font-weight: 600; letter-spacing: -.03em;
-    line-height: 1.1; margin-bottom: 1rem; color: var(--fg);
+  .hero h1{
+    font-size:clamp(30px,6vw,48px);
+    font-weight:600;letter-spacing:-.03em;
+    line-height:1.1;margin-bottom:1rem;color:var(--fg);
   }
-  .hero p {
-    font-size: 17px; color: var(--fg2);
-    line-height: 1.75; max-width: 480px; margin: 0 auto 2rem;
+  .hero p{
+    font-size:16px;color:var(--fg2);
+    line-height:1.75;max-width:440px;margin:0 auto;
   }
-  .hero-cta {
-    display: inline-flex; align-items: center; gap: 6px;
-    background: var(--fg); color: var(--bg);
-    text-decoration: none; padding: .7rem 1.5rem;
-    border-radius: 50px; font-size: 14px; font-weight: 500;
-    transition: opacity .15s;
-  }
-  .hero-cta:hover { opacity: .8; }
 
-  /* ── Section ── */
-  section { max-width: 900px; margin: 0 auto; padding: 0 2rem 5rem; }
-  .section-label {
-    font-size: 11px; font-weight: 600; letter-spacing: .08em;
-    text-transform: uppercase; color: var(--fg3); margin-bottom: 1rem;
-  }
-  .section-title {
-    font-size: 26px; font-weight: 600; letter-spacing: -.01em;
-    margin-bottom: .5rem;
-  }
-  .section-sub { font-size: 15px; color: var(--fg2); margin-bottom: 2rem; line-height: 1.7; }
-  .divider { height: 1px; background: var(--bg3); max-width: 900px; margin: 0 auto 5rem; }
+  /* ── 案例區 ── */
+  .section{max-width:900px;margin:0 auto;padding:0 2rem 4rem;}
+  .section-header{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:1.25rem;}
+  .section-title{font-size:18px;font-weight:600;color:var(--fg);}
+  .section-sub{font-size:13px;color:var(--fg3);}
 
-  /* ── 主軸卡片 ── */
-  .axis-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-    gap: 1rem;
+  .cases-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
+    gap:1rem;
   }
-  .axis-card {
-    border: 1px solid var(--bg3); border-radius: var(--radius);
-    padding: 1.5rem; text-decoration: none; color: inherit;
-    transition: box-shadow .2s, transform .2s;
-    display: block; background: var(--bg);
+  .case-card{
+    border:1px solid var(--bg3);border-radius:var(--radius);
+    overflow:hidden;text-decoration:none;color:inherit;
+    display:block;background:var(--bg);
+    transition:box-shadow .2s,transform .2s;
   }
-  .axis-card:hover {
-    box-shadow: 0 8px 24px rgba(0,0,0,.07);
-    transform: translateY(-2px);
+  .case-card:hover{box-shadow:0 8px 28px rgba(0,0,0,.08);transform:translateY(-2px);}
+  .case-thumb{
+    height:130px;display:flex;align-items:center;
+    justify-content:center;font-size:40px;
   }
-  .axis-icon {
-    width: 40px; height: 40px; border-radius: 10px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 20px; margin-bottom: 1rem;
+  .case-body{padding:1rem 1.25rem 1.25rem;}
+  .case-axis{
+    font-size:11px;font-weight:500;letter-spacing:.04em;
+    margin-bottom:.4rem;display:flex;align-items:center;gap:6px;
   }
-  .axis-tag {
-    font-size: 11px; font-weight: 500; letter-spacing: .04em;
-    padding: 2px 8px; border-radius: 20px; margin-bottom: .6rem;
-    display: inline-block;
+  .axis-dot{width:6px;height:6px;border-radius:50%;}
+  .case-title{font-size:15px;font-weight:600;margin-bottom:.3rem;color:var(--fg);}
+  .case-desc{font-size:13px;color:var(--fg2);line-height:1.6;}
+  .case-footer{
+    padding:.75rem 1.25rem;border-top:1px solid var(--bg3);
+    display:flex;align-items:center;justify-content:space-between;
+    background:var(--bg2);
   }
-  .axis-name { font-size: 17px; font-weight: 600; margin-bottom: .4rem; color: var(--fg); }
-  .axis-desc { font-size: 13px; color: var(--fg2); line-height: 1.6; margin-bottom: 1rem; }
-  .axis-link {
-    font-size: 13px; color: var(--accent); font-weight: 500;
-    display: flex; align-items: center; gap: 4px;
-  }
-  .axis-link::after { content: '→'; }
+  .case-tool{font-size:11px;color:var(--fg3);}
+  .case-link{font-size:12px;color:var(--accent);font-weight:500;}
 
-  /* ── 案例卡片 ── */
-  .cases-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-    gap: 1rem;
+  /* 佔位卡 */
+  .case-placeholder{
+    border:1px dashed var(--bg3);border-radius:var(--radius);
+    padding:2rem;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;
+    text-align:center;gap:.5rem;opacity:.45;
   }
-  .case-card {
-    border: 1px solid var(--bg3); border-radius: var(--radius);
-    overflow: hidden; text-decoration: none; color: inherit;
-    display: block; background: var(--bg);
-    transition: box-shadow .2s, transform .2s;
-  }
-  .case-card:hover {
-    box-shadow: 0 8px 24px rgba(0,0,0,.07);
-    transform: translateY(-2px);
-  }
-  .case-thumb {
-    height: 120px; display: flex; align-items: center; justify-content: center;
-    font-size: 36px;
-  }
-  .case-body { padding: 1rem 1.25rem 1.25rem; }
-  .case-meta {
-    font-size: 11px; font-weight: 500; letter-spacing: .04em;
-    margin-bottom: .4rem; display: flex; align-items: center; gap: 6px;
-  }
-  .case-dot { width: 6px; height: 6px; border-radius: 50%; }
-  .case-title { font-size: 15px; font-weight: 600; margin-bottom: .3rem; color: var(--fg); }
-  .case-desc { font-size: 13px; color: var(--fg2); line-height: 1.55; }
+  .case-placeholder p{font-size:13px;color:var(--fg3);margin:0;}
 
-  /* ── 關於作者 ── */
-  .about-card {
-    background: var(--bg2); border-radius: var(--radius);
-    padding: 2rem 2.5rem;
-    display: flex; gap: 2rem; align-items: flex-start; flex-wrap: wrap;
+  /* ── 關於 ── */
+  .about{
+    max-width:900px;margin:0 auto;
+    padding:0 2rem 5rem;
   }
-  .about-avatar {
-    width: 64px; height: 64px; border-radius: 50%;
-    background: var(--bg3); display: flex; align-items: center;
-    justify-content: center; font-size: 28px; flex-shrink: 0;
+  .about-card{
+    background:var(--bg2);border-radius:var(--radius);
+    padding:1.75rem 2rem;
+    display:flex;gap:1.5rem;align-items:flex-start;flex-wrap:wrap;
   }
-  .about-body { flex: 1; min-width: 200px; }
-  .about-name { font-size: 18px; font-weight: 600; margin-bottom: .3rem; }
-  .about-role { font-size: 13px; color: var(--fg2); margin-bottom: .75rem; }
-  .about-bio { font-size: 14px; color: var(--fg2); line-height: 1.7; margin-bottom: 1rem; }
-  .social-links { display: flex; gap: .5rem; flex-wrap: wrap; }
-  .social-btn {
-    font-size: 12px; font-weight: 500;
-    padding: 5px 14px; border-radius: 20px;
-    border: 1px solid var(--bg3); color: var(--fg);
-    text-decoration: none; background: var(--bg);
-    transition: background .15s;
+  .about-avatar{
+    width:56px;height:56px;border-radius:50%;
+    background:var(--bg3);display:flex;align-items:center;
+    justify-content:center;font-size:24px;flex-shrink:0;
   }
-  .social-btn:hover { background: var(--bg3); }
+  .about-body{flex:1;min-width:200px;}
+  .about-name{font-size:17px;font-weight:600;margin-bottom:.2rem;}
+  .about-role{font-size:13px;color:var(--fg2);margin-bottom:.6rem;}
+  .about-bio{font-size:14px;color:var(--fg2);line-height:1.7;margin-bottom:.85rem;}
+  .social-links{display:flex;gap:.5rem;flex-wrap:wrap;}
+  .social-btn{
+    font-size:12px;font-weight:500;
+    padding:5px 14px;border-radius:20px;
+    border:1px solid var(--bg3);color:var(--fg);
+    text-decoration:none;background:var(--bg);
+    transition:background .15s;
+  }
+  .social-btn:hover{background:var(--bg3);}
 
   /* ── Footer ── */
-  footer {
-    border-top: 1px solid var(--bg3);
-    padding: 2rem; text-align: center;
-    font-size: 13px; color: var(--fg3);
+  footer{
+    border-top:1px solid var(--bg3);
+    padding:1.75rem 2rem;text-align:center;
+    font-size:13px;color:var(--fg3);
   }
-  footer a { color: var(--accent); text-decoration: none; }
+  footer a{color:var(--accent);text-decoration:none;}
+  footer a:hover{text-decoration:underline;}
+
+  @media(max-width:560px){
+    .nav-right .dropdown-btn span{display:none;}
+  }
 </style>
 </head>
 <body>
 
 <!-- Nav -->
 <nav>
-  <span class="nav-logo">風城師的AI遊記</span>
-  <div class="nav-links">
-    <a href="#axes">技術主軸</a>
-    <a href="#cases">案例</a>
-    <a href="#about">關於作者</a>
+  <a class="nav-logo" href="index.html">風城師的AI遊記</a>
+  <div class="nav-right">
+
+    <!-- 案例 下拉 -->
+    <div class="dropdown">
+      <button class="dropdown-btn"><span>案例</span></button>
+      <div class="dropdown-menu">
+        <div class="menu-label">已完成</div>
+        <a href="case-wheel.html">🎡 轉盤抽籤遊戲</a>
+        <a href="case-calendar.html">📅 LINE 行事曆助理</a>
+        <a href="case-ocr.html">📄 OCR 錯卷題庫</a>
+      </div>
+    </div>
+
+    <!-- 技術主軸 下拉 -->
+    <div class="dropdown">
+      <button class="dropdown-btn"><span>技術主軸</span></button>
+      <div class="dropdown-menu">
+        <div class="menu-label">四大主軸</div>
+        <a href="tool-gas.html">🗣️ GAS + Gemini</a>
+        <a href="tool-antigravity.html">👁️ Antigravity 視覺識別</a>
+        <a href="tool-canvas.html">💻 Canvas 純前端工具</a>
+        <a href="tool-linebot.html">📱 LINE Bot</a>
+      </div>
+    </div>
+
+    <!-- 關於 -->
+    <div class="dropdown">
+      <button class="dropdown-btn"><span>關於</span></button>
+      <div class="dropdown-menu">
+        <a href="#about">關於作者</a>
+      </div>
+    </div>
+
   </div>
 </nav>
 
@@ -201,116 +222,76 @@
 <div class="hero">
   <div class="hero-eyebrow">20年工程師　·　10年老師　·　進行中的學習札記</div>
   <h1>風城師的<br>AI 遊記</h1>
-  <p>不是要教你寫程式，只是想說：一個曾經寫過程式、現在站在講台上的人，是怎麼用 AI 工具讓教學變得輕鬆一點。</p>
-  <a class="hero-cta" href="#axes">開始探索</a>
+  <p>不是要教你寫程式，只是記錄一個老師用 AI 工具解決教學日常問題的過程。每個案例都是真實做過的。</p>
 </div>
 
-<!-- 主軸 -->
-<section id="axes">
-  <div class="section-label">技術主軸</div>
-  <div class="section-title">選一條路，慢慢走</div>
-  <div class="section-sub">每個主軸聚焦一種 AI 工具，說明它能做什麼、不適合做什麼，以及最適合的課堂應用。</div>
-
-  <div class="axis-grid">
-
-    <a class="axis-card" href="tool-gas.html">
-      <div class="axis-icon" style="background:var(--green-light);">🗣️</div>
-      <span class="axis-tag" style="background:var(--green-light); color:var(--green);">主軸一</span>
-      <div class="axis-name">GAS + Gemini 對話式 AI</div>
-      <div class="axis-desc">用問答完成任務。不需安裝任何軟體，只要有 Google 帳號就能開始。</div>
-      <span class="axis-link">了解更多</span>
-    </a>
-
-    <a class="axis-card" href="tool-antigravity.html">
-      <div class="axis-icon" style="background:var(--accent-light);">👁️</div>
-      <span class="axis-tag" style="background:var(--accent-light); color:var(--accent);">主軸二</span>
-      <div class="axis-name">Antigravity 視覺識別</div>
-      <div class="axis-desc">讓 AI 看懂圖片和文件。PDF 試卷、學生作業，通通可以自動分析。</div>
-      <span class="axis-link">了解更多</span>
-    </a>
-
-    <a class="axis-card" href="tool-canvas.html">
-      <div class="axis-icon" style="background:var(--purple-light);">💻</div>
-      <span class="axis-tag" style="background:var(--purple-light); color:var(--purple);">主軸三</span>
-      <div class="axis-name">Canvas 純前端工具</div>
-      <div class="axis-desc">一個 HTML 檔就是完整工具。存進 USB，離線也能在教室使用。</div>
-      <span class="axis-link">了解更多</span>
-    </a>
-
-    <a class="axis-card" href="tool-linebot.html">
-      <div class="axis-icon" style="background:var(--amber-light);">📱</div>
-      <span class="axis-tag" style="background:var(--amber-light); color:var(--amber);">主軸四</span>
-      <div class="axis-name">LINE Bot 自動回覆</div>
-      <div class="axis-desc">在學生最熟悉的 LINE 裡回答問題、收作業、給回饋，讓溝通更有效率。</div>
-      <span class="axis-link">了解更多</span>
-    </a>
-
-  </div>
-</section>
-
-<div class="divider"></div>
-
 <!-- 案例 -->
-<section id="cases">
-  <div class="section-label">實際案例</div>
-  <div class="section-title">真實做過的，不是想像的</div>
-  <div class="section-sub">每個案例都附有完整教學文件和資安確認，你可以直接照著做。</div>
-
+<section class="section" id="cases">
+  <div class="section-header">
+    <span class="section-title">實際案例</span>
+    <span class="section-sub">真實做過的，不是想像的</span>
+  </div>
   <div class="cases-grid">
 
     <a class="case-card" href="case-wheel.html">
       <div class="case-thumb" style="background:var(--purple-light);">🎡</div>
       <div class="case-body">
-        <div class="case-meta">
-          <div class="case-dot" style="background:var(--purple);"></div>
-          <span style="color:var(--purple);">主軸三 · Canvas</span>
+        <div class="case-axis">
+          <div class="axis-dot" style="background:var(--purple);"></div>
+          <span style="color:var(--purple);">Canvas 純前端</span>
         </div>
         <div class="case-title">轉盤抽籤遊戲</div>
-        <div class="case-desc">北門國小母語課的隨機抽籤工具，一個 HTML 檔，離線可用，學生看到會興奮。</div>
+        <div class="case-desc">一個 HTML 檔，離線可用，存進 USB 隨時帶進教室，學生看到會興奮。</div>
+      </div>
+      <div class="case-footer">
+        <span class="case-tool">Gemini Canvas · HTML</span>
+        <span class="case-link">查看教學 →</span>
       </div>
     </a>
 
     <a class="case-card" href="case-calendar.html">
       <div class="case-thumb" style="background:var(--green-light);">📅</div>
       <div class="case-body">
-        <div class="case-meta">
-          <div class="case-dot" style="background:var(--green);"></div>
-          <span style="color:var(--green);">主軸一 · GAS + Gemini</span>
+        <div class="case-axis">
+          <div class="axis-dot" style="background:var(--green);"></div>
+          <span style="color:var(--green);">GAS + Gemini</span>
         </div>
         <div class="case-title">LINE 行事曆 AI 助理</div>
-        <div class="case-desc">在 LINE 用說的新增行事曆事件，Gemini 幫你自動解析時間和地點。</div>
+        <div class="case-desc">在 LINE 傳一句話或拍通知單，AI 自動解析時間地點，幫你建好行程。</div>
+      </div>
+      <div class="case-footer">
+        <span class="case-tool">GAS · Gemini · LINE Bot</span>
+        <span class="case-link">查看教學 →</span>
       </div>
     </a>
 
     <a class="case-card" href="case-ocr.html">
       <div class="case-thumb" style="background:var(--accent-light);">📄</div>
       <div class="case-body">
-        <div class="case-meta">
-          <div class="case-dot" style="background:var(--accent);"></div>
-          <span style="color:var(--accent);">主軸二 · Antigravity</span>
+        <div class="case-axis">
+          <div class="axis-dot" style="background:var(--accent);"></div>
+          <span style="color:var(--accent);">Antigravity 視覺識別</span>
         </div>
         <div class="case-title">OCR 錯卷題庫系統</div>
-        <div class="case-desc">掃描學生錯題，自動建立個人化題庫，讓複習更有針對性。</div>
+        <div class="case-desc">上傳 PDF 試卷，AI 自動辨識題目建立題庫，篩選後匯出 Word 試卷。</div>
+      </div>
+      <div class="case-footer">
+        <span class="case-tool">Python · Gemini · Flask</span>
+        <span class="case-link">查看教學 →</span>
       </div>
     </a>
 
-    <!-- 佔位：未來新案例 -->
-    <div class="case-card" style="border-style:dashed; opacity:.45; cursor:default;">
-      <div class="case-thumb" style="background:var(--bg2);">＋</div>
-      <div class="case-body">
-        <div class="case-title" style="color:var(--fg3);">更多案例陸續加入</div>
-        <div class="case-desc" style="color:var(--fg3);">每個新案例都會附上完整教學文件和資安確認。</div>
-      </div>
+    <div class="case-placeholder">
+      <div style="font-size:28px;">＋</div>
+      <p>更多案例陸續加入</p>
+      <p style="font-size:12px;">每個新案例都會附上完整教學與資安確認</p>
     </div>
 
   </div>
 </section>
 
-<div class="divider"></div>
-
-<!-- 關於作者 -->
-<section id="about">
-  <div class="section-label">關於作者</div>
+<!-- 關於 -->
+<section class="about" id="about">
   <div class="about-card">
     <div class="about-avatar">👨‍🏫</div>
     <div class="about-body">
@@ -330,7 +311,6 @@
   </div>
 </section>
 
-<!-- Footer -->
 <footer>
   <p>© 2026 陳盈宏 · 風城師的AI遊記</p>
   <p style="margin-top:.4rem;">

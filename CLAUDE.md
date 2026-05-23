@@ -1,71 +1,12 @@
-# 風城師的AI遊記 — 專案說明
+# 風城師的AI遊記 — CLAUDE.md
 
 ## 專案資訊
 - 網站名稱：風城師的AI遊記
 - 副標題：20年工程師，10年老師，進行中的學習札記
-- 對象：國小／國中教師（無程式背景）
-- 目標：降低對 AI 工具的恐懼感，鼓勵嘗試，不催促
+- 網址：https://a546291.github.io/teaching-web/
+- GitHub：https://github.com/a546291/teaching-web
 - 工作目錄：c:\claude\teaching-web
-- 開發工具：Claude Code
-
----
-
-## 新增案例時的資安檢查清單
-
-每次新增一個案例到網站，**必須逐項確認**以下項目，
-全部通過才能納入教學文件。
-
-### 🔑 金鑰與憑證
-- [ ] 程式碼中沒有硬編碼的 API Key（如 `AIza...`、`sk-...`）
-- [ ] 程式碼中沒有硬編碼的帳號、密碼、Token
-- [ ] 若有金鑰，確認使用環境變數或 Script Properties 讀取，而非直接寫在程式裡
-- [ ] .env 檔案已加入 .gitignore，不會被 commit 到 repo
-
-### 🌐 後端部署設定（Python / Node / GAS 等）
-- [ ] Flask / Express 等框架：debug 模式已關閉（`debug=False`）
-- [ ] 伺服器未對外網開放不必要的 port（`host` 不應設為 `0.0.0.0` 在正式環境）
-- [ ] 上傳資料夾（uploads/）未暴露在靜態路由下，外部無法直接存取檔案
-- [ ] 沒有使用預設的 `secret_key`（如 Flask session 需要設定隨機字串）
-
-### 🗄️ 資料庫
-- [ ] SQL 查詢使用參數化語法（`?` 或 `%s`），未使用 f-string 或字串拼接組合 SQL
-- [ ] 資料庫檔案（.db、.sqlite）已加入 .gitignore
-- [ ] 使用者資料未以明碼儲存
-
-### 🖥️ 前端程式碼
-- [ ] `innerHTML` 賦值來源為程式內部狀態，而非使用者直接輸入（防 XSS）
-- [ ] 無敏感資訊寫在前端 JavaScript（如 API Key 直接出現在 .js 中）
-- [ ] 外部載入的 CDN 資源來自可信來源
-
-### 📋 GitHub Repo 公開設定
-- [ ] Repo 設為 Public 前，確認所有敏感檔案已排除（.gitignore 已設定）
-- [ ] commit 歷史中無曾經提交過的真實金鑰（若有，需用 git filter-repo 清除）
-- [ ] README 中的範例程式碼均為佔位符（如「請填入你的 API Key」）
-
-### 🔓 權限與存取控制
-- [ ] GAS Webhook 設為 Anyone 可存取時，確認為 LINE/外部平台整合的必要設計
-- [ ] 若系統會讀取使用者的 Google Calendar / Drive，確認授權範圍最小化
-- [ ] 無不必要的管理員權限暴露給使用者
-
----
-
-## 網站主軸規劃
-
-以「AI 工具 / 技術」為主軸，每個主軸說明優缺點與應用場景，
-並附上對應的實際案例（含教學文件）。
-
-### 四大主軸（已確認）
-1. **對話式 AI**：GAS + Gemini API
-2. **視覺識別與文件處理**：Antigravity
-3. **純前端互動工具**：Gemini Canvas / Claude
-4. **LINE Bot 自動回覆系統**
-
-### 技術棧
-- 純 HTML + CSS + JavaScript（無框架，易於維護）
-- GitHub Pages 部署
-- 模組化結構，新案例只需新增一個 HTML 檔
-
----
+- 開發方式：Claude Desktop Code 分頁
 
 ## 作者資訊
 - 姓名：陳盈宏
@@ -73,9 +14,90 @@
 - Threads：https://www.threads.com/@a777x
 - X：https://x.com/a546291
 
+## 網站對象
+國小／國中教師，無程式背景，語氣溫和不催促，鼓勵嘗試
+
+## 設計原則
+- 蘋果風格：白底、簡潔、不華麗
+- 首頁：先案例，再從案例展開到技術主軸
+- 導覽列：下拉選單分別連結「案例」「技術主軸」「關於」
+- 每個新案例獨立一個 HTML 檔案，更新目錄即可
+
+## 已完成檔案
+| 檔案 | 說明 |
+|------|------|
+| index.html | 首頁（案例優先 + 下拉導覽） |
+| case-wheel.html | 轉盤抽籤遊戲（含 GitHub Pages 教學）|
+| case-calendar.html | LINE 行事曆 AI 助理 |
+| case-ocr.html | OCR 錯卷題庫系統 |
+| tool-gas.html | 主軸一：GAS + Gemini |
+| tool-antigravity.html | 主軸二：Antigravity 視覺識別 |
+| tool-canvas.html | 主軸三：Canvas 純前端工具 |
+| tool-linebot.html | 主軸四：LINE Bot 自動回覆 |
+| CLAUDE.md | 本說明檔 |
+
+## 每個案例頁面的固定結構
+1. Hero（工具定位、技術標籤）
+2. 這是什麼（白話說明）
+3. 優點與限制（誠實並列）
+4. 應用場景
+5. 開發工具說明
+6. 步驟教學（含截圖佔位框）
+7. 常見問題 FAQ
+8. 資安確認（依下方清單）
+9. 立即體驗或原始程式碼連結
+
+## 新增案例的 git 流程
+```
+cd c:\claude\teaching-web
+git add .
+git commit -m "新增 case-xxx.html：xxx 案例"
+git push
+```
+
 ---
 
-## 開發原則
-- 語氣溫和，不催促，鼓勵嘗試
-- 每個功能頁面獨立一個 HTML 檔案
-- 新案例加入前必須完成上方資安檢查清單
+## 新增案例時的資安檢查清單
+
+每次新增案例，**必須逐項確認**，全部通過才可納入。
+
+### 🔑 金鑰與憑證
+- [ ] 無硬編碼 API Key（AIza...、sk-...）
+- [ ] 無硬編碼帳號、密碼、Token
+- [ ] 金鑰使用環境變數或 Script Properties 讀取
+- [ ] .env 已加入 .gitignore
+
+### 🌐 後端部署設定
+- [ ] debug 模式已關閉（debug=False）
+- [ ] 正式環境 host 不設為 0.0.0.0
+- [ ] uploads/ 未暴露在靜態路由下
+- [ ] 無預設 secret_key
+
+### 🗄️ 資料庫
+- [ ] SQL 使用參數化查詢，未用 f-string 拼接
+- [ ] .db / .sqlite 已加入 .gitignore
+- [ ] 使用者資料未明碼儲存
+
+### 🖥️ 前端
+- [ ] innerHTML 來源為內部狀態，非使用者直接輸入
+- [ ] 前端 JS 無 API Key
+- [ ] CDN 來源可信
+
+### 📋 GitHub Repo
+- [ ] .gitignore 已設定敏感檔案排除
+- [ ] commit 歷史無真實金鑰
+- [ ] README 範例程式碼為佔位符
+
+### 🔓 權限
+- [ ] GAS Webhook 設為 Anyone 屬必要設計已說明
+- [ ] Google 授權範圍最小化
+- [ ] 無不必要管理員權限
+
+---
+
+## 已完成資安檢查的案例
+| 案例 | 結果 |
+|------|------|
+| 轉盤遊戲（wheel-game）| ✅ 整體安全，純前端無金鑰 |
+| LINE 行事曆助理（line-bot-gemini-calendar-assistant）| ✅ 安全，建議改用 Script Properties |
+| OCR 錯卷題庫（OCR-CAD）| ⚠️ 需修正：debug=True+0.0.0.0、uploads 路由、SQL f-string |
