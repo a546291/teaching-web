@@ -43,19 +43,18 @@
   .dropdown-btn:hover{background:var(--bg2);color:var(--fg);}
   .dropdown-btn::after{content:'⌄';font-size:11px;margin-top:1px;}
   .dropdown-menu{
-    position:absolute;top:calc(100% + 6px);right:0;
+    position:absolute;top:100%;right:0;
     background:var(--bg);border:1px solid var(--bg3);
     border-radius:var(--radius-sm);
     box-shadow:0 8px 24px rgba(0,0,0,.08);
     min-width:160px;padding:4px;
+    padding-top:10px;
     opacity:0;pointer-events:none;
-    transform:translateY(-6px);
+    transform:translateY(-4px);
     transition:opacity .15s,transform .15s;
     z-index:200;
   }
-  .dropdown:hover .dropdown-menu,
-  .dropdown-btn:focus + .dropdown-menu,
-  .dropdown-menu:hover{opacity:1;pointer-events:auto;transform:translateY(0);}
+  .dropdown.open .dropdown-menu{opacity:1;pointer-events:auto;transform:translateY(0);}
   .dropdown-menu a{
     display:block;font-size:13px;color:var(--fg);text-decoration:none;
     padding:7px 12px;border-radius:6px;
@@ -67,6 +66,8 @@
     color:var(--fg3);padding:8px 12px 4px;
   }
   .dropdown-menu hr{border:none;border-top:1px solid var(--bg3);margin:4px 0;}
+  .related-case{font-size:11px !important;color:var(--fg3) !important;padding:3px 12px 5px 26px !important;}
+  .related-case:hover{color:var(--accent) !important;background:none !important;}
 
   /* ── Hero ── */
   .hero{
@@ -204,6 +205,7 @@
         <a href="tool-antigravity.html">👁️ Antigravity 視覺識別</a>
         <a href="tool-canvas.html">💻 Canvas 純前端工具</a>
         <a href="tool-linebot.html">📱 LINE Bot</a>
+        <a href="case-calendar.html" class="related-case">↳ 行事曆助理</a>
       </div>
     </div>
 
@@ -321,6 +323,27 @@
     <a href="https://x.com/a546291" target="_blank">X</a>
   </p>
 </footer>
+
+<script>
+(function(){
+  var dropdowns = document.querySelectorAll('.dropdown');
+  var timers = new WeakMap();
+  dropdowns.forEach(function(dd){
+    dd.addEventListener('mouseenter', function(){
+      clearTimeout(timers.get(dd));
+      dropdowns.forEach(function(other){ if(other !== dd) other.classList.remove('open'); });
+      dd.classList.add('open');
+    });
+    dd.addEventListener('mouseleave', function(){
+      timers.set(dd, setTimeout(function(){ dd.classList.remove('open'); }, 150));
+    });
+  });
+  document.addEventListener('click', function(e){
+    if(!e.target.closest('.dropdown'))
+      dropdowns.forEach(function(dd){ dd.classList.remove('open'); });
+  });
+})();
+</script>
 
 </body>
 </html>
