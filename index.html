@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>風城師的AI遊記 — 20年工程師，10年老師，進行中的學習札記</title>
+<style>
+  :root {
+    --fg: #1d1d1f;
+    --fg2: #6e6e73;
+    --fg3: #aeaeb2;
+    --bg: #ffffff;
+    --bg2: #f5f5f7;
+    --bg3: #e8e8ed;
+    --accent: #0071e3;
+    --accent-light: #e8f0fd;
+    --green: #1d8348;
+    --green-light: #eafaf1;
+    --amber: #b7770d;
+    --amber-light: #fef9e7;
+    --purple: #4a3b8c;
+    --purple-light: #eeedfb;
+    --coral: #c0392b;
+    --coral-light: #fdedec;
+    --radius: 14px;
+    --radius-sm: 8px;
+    --font: -apple-system, 'SF Pro TC', 'PingFang TC', 'Helvetica Neue', sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font); background: var(--bg); color: var(--fg); line-height: 1.6; }
+
+  /* ── Nav ── */
+  nav {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(255,255,255,0.85);
+    backdrop-filter: saturate(180%) blur(20px);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    border-bottom: 1px solid var(--bg3);
+    padding: 0 2rem;
+    display: flex; align-items: center; justify-content: space-between;
+    height: 52px;
+  }
+  .nav-logo { font-size: 16px; font-weight: 600; color: var(--fg); letter-spacing: -.01em; }
+  .nav-links { display: flex; gap: 1.5rem; }
+  .nav-links a { font-size: 13px; color: var(--fg2); text-decoration: none; }
+  .nav-links a:hover { color: var(--fg); }
+  @media(max-width:560px){ .nav-links { display: none; } }
+
+  /* ── Hero ── */
+  .hero {
+    padding: 5rem 2rem 4rem;
+    text-align: center;
+    max-width: 680px; margin: 0 auto;
+  }
+  .hero-eyebrow {
+    font-size: 12px; font-weight: 500; letter-spacing: .06em;
+    text-transform: uppercase; color: var(--fg3);
+    margin-bottom: 1.25rem;
+  }
+  .hero h1 {
+    font-size: clamp(32px, 6vw, 52px);
+    font-weight: 600; letter-spacing: -.03em;
+    line-height: 1.1; margin-bottom: 1rem; color: var(--fg);
+  }
+  .hero p {
+    font-size: 17px; color: var(--fg2);
+    line-height: 1.75; max-width: 480px; margin: 0 auto 2rem;
+  }
+  .hero-cta {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--fg); color: var(--bg);
+    text-decoration: none; padding: .7rem 1.5rem;
+    border-radius: 50px; font-size: 14px; font-weight: 500;
+    transition: opacity .15s;
+  }
+  .hero-cta:hover { opacity: .8; }
+
+  /* ── Section ── */
+  section { max-width: 900px; margin: 0 auto; padding: 0 2rem 5rem; }
+  .section-label {
+    font-size: 11px; font-weight: 600; letter-spacing: .08em;
+    text-transform: uppercase; color: var(--fg3); margin-bottom: 1rem;
+  }
+  .section-title {
+    font-size: 26px; font-weight: 600; letter-spacing: -.01em;
+    margin-bottom: .5rem;
+  }
+  .section-sub { font-size: 15px; color: var(--fg2); margin-bottom: 2rem; line-height: 1.7; }
+  .divider { height: 1px; background: var(--bg3); max-width: 900px; margin: 0 auto 5rem; }
+
+  /* ── 主軸卡片 ── */
+  .axis-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 1rem;
+  }
+  .axis-card {
+    border: 1px solid var(--bg3); border-radius: var(--radius);
+    padding: 1.5rem; text-decoration: none; color: inherit;
+    transition: box-shadow .2s, transform .2s;
+    display: block; background: var(--bg);
+  }
+  .axis-card:hover {
+    box-shadow: 0 8px 24px rgba(0,0,0,.07);
+    transform: translateY(-2px);
+  }
+  .axis-icon {
+    width: 40px; height: 40px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; margin-bottom: 1rem;
+  }
+  .axis-tag {
+    font-size: 11px; font-weight: 500; letter-spacing: .04em;
+    padding: 2px 8px; border-radius: 20px; margin-bottom: .6rem;
+    display: inline-block;
+  }
+  .axis-name { font-size: 17px; font-weight: 600; margin-bottom: .4rem; color: var(--fg); }
+  .axis-desc { font-size: 13px; color: var(--fg2); line-height: 1.6; margin-bottom: 1rem; }
+  .axis-link {
+    font-size: 13px; color: var(--accent); font-weight: 500;
+    display: flex; align-items: center; gap: 4px;
+  }
+  .axis-link::after { content: '→'; }
+
+  /* ── 案例卡片 ── */
+  .cases-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 1rem;
+  }
+  .case-card {
+    border: 1px solid var(--bg3); border-radius: var(--radius);
+    overflow: hidden; text-decoration: none; color: inherit;
+    display: block; background: var(--bg);
+    transition: box-shadow .2s, transform .2s;
+  }
+  .case-card:hover {
+    box-shadow: 0 8px 24px rgba(0,0,0,.07);
+    transform: translateY(-2px);
+  }
+  .case-thumb {
+    height: 120px; display: flex; align-items: center; justify-content: center;
+    font-size: 36px;
+  }
+  .case-body { padding: 1rem 1.25rem 1.25rem; }
+  .case-meta {
+    font-size: 11px; font-weight: 500; letter-spacing: .04em;
+    margin-bottom: .4rem; display: flex; align-items: center; gap: 6px;
+  }
+  .case-dot { width: 6px; height: 6px; border-radius: 50%; }
+  .case-title { font-size: 15px; font-weight: 600; margin-bottom: .3rem; color: var(--fg); }
+  .case-desc { font-size: 13px; color: var(--fg2); line-height: 1.55; }
+
+  /* ── 關於作者 ── */
+  .about-card {
+    background: var(--bg2); border-radius: var(--radius);
+    padding: 2rem 2.5rem;
+    display: flex; gap: 2rem; align-items: flex-start; flex-wrap: wrap;
+  }
+  .about-avatar {
+    width: 64px; height: 64px; border-radius: 50%;
+    background: var(--bg3); display: flex; align-items: center;
+    justify-content: center; font-size: 28px; flex-shrink: 0;
+  }
+  .about-body { flex: 1; min-width: 200px; }
+  .about-name { font-size: 18px; font-weight: 600; margin-bottom: .3rem; }
+  .about-role { font-size: 13px; color: var(--fg2); margin-bottom: .75rem; }
+  .about-bio { font-size: 14px; color: var(--fg2); line-height: 1.7; margin-bottom: 1rem; }
+  .social-links { display: flex; gap: .5rem; flex-wrap: wrap; }
+  .social-btn {
+    font-size: 12px; font-weight: 500;
+    padding: 5px 14px; border-radius: 20px;
+    border: 1px solid var(--bg3); color: var(--fg);
+    text-decoration: none; background: var(--bg);
+    transition: background .15s;
+  }
+  .social-btn:hover { background: var(--bg3); }
+
+  /* ── Footer ── */
+  footer {
+    border-top: 1px solid var(--bg3);
+    padding: 2rem; text-align: center;
+    font-size: 13px; color: var(--fg3);
+  }
+  footer a { color: var(--accent); text-decoration: none; }
+</style>
+</head>
+<body>
+
+<!-- Nav -->
+<nav>
+  <span class="nav-logo">風城師的AI遊記</span>
+  <div class="nav-links">
+    <a href="#axes">技術主軸</a>
+    <a href="#cases">案例</a>
+    <a href="#about">關於作者</a>
+  </div>
+</nav>
+
+<!-- Hero -->
+<div class="hero">
+  <div class="hero-eyebrow">20年工程師　·　10年老師　·　進行中的學習札記</div>
+  <h1>風城師的<br>AI 遊記</h1>
+  <p>不是要教你寫程式，只是想說：一個曾經寫過程式、現在站在講台上的人，是怎麼用 AI 工具讓教學變得輕鬆一點。</p>
+  <a class="hero-cta" href="#axes">開始探索</a>
+</div>
+
+<!-- 主軸 -->
+<section id="axes">
+  <div class="section-label">技術主軸</div>
+  <div class="section-title">選一條路，慢慢走</div>
+  <div class="section-sub">每個主軸聚焦一種 AI 工具，說明它能做什麼、不適合做什麼，以及最適合的課堂應用。</div>
+
+  <div class="axis-grid">
+
+    <a class="axis-card" href="tool-gas.html">
+      <div class="axis-icon" style="background:var(--green-light);">🗣️</div>
+      <span class="axis-tag" style="background:var(--green-light); color:var(--green);">主軸一</span>
+      <div class="axis-name">GAS + Gemini 對話式 AI</div>
+      <div class="axis-desc">用問答完成任務。不需安裝任何軟體，只要有 Google 帳號就能開始。</div>
+      <span class="axis-link">了解更多</span>
+    </a>
+
+    <a class="axis-card" href="tool-antigravity.html">
+      <div class="axis-icon" style="background:var(--accent-light);">👁️</div>
+      <span class="axis-tag" style="background:var(--accent-light); color:var(--accent);">主軸二</span>
+      <div class="axis-name">Antigravity 視覺識別</div>
+      <div class="axis-desc">讓 AI 看懂圖片和文件。PDF 試卷、學生作業，通通可以自動分析。</div>
+      <span class="axis-link">了解更多</span>
+    </a>
+
+    <a class="axis-card" href="tool-canvas.html">
+      <div class="axis-icon" style="background:var(--purple-light);">💻</div>
+      <span class="axis-tag" style="background:var(--purple-light); color:var(--purple);">主軸三</span>
+      <div class="axis-name">Canvas 純前端工具</div>
+      <div class="axis-desc">一個 HTML 檔就是完整工具。存進 USB，離線也能在教室使用。</div>
+      <span class="axis-link">了解更多</span>
+    </a>
+
+    <a class="axis-card" href="tool-linebot.html">
+      <div class="axis-icon" style="background:var(--amber-light);">📱</div>
+      <span class="axis-tag" style="background:var(--amber-light); color:var(--amber);">主軸四</span>
+      <div class="axis-name">LINE Bot 自動回覆</div>
+      <div class="axis-desc">在學生最熟悉的 LINE 裡回答問題、收作業、給回饋，讓溝通更有效率。</div>
+      <span class="axis-link">了解更多</span>
+    </a>
+
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- 案例 -->
+<section id="cases">
+  <div class="section-label">實際案例</div>
+  <div class="section-title">真實做過的，不是想像的</div>
+  <div class="section-sub">每個案例都附有完整教學文件和資安確認，你可以直接照著做。</div>
+
+  <div class="cases-grid">
+
+    <a class="case-card" href="case-wheel.html">
+      <div class="case-thumb" style="background:var(--purple-light);">🎡</div>
+      <div class="case-body">
+        <div class="case-meta">
+          <div class="case-dot" style="background:var(--purple);"></div>
+          <span style="color:var(--purple);">主軸三 · Canvas</span>
+        </div>
+        <div class="case-title">轉盤抽籤遊戲</div>
+        <div class="case-desc">北門國小母語課的隨機抽籤工具，一個 HTML 檔，離線可用，學生看到會興奮。</div>
+      </div>
+    </a>
+
+    <a class="case-card" href="case-calendar.html">
+      <div class="case-thumb" style="background:var(--green-light);">📅</div>
+      <div class="case-body">
+        <div class="case-meta">
+          <div class="case-dot" style="background:var(--green);"></div>
+          <span style="color:var(--green);">主軸一 · GAS + Gemini</span>
+        </div>
+        <div class="case-title">LINE 行事曆 AI 助理</div>
+        <div class="case-desc">在 LINE 用說的新增行事曆事件，Gemini 幫你自動解析時間和地點。</div>
+      </div>
+    </a>
+
+    <a class="case-card" href="case-ocr.html">
+      <div class="case-thumb" style="background:var(--accent-light);">📄</div>
+      <div class="case-body">
+        <div class="case-meta">
+          <div class="case-dot" style="background:var(--accent);"></div>
+          <span style="color:var(--accent);">主軸二 · Antigravity</span>
+        </div>
+        <div class="case-title">OCR 錯卷題庫系統</div>
+        <div class="case-desc">掃描學生錯題，自動建立個人化題庫，讓複習更有針對性。</div>
+      </div>
+    </a>
+
+    <!-- 佔位：未來新案例 -->
+    <div class="case-card" style="border-style:dashed; opacity:.45; cursor:default;">
+      <div class="case-thumb" style="background:var(--bg2);">＋</div>
+      <div class="case-body">
+        <div class="case-title" style="color:var(--fg3);">更多案例陸續加入</div>
+        <div class="case-desc" style="color:var(--fg3);">每個新案例都會附上完整教學文件和資安確認。</div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- 關於作者 -->
+<section id="about">
+  <div class="section-label">關於作者</div>
+  <div class="about-card">
+    <div class="about-avatar">👨‍🏫</div>
+    <div class="about-body">
+      <div class="about-name">陳盈宏</div>
+      <div class="about-role">20 年工程師　·　10 年老師　·　進行中的學習札記</div>
+      <div class="about-bio">
+        工程師出身，後來走進教室，現在兩個身份都還在。<br>
+        這個網站記錄的是：一個懂一點技術的老師，怎麼用 AI 工具解決教學日常裡的那些小麻煩。<br>
+        每個案例都是真實試過的，不是展示完美，而是記下過程。
+      </div>
+      <div class="social-links">
+        <a class="social-btn" href="https://www.facebook.com/alex.yh.chen" target="_blank">Facebook</a>
+        <a class="social-btn" href="https://www.threads.com/@a777x" target="_blank">Threads</a>
+        <a class="social-btn" href="https://x.com/a546291" target="_blank">X</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer>
+  <p>© 2026 陳盈宏 · 風城師的AI遊記</p>
+  <p style="margin-top:.4rem;">
+    <a href="https://www.facebook.com/alex.yh.chen" target="_blank">Facebook</a>
+    &nbsp;·&nbsp;
+    <a href="https://www.threads.com/@a777x" target="_blank">Threads</a>
+    &nbsp;·&nbsp;
+    <a href="https://x.com/a546291" target="_blank">X</a>
+  </p>
+</footer>
+
+</body>
+</html>

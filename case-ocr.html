@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OCR 錯卷題庫系統 — 風城師的AI遊記</title>
+<style>
+  :root {
+    --fg: #1d1d1f;
+    --fg2: #6e6e73;
+    --fg3: #aeaeb2;
+    --bg: #ffffff;
+    --bg2: #f5f5f7;
+    --bg3: #e8e8ed;
+    --accent: #0071e3;
+    --accent-light: #e8f0fd;
+    --green: #1d8348;
+    --green-light: #eafaf1;
+    --amber: #b7770d;
+    --amber-light: #fef9e7;
+    --red: #922b21;
+    --red-light: #fdedec;
+    --purple: #4a3b8c;
+    --purple-light: #eeedfb;
+    --radius: 12px;
+    --radius-sm: 8px;
+    --font: -apple-system, 'SF Pro TC', 'PingFang TC', 'Helvetica Neue', sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font); background: var(--bg); color: var(--fg); line-height: 1.6; }
+
+  /* ── Nav ── */
+  .top-nav {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(255,255,255,0.85);
+    backdrop-filter: saturate(180%) blur(20px);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    border-bottom: 1px solid var(--bg3);
+    padding: 0 2rem;
+    display: flex; align-items: center; justify-content: space-between;
+    height: 52px;
+  }
+  .nav-logo { font-size: 15px; font-weight: 500; color: var(--fg); text-decoration: none; }
+  .nav-logo span { color: var(--fg2); font-weight: 400; }
+  .nav-back { font-size: 13px; color: var(--accent); text-decoration: none; display: flex; align-items: center; gap: 4px; }
+  .nav-back::before { content: '‹'; font-size: 18px; line-height: 1; }
+
+  /* ── Hero ── */
+  .hero { padding: 4rem 2rem 3rem; max-width: 760px; margin: 0 auto; text-align: center; }
+  .hero-tag {
+    display: inline-block; font-size: 12px; font-weight: 500; letter-spacing: .04em;
+    color: var(--accent); background: var(--accent-light);
+    padding: 4px 12px; border-radius: 20px; margin-bottom: 1.25rem;
+  }
+  .hero h1 { font-size: clamp(28px, 5vw, 42px); font-weight: 600; letter-spacing: -.02em; color: var(--fg); margin-bottom: .75rem; line-height: 1.15; }
+  .hero p { font-size: 17px; color: var(--fg2); max-width: 520px; margin: 0 auto 2rem; line-height: 1.7; }
+  .hero-badges { display: flex; gap: .5rem; justify-content: center; flex-wrap: wrap; }
+  .badge { font-size: 12px; padding: 4px 12px; border-radius: 20px; border: 1px solid var(--bg3); color: var(--fg2); background: var(--bg2); }
+
+  /* ── 內容 ── */
+  .content { max-width: 760px; margin: 0 auto; padding: 0 2rem 6rem; }
+  .divider { height: 1px; background: var(--bg3); margin: 2.5rem 0; }
+  .section-label { font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--fg3); margin-bottom: 1rem; }
+  h2 { font-size: 22px; font-weight: 600; letter-spacing: -.01em; color: var(--fg); margin-bottom: .75rem; }
+  h3 { font-size: 16px; font-weight: 600; color: var(--fg); margin-bottom: .5rem; }
+  p { font-size: 15px; color: var(--fg2); line-height: 1.75; margin-bottom: .75rem; }
+  p:last-child { margin-bottom: 0; }
+
+  /* ── 卡片 ── */
+  .card { background: var(--bg2); border-radius: var(--radius); padding: 1.25rem 1.5rem; margin-bottom: .75rem; }
+  .card-white { background: var(--bg); border: 1px solid var(--bg3); border-radius: var(--radius); padding: 1.25rem 1.5rem; margin-bottom: .75rem; }
+
+  /* ── 優缺點 ── */
+  .pros-cons { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; margin-bottom: 1rem; }
+  @media(max-width:560px){ .pros-cons { grid-template-columns: 1fr; } }
+  .pros { background: var(--green-light); border-radius: var(--radius); padding: 1.25rem; }
+  .cons { background: var(--amber-light); border-radius: var(--radius); padding: 1.25rem; }
+  .pros h3 { color: var(--green); font-size: 14px; margin-bottom: .6rem; }
+  .cons h3 { color: var(--amber); font-size: 14px; margin-bottom: .6rem; }
+  .list { list-style: none; }
+  .list li { font-size: 14px; color: var(--fg); padding: 5px 0; display: flex; gap: 8px; align-items: flex-start; border-bottom: 1px solid rgba(0,0,0,.05); line-height: 1.5; }
+  .list li:last-child { border-bottom: none; }
+  .list li::before { content: attr(data-icon); flex-shrink: 0; margin-top: 1px; }
+
+  /* ── 場景 ── */
+  .scene-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: .6rem; margin-bottom: 1rem; }
+  .scene-card { background: var(--bg2); border-radius: var(--radius-sm); padding: 1rem 1.1rem; }
+  .scene-icon { font-size: 22px; margin-bottom: .35rem; }
+  .scene-title { font-size: 13px; font-weight: 600; color: var(--fg); margin-bottom: .2rem; }
+  .scene-desc { font-size: 12px; color: var(--fg2); line-height: 1.5; }
+
+  /* ── 提示框 ── */
+  .callout { border-radius: var(--radius); padding: 1rem 1.25rem; margin-bottom: 1rem; display: flex; gap: .75rem; align-items: flex-start; }
+  .callout-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+  .callout-body { font-size: 14px; line-height: 1.65; color: var(--fg); }
+  .callout-body strong { font-weight: 600; }
+  .callout-green { background: var(--green-light); }
+  .callout-amber { background: var(--amber-light); }
+  .callout-blue { background: var(--accent-light); }
+  .callout-red { background: var(--red-light); }
+
+  /* ── 步驟 ── */
+  .step { display: flex; gap: 1rem; margin-bottom: 1.5rem; align-items: flex-start; }
+  .step-num { width: 28px; height: 28px; border-radius: 50%; background: var(--fg); color: var(--bg); font-size: 13px; font-weight: 600; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+  .step-body h3 { font-size: 15px; margin-bottom: .3rem; }
+  .step-body p { font-size: 14px; margin-bottom: 0; }
+  .step-note { font-size: 13px; color: var(--fg2); background: var(--bg2); border-radius: var(--radius-sm); padding: .5rem .85rem; margin-top: .5rem; border-left: 2px solid var(--bg3); line-height: 1.6; }
+
+  /* ── 程式碼 ── */
+  .code-block { background: #1d1d1f; color: #f8f8f2; border-radius: var(--radius-sm); padding: 1rem 1.25rem; font-family: 'SF Mono', 'Fira Code', monospace; font-size: 13px; line-height: 1.7; margin: .6rem 0; overflow-x: auto; }
+  .code-comment { color: #6e6e73; }
+
+  /* ── 流程 ── */
+  .flow { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin: .75rem 0; }
+  .flow-box { font-size: 12px; padding: 6px 12px; border-radius: 8px; background: var(--bg2); border: 1px solid var(--bg3); color: var(--fg); text-align: center; line-height: 1.4; }
+  .flow-box.hi { background: var(--accent-light); border-color: #a8c8f5; color: var(--accent); }
+  .flow-arr { font-size: 14px; color: var(--fg3); flex-shrink: 0; }
+
+  /* ── 工具列 ── */
+  .tool-row { display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1rem; }
+  .tool-chip { display: flex; align-items: center; gap: 8px; background: var(--bg2); border-radius: var(--radius-sm); padding: .6rem 1rem; font-size: 13px; color: var(--fg); }
+  .tool-chip .dot { width: 8px; height: 8px; border-radius: 50%; }
+
+  /* ── 難度標籤 ── */
+  .difficulty { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 500; padding: 4px 12px; border-radius: 20px; margin-bottom: 1rem; }
+  .diff-hard { background: var(--red-light); color: var(--red); }
+
+  /* ── 資安 ── */
+  .security-row { display: flex; align-items: center; gap: .6rem; padding: .6rem 0; border-bottom: 1px solid var(--bg3); font-size: 13px; color: var(--fg); }
+  .security-row:last-child { border-bottom: none; }
+  .sec-ok { color: var(--green); font-size: 15px; }
+  .sec-warn { color: var(--amber); font-size: 15px; }
+
+  /* ── 截圖佔位 ── */
+  .screenshot { background: var(--bg2); border: 1px dashed var(--bg3); border-radius: var(--radius); height: 180px; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--fg3); font-size: 13px; gap: 6px; margin: .75rem 0; }
+  .screenshot::before { content: '📷'; font-size: 28px; }
+
+  /* ── 比較表 ── */
+  .compare-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 1rem; }
+  .compare-table th { background: var(--bg2); padding: .6rem .85rem; text-align: left; font-weight: 600; color: var(--fg); border-bottom: 1px solid var(--bg3); }
+  .compare-table td { padding: .6rem .85rem; border-bottom: 1px solid var(--bg3); color: var(--fg2); vertical-align: top; }
+  .compare-table tr:last-child td { border-bottom: none; }
+  .tag-ok { color: var(--green); font-weight: 500; }
+  .tag-no { color: var(--fg3); }
+
+  /* ── 頁尾 ── */
+  .footer { border-top: 1px solid var(--bg3); padding: 2rem; text-align: center; font-size: 13px; color: var(--fg3); }
+  .footer a { color: var(--accent); text-decoration: none; }
+  .footer a:hover { text-decoration: underline; }
+
+  code { background: var(--bg2); padding: 1px 6px; border-radius: 4px; font-size: 13px; font-family: 'SF Mono', monospace; }
+</style>
+</head>
+<body>
+
+<!-- Nav -->
+<nav class="top-nav">
+  <a class="nav-logo" href="index.html">風城師的AI遊記 <span>/ 案例</span></a>
+  <a class="nav-back" href="tool-antigravity.html">Antigravity 視覺識別</a>
+</nav>
+
+<!-- Hero -->
+<div class="hero">
+  <div class="hero-tag">主軸二 · 視覺識別與文件處理</div>
+  <h1>OCR 錯卷<br>題庫系統</h1>
+  <p>把學生的錯誤試卷掃描上傳，AI 自動辨識題目、分類科目、建成題庫，再匯出成可列印的 Word 試卷。</p>
+  <div class="hero-badges">
+    <span class="badge">Python Flask</span>
+    <span class="badge">Gemini 2.5 Flash</span>
+    <span class="badge">PyMuPDF</span>
+    <span class="badge">SQLite 題庫</span>
+  </div>
+</div>
+
+<!-- 主內容 -->
+<div class="content">
+
+  <!-- 難度提示 -->
+  <div class="callout callout-amber">
+    <span class="callout-icon">⚠️</span>
+    <div class="callout-body">
+      <strong>這個案例的設定比前兩個複雜。</strong> 需要在電腦上安裝 Python 環境，並在命令列執行指令。如果你是第一次接觸，建議先從「轉盤遊戲」或「LINE 行事曆助理」開始，熟悉了再回來挑戰這個。<br><br>
+      沒有時間限制，想試的時候再來就好。
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- 這是什麼 -->
+  <div class="section-label">這是什麼？</div>
+  <h2>讓 AI 幫你整理錯誤試卷</h2>
+  <p>這個系統解決一個很具體的問題：學生考完試，老師想把錯誤率高的題目收集起來，出一份「錯題複習卷」，但手動剪貼又慢又累。</p>
+  <p>現在的流程變成這樣：把 PDF 試卷上傳，AI 自動讀取每一道題目、判斷科目和題型、把題目存進資料庫。之後你可以用篩選器找出特定科目或題型，勾選想要的題目，一鍵匯出成格式整齊的 Word 試卷。</p>
+
+  <div class="callout callout-green">
+    <span class="callout-icon">✨</span>
+    <div class="callout-body">
+      <strong>特別能力：</strong> AI 會自動修正 OCR 辨識錯誤，還能處理注音符號——如果題目本來就有「ㄞˋ」這樣的注音，它不會擅自翻譯成國字，完整保留原題意。
+    </div>
+  </div>
+
+  <!-- 流程圖 -->
+  <div class="flow">
+    <div class="flow-box">上傳 PDF 試卷</div>
+    <div class="flow-arr">→</div>
+    <div class="flow-box hi">Gemini AI<br>辨識與結構化</div>
+    <div class="flow-arr">→</div>
+    <div class="flow-box">存入 SQLite<br>題庫</div>
+    <div class="flow-arr">→</div>
+    <div class="flow-box">篩選勾選</div>
+    <div class="flow-arr">→</div>
+    <div class="flow-box">匯出 Word</div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- 能做什麼 -->
+  <div class="section-label">能做什麼？</div>
+  <h2>五個核心功能</h2>
+
+  <div class="scene-grid">
+    <div class="scene-card">
+      <div class="scene-icon">📄</div>
+      <div class="scene-title">智慧 PDF 解析</div>
+      <div class="scene-desc">自動讀取試卷文字與圖片，圖片會精準綁定到對應題目</div>
+    </div>
+    <div class="scene-card">
+      <div class="scene-icon">🤖</div>
+      <div class="scene-title">AI 語意重構</div>
+      <div class="scene-desc">修正 OCR 錯誤、整理排版，自動判斷科目（九科）和題型</div>
+    </div>
+    <div class="scene-card">
+      <div class="scene-icon">🌐</div>
+      <div class="scene-title">網址直接載入</div>
+      <div class="scene-desc">貼上 PDF 網址，系統自動下載解析，不需要先存到電腦</div>
+    </div>
+    <div class="scene-card">
+      <div class="scene-icon">🔍</div>
+      <div class="scene-title">篩選題庫</div>
+      <div class="scene-desc">依科目、題型、關鍵字快速找題，勾選後匯出</div>
+    </div>
+    <div class="scene-card">
+      <div class="scene-icon">📝</div>
+      <div class="scene-title">匯出 Word 試卷</div>
+      <div class="scene-desc">按題型自動分組，格式整齊，可直接列印</div>
+    </div>
+    <div class="scene-card">
+      <div class="scene-icon">📊</div>
+      <div class="scene-title">使用紀錄追蹤</div>
+      <div class="scene-desc">記錄哪些題目已匯出過，避免重複出題</div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- 優缺點 -->
+  <div class="section-label">優點與限制</div>
+  <h2>什麼情況適合？什麼情況不適合？</h2>
+
+  <div class="pros-cons">
+    <div class="pros">
+      <h3>✦ 適合的地方</h3>
+      <ul class="list">
+        <li data-icon="✓">大量試卷時節省大量手動整理時間</li>
+        <li data-icon="✓">支援圖文並茂的試卷（圖片會跟著題目一起保留）</li>
+        <li data-icon="✓">題庫會累積，長期使用價值越來越高</li>
+        <li data-icon="✓">AI 能正確處理注音符號，國文老師適用</li>
+        <li data-icon="✓">匯出的 Word 格式整齊，不需要再手動排版</li>
+        <li data-icon="✓">程式碼完全公開，可以自行修改調整</li>
+      </ul>
+    </div>
+    <div class="cons">
+      <h3>△ 需要注意的地方</h3>
+      <ul class="list">
+        <li data-icon="△">需要在電腦安裝 Python，對初學者有一定門檻</li>
+        <li data-icon="△">整頁掃描成圖片的 PDF 辨識精準度較低</li>
+        <li data-icon="△">Gemini API 解析有費用（雖然很低，但不是完全免費）</li>
+        <li data-icon="△">系統跑在自己電腦，電腦關掉就無法使用</li>
+        <li data-icon="△">目前僅支援九科國中科目，不含國小課程</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- PDF 類型說明 -->
+  <div class="callout callout-blue">
+    <span class="callout-icon">📋</span>
+    <div class="callout-body">
+      <strong>哪種 PDF 效果最好？</strong><br>
+      從 Word 或 Google 文件直接「另存新檔為 PDF」的試卷效果最好，因為文字是可以直接讀取的。<br>
+      拿紙本試卷用掃描機掃出來的 PDF，整頁會變成一張大圖，AI 可以讀但精準度較低，圖片也無法單獨裁切。
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- 和其他工具的比較 -->
+  <div class="section-label">與其他做法比較</div>
+  <h2>為什麼不用 Word 或 Google 表單？</h2>
+
+  <table class="compare-table">
+    <tr>
+      <th>做法</th>
+      <th>整理時間</th>
+      <th>圖片保留</th>
+      <th>可篩選重組</th>
+      <th>匯出試卷</th>
+    </tr>
+    <tr>
+      <td>手動剪貼到 Word</td>
+      <td>很長</td>
+      <td class="tag-ok">✓</td>
+      <td class="tag-no">✕ 困難</td>
+      <td class="tag-ok">✓</td>
+    </tr>
+    <tr>
+      <td>手動建 Google 表單</td>
+      <td>長</td>
+      <td class="tag-ok">✓</td>
+      <td class="tag-no">✕ 有限</td>
+      <td class="tag-no">✕</td>
+    </tr>
+    <tr>
+      <td>這個系統</td>
+      <td style="color:var(--green); font-weight:500;">上傳後自動完成</td>
+      <td class="tag-ok">✓ 自動綁定</td>
+      <td class="tag-ok">✓ 科目/題型/關鍵字</td>
+      <td class="tag-ok">✓ Word 格式</td>
+    </tr>
+  </table>
+
+  <div class="divider"></div>
+
+  <!-- 技術架構 -->
+  <div class="section-label">用了哪些技術？</div>
+  <h2>這個系統的組成</h2>
+
+  <div class="tool-row">
+    <div class="tool-chip"><div class="dot" style="background:#3776AB;"></div>Python Flask（後端）</div>
+    <div class="tool-chip"><div class="dot" style="background:#8E75B2;"></div>Gemini 2.5 Flash（AI 辨識）</div>
+    <div class="tool-chip"><div class="dot" style="background:#E34F26;"></div>PyMuPDF（PDF 解析）</div>
+    <div class="tool-chip"><div class="dot" style="background:#003B57;"></div>SQLite（題庫儲存）</div>
+    <div class="tool-chip"><div class="dot" style="background:#217346;"></div>python-docx（Word 匯出）</div>
+  </div>
+
+  <div class="callout callout-blue">
+    <span class="callout-icon">🤔</span>
+    <div class="callout-body">
+      <strong>不懂這些名詞沒關係。</strong> 簡單說：Python 是讓程式跑起來的語言，Flask 是讓你在瀏覽器操作的介面，SQLite 是把題目存起來的小型資料庫，其他的都是讓 AI 讀 PDF、寫 Word 用的工具。你不需要懂它們怎麼運作，只需要按照步驟讓它們跑起來。
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- 安裝步驟 -->
+  <div class="section-label">怎麼開始？</div>
+  <h2>從安裝到第一次使用</h2>
+  <p>整個過程分三個部分。第一次設定約需 20–30 分鐘，之後每次使用只需開啟伺服器就好。</p>
+
+  <div class="callout callout-amber">
+    <span class="callout-icon">📋</span>
+    <div class="callout-body">
+      <strong>開始前需要準備：</strong> Windows 或 Mac 電腦、Google 帳號（取得 Gemini API Key）、約 20 分鐘的時間
+    </div>
+  </div>
+
+  <h3 style="margin:1.25rem 0 .75rem; padding-left:.75rem; border-left:3px solid var(--accent);">第一部分：安裝 Python</h3>
+
+  <div class="step">
+    <div class="step-num">1</div>
+    <div class="step-body">
+      <h3>下載並安裝 Python</h3>
+      <p>前往 <strong>python.org/downloads</strong>，下載最新版本（3.10 以上），執行安裝程式。</p>
+      <div class="step-note">
+        ⚠️ 安裝時有一個選項非常重要：<strong>「Add Python to PATH」</strong> 務必勾選，否則之後的步驟會失敗。勾選後再點 Install Now。
+      </div>
+      <div class="screenshot">Python 安裝勾選 PATH 截圖（待補）</div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">2</div>
+    <div class="step-body">
+      <h3>確認安裝成功</h3>
+      <p>按 <code>Win + R</code>，輸入 <code>cmd</code>，按 Enter，在黑色視窗輸入：</p>
+      <div class="code-block">python --version</div>
+      <div class="step-note">看到 <code>Python 3.x.x</code> 就代表安裝成功。</div>
+    </div>
+  </div>
+
+  <h3 style="margin:1.25rem 0 .75rem; padding-left:.75rem; border-left:3px solid var(--accent);">第二部分：下載並啟動系統</h3>
+
+  <div class="step">
+    <div class="step-num">3</div>
+    <div class="step-body">
+      <h3>下載程式碼</h3>
+      <p>前往 <a href="https://github.com/a546291/OCR-CAD" target="_blank" style="color:var(--accent);">GitHub repo</a>，點綠色的 <strong>Code → Download ZIP</strong>，解壓縮到你熟悉的資料夾（例如桌面）。</p>
+      <div class="screenshot">GitHub 下載 ZIP 截圖（待補）</div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">4</div>
+    <div class="step-body">
+      <h3>安裝所需套件</h3>
+      <p>打開命令提示字元（cmd），切換到剛才解壓縮的資料夾，輸入：</p>
+      <div class="code-block">cd 你的資料夾路徑
+pip install -r requirements.txt</div>
+      <div class="step-note">這個步驟會安裝 Flask、PyMuPDF 等工具，需要幾分鐘，看到畫面停下來就代表完成。</div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">5</div>
+    <div class="step-body">
+      <h3>啟動伺服器</h3>
+      <p>在同一個命令提示字元視窗輸入：</p>
+      <div class="code-block">python app.py</div>
+      <p style="margin-top:.5rem;">看到這行訊息就代表系統啟動成功：</p>
+      <div class="code-block"><span class="code-comment">[OK] System started: http://127.0.0.1:5000</span></div>
+      <div class="step-note">這個黑色視窗要保持開著，關掉的話系統就會停止。之後使用只需要重複這個步驟。</div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">6</div>
+    <div class="step-body">
+      <h3>在瀏覽器開啟</h3>
+      <p>打開 Chrome 或 Edge，在網址列輸入：</p>
+      <div class="code-block">http://127.0.0.1:5000</div>
+      <p style="margin-top:.5rem;">你應該會看到系統的操作介面。</p>
+      <div class="screenshot">系統首頁截圖（待補）</div>
+    </div>
+  </div>
+
+  <h3 style="margin:1.25rem 0 .75rem; padding-left:.75rem; border-left:3px solid var(--accent);">第三部分：第一次使用</h3>
+
+  <div class="step">
+    <div class="step-num">7</div>
+    <div class="step-body">
+      <h3>填入 Gemini API Key</h3>
+      <p>在系統左側選單找到「API 設定」，填入你的 Gemini API Key（取得方式請參考 <a href="case-calendar.html" style="color:var(--accent);">LINE 行事曆助理的步驟 1–2</a>）。</p>
+      <div class="step-note">Key 只存在你的瀏覽器，不會傳到其他地方，關掉瀏覽器下次需要重新填。</div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">8</div>
+    <div class="step-body">
+      <h3>上傳第一份 PDF 試卷</h3>
+      <p>點「上傳 PDF」，選擇一份試卷（建議先用電子檔 PDF 測試，效果最好）。系統會在背景處理，完成後題目會出現在題庫列表。</p>
+      <div class="screenshot">上傳介面截圖（待補）</div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">9</div>
+    <div class="step-body">
+      <h3>篩選、勾選、匯出</h3>
+      <p>在題庫列表用科目、題型篩選，勾選想要的題目，填入試卷標題，點「匯出 Word」。瀏覽器會自動下載一個格式整齊的 .docx 試卷。</p>
+      <div class="screenshot">篩選與匯出介面截圖（待補）</div>
+    </div>
+  </div>
+
+  <div class="callout callout-green">
+    <span class="callout-icon">🎉</span>
+    <div class="callout-body">
+      完成！之後要繼續用，只需要打開 cmd 輸入 <code>python app.py</code>，然後開啟瀏覽器就好。題庫會一直保留，不會消失。
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- 常見問題 -->
+  <div class="section-label">遇到問題？</div>
+  <h2>常見疑問</h2>
+
+  <div class="card-white" style="margin-bottom:.6rem;">
+    <h3 style="font-size:14px; margin-bottom:.4rem;">pip install 安裝失敗怎麼辦？</h3>
+    <p style="font-size:14px;">最常見原因是 Python 安裝時沒有勾選「Add to PATH」。解決方式：重新安裝 Python，這次記得勾選那個選項。</p>
+  </div>
+  <div class="card-white" style="margin-bottom:.6rem;">
+    <h3 style="font-size:14px; margin-bottom:.4rem;">上傳後很久沒有反應？</h3>
+    <p style="font-size:14px;">Gemini 解析 PDF 需要時間，通常 10–30 秒，較大的檔案可能需要 1–2 分鐘。頁面上有進度顯示，可以等一下再看。</p>
+  </div>
+  <div class="card-white" style="margin-bottom:.6rem;">
+    <h3 style="font-size:14px; margin-bottom:.4rem;">題目解析結果不正確？</h3>
+    <p style="font-size:14px;">通常是 PDF 本身是掃描圖片，文字識別率較低。可以把有問題的題目刪除，用電子檔 PDF 重新試試。AI 偶爾也會判斷錯題型，在題庫裡直接刪除那道題再手動調整就好。</p>
+  </div>
+  <div class="card-white">
+    <h3 style="font-size:14px; margin-bottom:.4rem;">題庫的資料存在哪裡？</h3>
+    <p style="font-size:14px;">存在程式資料夾裡的 <code>question_bank.db</code> 檔案。只要這個檔案還在，題庫資料就不會消失。建議偶爾備份一下這個檔案。</p>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- 資安確認 -->
+  <div class="section-label">資安確認</div>
+  <h2>這個工具安全嗎？</h2>
+
+  <div class="card">
+    <div class="security-row"><span class="sec-ok">✓</span> API Key 由前端傳入，不硬編碼在程式裡，不會出現在 GitHub repo</div>
+    <div class="security-row"><span class="sec-ok">✓</span> .env 和資料庫檔案（.db）已加入 .gitignore，不會被上傳到 GitHub</div>
+    <div class="security-row"><span class="sec-ok">✓</span> 系統只跑在你自己的電腦（127.0.0.1），外網無法存取</div>
+    <div class="security-row"><span class="sec-warn">△</span> 目前設定為 debug=True + host="0.0.0.0"，若要在學校網路環境部署請修改為 debug=False, host="127.0.0.1"</div>
+    <div class="security-row"><span class="sec-warn">△</span> uploads/ 資料夾建議確認未暴露在公開路由下</div>
+    <div class="security-row"><span class="sec-warn">△</span> 部分 SQL 查詢使用 f-string，建議改為參數化查詢（進階使用者）</div>
+  </div>
+
+  <div class="callout callout-amber">
+    <span class="callout-icon">🔒</span>
+    <div class="callout-body">
+      <strong>只在自己的電腦使用就很安全。</strong> 如果你想部署到學校伺服器讓其他老師也能用，請先修正上方的三個中風險項目，或聯繫有資訊背景的同事協助確認。
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- 原始程式碼 -->
+  <div class="section-label">原始程式碼</div>
+  <h2>自己動手下載</h2>
+  <p>完整程式碼放在 GitHub，包含所有設定說明。遇到問題也歡迎在 repo 開 Issue 提問。</p>
+
+  <a href="https://github.com/a546291/OCR-CAD" target="_blank"
+     style="display:inline-flex; align-items:center; gap:8px; margin-top:.5rem;
+            background:var(--fg); color:var(--bg); text-decoration:none;
+            padding:.75rem 1.5rem; border-radius:50px; font-size:14px; font-weight:500;">
+    ↗ 前往 GitHub 取得程式碼
+  </a>
+
+</div>
+
+<!-- Footer -->
+<footer class="footer">
+  <p>© 2026 陳盈宏 · 風城師的AI遊記</p>
+  <p style="margin-top:.4rem;">
+    <a href="https://www.facebook.com/alex.yh.chen" target="_blank">Facebook</a>
+    &nbsp;·&nbsp;
+    <a href="https://www.threads.com/@a777x" target="_blank">Threads</a>
+    &nbsp;·&nbsp;
+    <a href="https://x.com/a546291" target="_blank">X</a>
+    &nbsp;·&nbsp;
+    <a href="index.html">回到首頁</a>
+  </p>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>轉盤抽籤遊戲 — 風城師的AI遊記</title>
+<style>
+  :root {
+    --fg: #1d1d1f;
+    --fg2: #6e6e73;
+    --fg3: #aeaeb2;
+    --bg: #ffffff;
+    --bg2: #f5f5f7;
+    --bg3: #e8e8ed;
+    --accent: #0071e3;
+    --accent-light: #e8f0fd;
+    --green: #1d8348;
+    --green-light: #eafaf1;
+    --amber: #b7770d;
+    --amber-light: #fef9e7;
+    --red: #922b21;
+    --red-light: #fdedec;
+    --radius: 12px;
+    --radius-sm: 8px;
+    --font: -apple-system, 'SF Pro TC', 'PingFang TC', 'Helvetica Neue', sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--fg);
+    line-height: 1.6;
+  }
+
+  /* ── 頂部導覽 ── */
+  .top-nav {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(255,255,255,0.85);
+    backdrop-filter: saturate(180%) blur(20px);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    border-bottom: 1px solid var(--bg3);
+    padding: 0 2rem;
+    display: flex; align-items: center; justify-content: space-between;
+    height: 52px;
+  }
+  .nav-logo { font-size: 15px; font-weight: 500; color: var(--fg); text-decoration: none; }
+  .nav-logo span { color: var(--fg2); font-weight: 400; }
+  .nav-back {
+    font-size: 13px; color: var(--accent); text-decoration: none;
+    display: flex; align-items: center; gap: 4px;
+  }
+  .nav-back::before { content: '‹'; font-size: 18px; line-height: 1; }
+
+  /* ── Hero ── */
+  .hero {
+    padding: 4rem 2rem 3rem;
+    max-width: 760px; margin: 0 auto;
+    text-align: center;
+  }
+  .hero-tag {
+    display: inline-block;
+    font-size: 12px; font-weight: 500; letter-spacing: .04em;
+    color: var(--accent); background: var(--accent-light);
+    padding: 4px 12px; border-radius: 20px;
+    margin-bottom: 1.25rem;
+  }
+  .hero h1 {
+    font-size: clamp(28px, 5vw, 42px);
+    font-weight: 600; letter-spacing: -.02em;
+    color: var(--fg); margin-bottom: .75rem;
+    line-height: 1.15;
+  }
+  .hero p {
+    font-size: 17px; color: var(--fg2);
+    max-width: 520px; margin: 0 auto 2rem;
+    line-height: 1.7;
+  }
+  .hero-badges {
+    display: flex; gap: .5rem; justify-content: center; flex-wrap: wrap;
+  }
+  .badge {
+    font-size: 12px; padding: 4px 12px; border-radius: 20px;
+    border: 1px solid var(--bg3); color: var(--fg2); background: var(--bg2);
+  }
+
+  /* ── 主內容區 ── */
+  .content {
+    max-width: 760px; margin: 0 auto;
+    padding: 0 2rem 6rem;
+  }
+
+  /* ── 分隔線 ── */
+  .divider {
+    height: 1px; background: var(--bg3);
+    margin: 2.5rem 0;
+  }
+
+  /* ── Section 標題 ── */
+  .section-label {
+    font-size: 11px; font-weight: 600; letter-spacing: .08em;
+    text-transform: uppercase; color: var(--fg3);
+    margin-bottom: 1rem;
+  }
+  h2 {
+    font-size: 22px; font-weight: 600; letter-spacing: -.01em;
+    color: var(--fg); margin-bottom: .75rem;
+  }
+  h3 {
+    font-size: 16px; font-weight: 600;
+    color: var(--fg); margin-bottom: .5rem;
+  }
+  p { font-size: 15px; color: var(--fg2); line-height: 1.75; margin-bottom: .75rem; }
+  p:last-child { margin-bottom: 0; }
+
+  /* ── 卡片 ── */
+  .card {
+    background: var(--bg2); border-radius: var(--radius);
+    padding: 1.25rem 1.5rem; margin-bottom: .75rem;
+  }
+  .card-white {
+    background: var(--bg); border: 1px solid var(--bg3);
+    border-radius: var(--radius); padding: 1.25rem 1.5rem;
+    margin-bottom: .75rem;
+  }
+
+  /* ── 優缺點 ── */
+  .pros-cons {
+    display: grid; grid-template-columns: 1fr 1fr; gap: .75rem;
+    margin-bottom: 1rem;
+  }
+  @media(max-width: 560px){ .pros-cons { grid-template-columns: 1fr; } }
+  .pros { background: var(--green-light); border-radius: var(--radius); padding: 1.25rem; }
+  .cons { background: var(--amber-light); border-radius: var(--radius); padding: 1.25rem; }
+  .pros h3 { color: var(--green); font-size: 14px; margin-bottom: .6rem; }
+  .cons h3 { color: var(--amber); font-size: 14px; margin-bottom: .6rem; }
+  .list { list-style: none; }
+  .list li {
+    font-size: 14px; color: var(--fg); padding: 5px 0;
+    display: flex; gap: 8px; align-items: flex-start;
+    border-bottom: 1px solid rgba(0,0,0,.05); line-height: 1.5;
+  }
+  .list li:last-child { border-bottom: none; }
+  .list li::before { content: attr(data-icon); flex-shrink: 0; margin-top: 1px; }
+
+  /* ── 適合場景 ── */
+  .scene-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: .6rem; margin-bottom: 1rem;
+  }
+  .scene-card {
+    background: var(--bg2); border-radius: var(--radius-sm);
+    padding: 1rem 1.1rem;
+  }
+  .scene-icon { font-size: 22px; margin-bottom: .35rem; }
+  .scene-title { font-size: 13px; font-weight: 600; color: var(--fg); margin-bottom: .2rem; }
+  .scene-desc { font-size: 12px; color: var(--fg2); line-height: 1.5; }
+
+  /* ── 開發工具說明 ── */
+  .tool-row {
+    display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1rem;
+  }
+  .tool-chip {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--bg2); border-radius: var(--radius-sm);
+    padding: .6rem 1rem; font-size: 13px; color: var(--fg);
+  }
+  .tool-chip .dot {
+    width: 8px; height: 8px; border-radius: 50%;
+  }
+
+  /* ── 步驟教學 ── */
+  .steps { counter-reset: step; }
+  .step {
+    display: flex; gap: 1rem; margin-bottom: 1.25rem;
+    align-items: flex-start;
+  }
+  .step-num {
+    counter-increment: step;
+    width: 28px; height: 28px; border-radius: 50%;
+    background: var(--fg); color: var(--bg);
+    font-size: 13px; font-weight: 600;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; margin-top: 1px;
+  }
+  .step-body h3 { font-size: 15px; margin-bottom: .3rem; }
+  .step-body p { font-size: 14px; margin-bottom: 0; }
+  .step-note {
+    font-size: 13px; color: var(--fg2);
+    background: var(--bg2); border-radius: var(--radius-sm);
+    padding: .5rem .85rem; margin-top: .5rem;
+    border-left: 2px solid var(--bg3);
+  }
+
+  /* ── 提示框 ── */
+  .callout {
+    border-radius: var(--radius); padding: 1rem 1.25rem;
+    margin-bottom: 1rem; display: flex; gap: .75rem; align-items: flex-start;
+  }
+  .callout-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+  .callout-body { font-size: 14px; line-height: 1.65; color: var(--fg); }
+  .callout-body strong { font-weight: 600; }
+  .callout-green { background: var(--green-light); }
+  .callout-amber { background: var(--amber-light); }
+  .callout-blue { background: var(--accent-light); }
+
+  /* ── 截圖佔位 ── */
+  .screenshot {
+    background: var(--bg2); border: 1px dashed var(--bg3);
+    border-radius: var(--radius); height: 200px;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    color: var(--fg3); font-size: 13px; gap: 6px;
+    margin: .75rem 0;
+  }
+  .screenshot::before { content: '📷'; font-size: 28px; }
+
+  /* ── 資安標記 ── */
+  .security-row {
+    display: flex; align-items: center; gap: .6rem;
+    padding: .6rem 0; border-bottom: 1px solid var(--bg3);
+    font-size: 13px; color: var(--fg);
+  }
+  .security-row:last-child { border-bottom: none; }
+  .sec-ok { color: var(--green); font-size: 15px; }
+  .sec-na { color: var(--fg3); font-size: 15px; }
+
+  /* ── 頁尾 ── */
+  .footer {
+    border-top: 1px solid var(--bg3);
+    padding: 2rem; text-align: center;
+    font-size: 13px; color: var(--fg3);
+  }
+  .footer a { color: var(--accent); text-decoration: none; }
+  .footer a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+
+<!-- 導覽列 -->
+<nav class="top-nav">
+  <a class="nav-logo" href="index.html">風城師的AI遊記 <span>/ 案例</span></a>
+  <a class="nav-back" href="tool-canvas.html">純前端互動工具</a>
+</nav>
+
+<!-- Hero -->
+<div class="hero">
+  <div class="hero-tag">主軸三 · 純前端互動工具</div>
+  <h1>轉盤抽籤遊戲</h1>
+  <p>一個 HTML 檔案，不需安裝任何程式，存到 USB 隨時帶著走，在教室裡讓學生轉出今天的挑戰。</p>
+  <div class="hero-badges">
+    <span class="badge">Gemini Canvas 開發</span>
+    <span class="badge">純前端 · 零後端</span>
+    <span class="badge">離線可用</span>
+    <span class="badge">免費</span>
+  </div>
+</div>
+
+<!-- 主內容 -->
+<div class="content">
+
+  <!-- 這是什麼 -->
+  <div class="section-label">這是什麼？</div>
+  <h2>一個轉盤，解決很多小事</h2>
+  <p>這個工具是用 <strong>Gemini Canvas</strong>（Google 的 AI 程式生成工具）開發的。你只需要用說的，告訴 AI 你想要什麼樣的轉盤，它就會幫你寫好所有程式碼，產出一個完整的 HTML 檔案。</p>
+  <p>這個檔案可以直接在瀏覽器打開，完全不需要網路、不需要帳號、不需要安裝任何東西。存在桌面、存進 USB 隨身碟，要用就打開。</p>
+
+  <div class="callout callout-green">
+    <span class="callout-icon">💡</span>
+    <div class="callout-body">
+      <strong>實際案例：</strong>北門國小的老師用它做了「母語轉轉樂」，轉盤上是不同的母語詞彙，學生轉到哪個就練習說哪個，課堂氣氛一下子活躍起來。
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- 優缺點 -->
+  <div class="section-label">優點與限制</div>
+  <h2>什麼情況適合？什麼情況不適合？</h2>
+  <p>每種工具都有它最適合的舞台，也有它不擅長的地方。了解這些，才能用得剛剛好。</p>
+
+  <div class="pros-cons">
+    <div class="pros">
+      <h3>✦ 適合的地方</h3>
+      <ul class="list">
+        <li data-icon="✓">不需要網路，離線也能用</li>
+        <li data-icon="✓">一個檔案就是完整工具，傳給同事超方便</li>
+        <li data-icon="✓">學生看到轉盤會興奮，課堂參與感提升</li>
+        <li data-icon="✓">不需要任何程式知識就能使用</li>
+        <li data-icon="✓">完全免費，沒有使用次數限制</li>
+        <li data-icon="✓">轉盤選項可以依課程內容調整</li>
+      </ul>
+    </div>
+    <div class="cons">
+      <h3>△ 需要注意的地方</h3>
+      <ul class="list">
+        <li data-icon="△">選項內容需要自己輸入，無法自動從名冊匯入</li>
+        <li data-icon="△">每次關掉瀏覽器，設定就回到預設（需重新選）</li>
+        <li data-icon="△">如果想修改選項種類，需要請 AI 重新生成</li>
+        <li data-icon="△">介面語言固定，無法動態切換</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- 應用場景 -->
+  <div class="section-label">應用場景</div>
+  <h2>課堂上可以這樣用</h2>
+
+  <div class="scene-grid">
+    <div class="scene-card">
+      <div class="scene-icon">🗣️</div>
+      <div class="scene-title">隨機點名</div>
+      <div class="scene-desc">轉盤放上全班名字，轉到誰就回答問題，公平又好玩</div>
+    </div>
+    <div class="scene-card">
+      <div class="scene-icon">📚</div>
+      <div class="scene-title">母語 / 英語練習</div>
+      <div class="scene-desc">轉到哪個詞彙就造句、翻譯或朗讀，輕鬆複習</div>
+    </div>
+    <div class="scene-card">
+      <div class="scene-icon">🎯</div>
+      <div class="scene-title">分組工具</div>
+      <div class="scene-desc">學生各自轉一次，轉到同色或同組的坐在一起</div>
+    </div>
+    <div class="scene-card">
+      <div class="scene-icon">🎲</div>
+      <div class="scene-title">隨機挑戰</div>
+      <div class="scene-desc">轉出今天的作業題型、朗讀段落或表演任務</div>
+    </div>
+    <div class="scene-card">
+      <div class="scene-icon">🏫</div>
+      <div class="scene-title">班會 / 活動</div>
+      <div class="scene-desc">轉出值日生、輪流分享或活動負責人</div>
+    </div>
+    <div class="scene-card">
+      <div class="scene-icon">🌐</div>
+      <div class="scene-title">跨領域整合</div>
+      <div class="scene-desc">結合各科內容，轉出題目讓學生搶答</div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- 開發工具說明 -->
+  <div class="section-label">這是用什麼工具做的？</div>
+  <h2>Gemini Canvas — 用說的就能寫程式</h2>
+  <p>這個轉盤是用 <strong>Google Gemini Canvas</strong> 開發的。Gemini Canvas 是 Google AI 的一個功能，你可以用白話文描述你想要的工具，它會直接幫你產生出可以在瀏覽器使用的網頁程式。</p>
+
+  <div class="tool-row">
+    <div class="tool-chip"><div class="dot" style="background:#4285F4;"></div>Google Gemini Canvas</div>
+    <div class="tool-chip"><div class="dot" style="background:#E34F26;"></div>HTML5</div>
+    <div class="tool-chip"><div class="dot" style="background:#F7DF1E;"></div>JavaScript</div>
+    <div class="tool-chip"><div class="dot" style="background:#1572B6;"></div>CSS3</div>
+  </div>
+
+  <div class="callout callout-blue">
+    <span class="callout-icon">🤔</span>
+    <div class="callout-body">
+      <strong>你不需要懂 HTML 是什麼。</strong> 就像你不需要懂引擎原理才能開車一樣，你只需要說出想要什麼，AI 會幫你把機器的部分處理好。
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- 怎麼做 -->
+  <div class="section-label">怎麼做？</div>
+  <h2>從零開始，做一個自己的轉盤</h2>
+  <p>以下是完整步驟。整個過程大約需要 10–15 分鐘，就算是第一次接觸 AI 工具的老師也可以完成。</p>
+
+  <div class="callout callout-amber">
+    <span class="callout-icon">📋</span>
+    <div class="callout-body">
+      <strong>開始前需要準備：</strong> 一個 Google 帳號（免費）、電腦或平板、瀏覽器（Chrome 最佳）
+    </div>
+  </div>
+
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-body">
+        <h3>開啟 Gemini Canvas</h3>
+        <p>在瀏覽器網址列輸入 <strong>gemini.google.com</strong>，用 Google 帳號登入後，點選左側選單的「Canvas」。</p>
+        <div class="step-note">如果找不到 Canvas，可以在對話框輸入「請幫我用 Canvas 製作一個轉盤遊戲」，它會自動切換到 Canvas 模式。</div>
+        <div class="screenshot">Gemini Canvas 入口截圖（待補）</div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-body">
+        <h3>用白話文描述你要什麼</h3>
+        <p>在對話框裡輸入你想要的轉盤內容。不需要很正式，就像在跟同事說話一樣。</p>
+        <div class="step-note">
+          範例提示詞：<br>「請幫我製作一個抽籤轉盤，上面有 8 個格子，分別放上這些字：小明、小華、小美、小志、小婷、小杰、小雯、小安。轉盤旋轉後停下來要顯示抽到的名字。請用繁體中文，介面要簡單好看。」
+        </div>
+        <div class="screenshot">對話框輸入截圖（待補）</div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-body">
+        <h3>等 AI 生成，然後預覽</h3>
+        <p>Gemini 會在右側即時產生轉盤，你可以直接在預覽區試轉看看。如果不滿意，繼續在對話框說「請把顏色改成藍色」或「轉速慢一點」，它會馬上修改。</p>
+        <div class="screenshot">Canvas 預覽截圖（待補）</div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-body">
+        <h3>下載 HTML 檔案</h3>
+        <p>滿意之後，點右上角的「匯出」或「下載」按鈕，選擇「下載為 HTML」，檔案就會儲存到你的電腦。</p>
+        <div class="step-note">下載後，在電腦上找到這個檔案（通常在「下載」資料夾），用滑鼠雙擊就可以在瀏覽器打開使用，完全不需要網路。</div>
+        <div class="screenshot">下載按鈕截圖（待補）</div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">5</div>
+      <div class="step-body">
+        <h3>存進 USB，帶進教室</h3>
+        <p>把這個 .html 檔案複製到 USB 隨身碟或存到 Google 雲端硬碟，下次上課直接打開就可以用了。也可以傳給同事，他們電腦上也能直接使用，不需要安裝任何東西。</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- 常見問題 -->
+  <div class="section-label">遇到問題？</div>
+  <h2>常見疑問</h2>
+
+  <div class="card-white" style="margin-bottom:.6rem;">
+    <h3 style="font-size:14px; margin-bottom:.4rem;">轉盤的選項可以自己改嗎？</h3>
+    <p style="font-size:14px;">可以。回到 Gemini Canvas，在對話框說「把第三個選項改成○○」或「新增一個選項叫做△△」，它就會幫你修改並重新下載。</p>
+  </div>
+  <div class="card-white" style="margin-bottom:.6rem;">
+    <h3 style="font-size:14px; margin-bottom:.4rem;">可以在手機上用嗎？</h3>
+    <p style="font-size:14px;">可以，但建議用電腦操作。手機瀏覽器也能打開 HTML 檔案，但部分功能可能受限，投影在大螢幕效果最好。</p>
+  </div>
+  <div class="card-white" style="margin-bottom:.6rem;">
+    <h3 style="font-size:14px; margin-bottom:.4rem;">需要付費嗎？</h3>
+    <p style="font-size:14px;">Gemini 基本版免費，Canvas 功能也包含在免費方案內。每天有使用次數限制，一般教師使用完全足夠，不需升級付費版。</p>
+  </div>
+  <div class="card-white">
+    <h3 style="font-size:14px; margin-bottom:.4rem;">AI 生成的結果不是我想要的怎麼辦？</h3>
+    <p style="font-size:14px;">繼續在對話框說明你覺得哪裡不對，例如「轉盤格子太小，字看不清楚」或「我想要紅色和黃色交替」。AI 不會因為你一直修改而不耐煩，放心慢慢調整。</p>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- 資安確認 -->
+  <div class="section-label">資安確認</div>
+  <h2>這個工具安全嗎？</h2>
+  <p>根據資安檢查清單，這個工具的評估結果如下：</p>
+
+  <div class="card">
+    <div class="security-row"><span class="sec-ok">✓</span> 純前端 HTML，無後端伺服器，無資料傳輸</div>
+    <div class="security-row"><span class="sec-ok">✓</span> 無 API Key、帳號密碼或任何憑證</div>
+    <div class="security-row"><span class="sec-ok">✓</span> 不收集任何學生個人資料</div>
+    <div class="security-row"><span class="sec-ok">✓</span> 可完全離線使用，不需連線到任何伺服器</div>
+    <div class="security-row"><span class="sec-na">—</span> innerHTML 用於內部狀態更新（非使用者輸入），風險低</div>
+  </div>
+
+  <div class="callout callout-green">
+    <span class="callout-icon">🔒</span>
+    <div class="callout-body">
+      這個工具不會蒐集學生的任何資訊，學校老師可以放心在教室使用。
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- 立即試用 -->
+  <div class="section-label">立即體驗</div>
+  <h2>看看實際效果</h2>
+  <p>以下是北門國小老師製作的「母語轉轉樂」，點進去可以直接試轉看看，感受一下學生在課堂上玩到這個會有多興奮。</p>
+
+  <a href="https://a546291.github.io/wheel-game/" target="_blank"
+     style="display:inline-flex; align-items:center; gap:8px; margin-top:.5rem;
+            background:var(--fg); color:var(--bg); text-decoration:none;
+            padding:.75rem 1.5rem; border-radius:50px; font-size:14px; font-weight:500;">
+    ▶ 開啟轉盤遊戲示範
+  </a>
+
+  <div class="divider"></div>
+
+  <!-- 發布到網路 -->
+  <div class="section-label">進階：發布到網路</div>
+  <h2>讓任何人都能用網址打開你的轉盤</h2>
+  <p>如果你想把轉盤分享給其他老師或學生，讓他們直接用網址打開，而不需要傳檔案，可以把它免費掛到 <strong>GitHub Pages</strong>。完成後會得到一個像這樣的網址：</p>
+
+  <div class="card" style="font-size:14px; color:var(--accent); font-family:monospace; letter-spacing:.02em;">
+    https://你的帳號.github.io/teaching-web/
+  </div>
+
+  <div class="callout callout-amber">
+    <span class="callout-icon">📋</span>
+    <div class="callout-body">
+      <strong>開始前需要準備：</strong> 一個免費的 GitHub 帳號（github.com 註冊）、電腦上已安裝 Node.js 18 以上版本
+    </div>
+  </div>
+
+  <h3 style="margin: 1.25rem 0 .75rem;">第一部分：安裝 Claude Code（只需做一次）</h3>
+
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-body">
+        <h3>確認 Node.js 已安裝</h3>
+        <p>按 <kbd style="background:var(--bg2);border:1px solid var(--bg3);border-radius:4px;padding:1px 6px;font-size:12px;">Win + R</kbd>，輸入 <code style="background:var(--bg2);padding:1px 6px;border-radius:4px;font-size:13px;">cmd</code>，按 Enter 開啟命令提示字元，輸入：</p>
+        <div class="fix-code" style="background:var(--fg);color:#f8f8f2;border-radius:var(--radius-sm);padding:.75rem 1rem;font-family:monospace;font-size:13px;margin-top:.5rem;">node --version</div>
+        <div class="step-note">如果看到 v18 以上的版本號，代表已安裝。如果顯示「找不到命令」，請先到 nodejs.org 下載安裝。</div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-body">
+        <h3>安裝 Claude Code</h3>
+        <p>在命令提示字元輸入：</p>
+        <div class="fix-code" style="background:var(--fg);color:#f8f8f2;border-radius:var(--radius-sm);padding:.75rem 1rem;font-family:monospace;font-size:13px;margin-top:.5rem;">npm install -g @anthropic-ai/claude-code</div>
+        <div class="step-note">安裝需要約 1–2 分鐘。完成後輸入 <code style="background:var(--bg2);padding:1px 5px;border-radius:4px;">claude --version</code> 確認安裝成功。</div>
+      </div>
+    </div>
+  </div>
+
+  <h3 style="margin: 1.25rem 0 .75rem;">第二部分：在 GitHub 建立 Repo</h3>
+
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-body">
+        <h3>新增一個 GitHub Repository</h3>
+        <p>登入 github.com，點右上角 <strong>＋ → New repository</strong>，填入：</p>
+        <div class="card" style="margin-top:.5rem;">
+          <div class="security-row"><span style="font-size:13px;color:var(--fg2);min-width:120px;">Repository name</span> <code style="font-size:13px;">teaching-web</code></div>
+          <div class="security-row"><span style="font-size:13px;color:var(--fg2);min-width:120px;">Visibility</span> <span style="font-size:13px;">選 <strong>Public</strong>（免費 GitHub Pages 需要）</span></div>
+          <div class="security-row" style="border:none;"><span style="font-size:13px;color:var(--fg2);min-width:120px;">Add README</span> <span style="font-size:13px;">❌ 不要勾選</span></div>
+        </div>
+        <p style="margin-top:.5rem;">按 <strong>Create repository</strong>。</p>
+      </div>
+    </div>
+  </div>
+
+  <h3 style="margin: 1.25rem 0 .75rem;">第三部分：用 Claude Code 推上 GitHub</h3>
+
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-body">
+        <h3>建立工作目錄，把檔案放進去</h3>
+        <p>在命令提示字元輸入：</p>
+        <div class="fix-code" style="background:var(--fg);color:#f8f8f2;border-radius:var(--radius-sm);padding:.75rem 1rem;font-family:monospace;font-size:13px;margin-top:.5rem;">mkdir c:\claude\teaching-web
+cd c:\claude\teaching-web</div>
+        <div class="step-note">然後把你下載的 index.html、case-wheel.html、CLAUDE.md 複製到這個資料夾內。</div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">5</div>
+      <div class="step-body">
+        <h3>啟動 Claude Code</h3>
+        <p>確認在 <code style="background:var(--bg2);padding:1px 5px;border-radius:4px;">c:\claude\teaching-web</code> 目錄後，輸入：</p>
+        <div class="fix-code" style="background:var(--fg);color:#f8f8f2;border-radius:var(--radius-sm);padding:.75rem 1rem;font-family:monospace;font-size:13px;margin-top:.5rem;">claude</div>
+        <div class="step-note">第一次執行會要求你輸入 Anthropic API Key，可到 console.anthropic.com 取得免費額度的 Key。</div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">6</div>
+      <div class="step-body">
+        <h3>請 Claude Code 幫你推上 GitHub</h3>
+        <p>進入 Claude Code 後，用白話文輸入（把 <code style="background:var(--bg2);padding:1px 5px;border-radius:4px;">你的帳號</code> 換成你的 GitHub 帳號）：</p>
+        <div class="card" style="margin-top:.5rem;font-size:13px;line-height:1.7;color:var(--fg);">
+          請幫我初始化 git，把所有檔案 commit，remote 設定為
+          https://github.com/<strong>你的帳號</strong>/teaching-web.git，
+          然後 push 到 main branch
+        </div>
+        <div class="step-note">Claude Code 會自動執行 git init、add、commit、push 等指令。Push 時瀏覽器會彈出 GitHub 登入視窗，登入授權即可。</div>
+      </div>
+    </div>
+  </div>
+
+  <h3 style="margin: 1.25rem 0 .75rem;">第四部分：開啟 GitHub Pages</h3>
+
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">7</div>
+      <div class="step-body">
+        <h3>在 GitHub 開啟 Pages 功能</h3>
+        <p>到你的 repo 頁面，點 <strong>Settings → Pages</strong>，在 Branch 選 <strong>main</strong>，資料夾選 <strong>/ (root)</strong>，按 <strong>Save</strong>。</p>
+        <div class="screenshot">GitHub Pages 設定截圖（待補）</div>
+        <div class="step-note">等約 1–2 分鐘，頁面上方會出現你的網站網址，格式為 https://你的帳號.github.io/teaching-web/</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout callout-green">
+    <span class="callout-icon">🎉</span>
+    <div class="callout-body">
+      <strong>完成！</strong> 之後每次新增或修改檔案，在 Claude Code 說「幫我把新檔案 push 到 GitHub」，網站幾分鐘內就會自動更新。
+    </div>
+  </div>
+
+</div>
+
+<!-- 頁尾 -->
+<footer class="footer">
+  <p>© 2026 陳盈宏 · 風城師的AI遊記</p>
+  <p style="margin-top:.4rem;">
+    <a href="https://www.facebook.com/alex.yh.chen" target="_blank">Facebook</a>
+    &nbsp;·&nbsp;
+    <a href="https://www.threads.com/@a777x" target="_blank">Threads</a>
+    &nbsp;·&nbsp;
+    <a href="https://x.com/a546291" target="_blank">X</a>
+    &nbsp;·&nbsp;
+    <a href="index.html">回到首頁</a>
+  </p>
+</footer>
+
+</body>
+</html>

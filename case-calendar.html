@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LINE 行事曆 AI 助理 — 風城師的AI遊記</title>
+<style>
+  :root {
+    --fg: #1d1d1f;
+    --fg2: #6e6e73;
+    --fg3: #aeaeb2;
+    --bg: #ffffff;
+    --bg2: #f5f5f7;
+    --bg3: #e8e8ed;
+    --accent: #0071e3;
+    --accent-light: #e8f0fd;
+    --green: #1d8348;
+    --green-light: #eafaf1;
+    --amber: #b7770d;
+    --amber-light: #fef9e7;
+    --red: #922b21;
+    --red-light: #fdedec;
+    --line-green: #00B900;
+    --line-light: #e6f9e6;
+    --radius: 12px;
+    --radius-sm: 8px;
+    --font: -apple-system, 'SF Pro TC', 'PingFang TC', 'Helvetica Neue', sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font); background: var(--bg); color: var(--fg); line-height: 1.6; }
+
+  /* ── Nav ── */
+  .top-nav {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(255,255,255,0.85);
+    backdrop-filter: saturate(180%) blur(20px);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    border-bottom: 1px solid var(--bg3);
+    padding: 0 2rem;
+    display: flex; align-items: center; justify-content: space-between;
+    height: 52px;
+  }
+  .nav-logo { font-size: 15px; font-weight: 500; color: var(--fg); text-decoration: none; }
+  .nav-logo span { color: var(--fg2); font-weight: 400; }
+  .nav-back { font-size: 13px; color: var(--accent); text-decoration: none; display: flex; align-items: center; gap: 4px; }
+  .nav-back::before { content: '‹'; font-size: 18px; line-height: 1; }
+
+  /* ── Hero ── */
+  .hero { padding: 4rem 2rem 3rem; max-width: 760px; margin: 0 auto; text-align: center; }
+  .hero-tag {
+    display: inline-block; font-size: 12px; font-weight: 500; letter-spacing: .04em;
+    color: var(--green); background: var(--green-light);
+    padding: 4px 12px; border-radius: 20px; margin-bottom: 1.25rem;
+  }
+  .hero h1 { font-size: clamp(28px, 5vw, 42px); font-weight: 600; letter-spacing: -.02em; color: var(--fg); margin-bottom: .75rem; line-height: 1.15; }
+  .hero p { font-size: 17px; color: var(--fg2); max-width: 520px; margin: 0 auto 2rem; line-height: 1.7; }
+  .hero-badges { display: flex; gap: .5rem; justify-content: center; flex-wrap: wrap; }
+  .badge { font-size: 12px; padding: 4px 12px; border-radius: 20px; border: 1px solid var(--bg3); color: var(--fg2); background: var(--bg2); }
+
+  /* ── 內容 ── */
+  .content { max-width: 760px; margin: 0 auto; padding: 0 2rem 6rem; }
+  .divider { height: 1px; background: var(--bg3); margin: 2.5rem 0; }
+  .section-label { font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--fg3); margin-bottom: 1rem; }
+  h2 { font-size: 22px; font-weight: 600; letter-spacing: -.01em; color: var(--fg); margin-bottom: .75rem; }
+  h3 { font-size: 16px; font-weight: 600; color: var(--fg); margin-bottom: .5rem; }
+  p { font-size: 15px; color: var(--fg2); line-height: 1.75; margin-bottom: .75rem; }
+  p:last-child { margin-bottom: 0; }
+
+  /* ── 卡片 ── */
+  .card { background: var(--bg2); border-radius: var(--radius); padding: 1.25rem 1.5rem; margin-bottom: .75rem; }
+  .card-white { background: var(--bg); border: 1px solid var(--bg3); border-radius: var(--radius); padding: 1.25rem 1.5rem; margin-bottom: .75rem; }
+
+  /* ── 優缺點 ── */
+  .pros-cons { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; margin-bottom: 1rem; }
+  @media(max-width:560px){ .pros-cons { grid-template-columns: 1fr; } }
+  .pros { background: var(--green-light); border-radius: var(--radius); padding: 1.25rem; }
+  .cons { background: var(--amber-light); border-radius: var(--radius); padding: 1.25rem; }
+  .pros h3 { color: var(--green); font-size: 14px; margin-bottom: .6rem; }
+  .cons h3 { color: var(--amber); font-size: 14px; margin-bottom: .6rem; }
+  .list { list-style: none; }
+  .list li { font-size: 14px; color: var(--fg); padding: 5px 0; display: flex; gap: 8px; align-items: flex-start; border-bottom: 1px solid rgba(0,0,0,.05); line-height: 1.5; }
+  .list li:last-child { border-bottom: none; }
+  .list li::before { content: attr(data-icon); flex-shrink: 0; margin-top: 1px; }
+
+  /* ── 場景 ── */
+  .scene-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: .6rem; margin-bottom: 1rem; }
+  .scene-card { background: var(--bg2); border-radius: var(--radius-sm); padding: 1rem 1.1rem; }
+  .scene-icon { font-size: 22px; margin-bottom: .35rem; }
+  .scene-title { font-size: 13px; font-weight: 600; color: var(--fg); margin-bottom: .2rem; }
+  .scene-desc { font-size: 12px; color: var(--fg2); line-height: 1.5; }
+
+  /* ── 提示框 ── */
+  .callout { border-radius: var(--radius); padding: 1rem 1.25rem; margin-bottom: 1rem; display: flex; gap: .75rem; align-items: flex-start; }
+  .callout-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+  .callout-body { font-size: 14px; line-height: 1.65; color: var(--fg); }
+  .callout-body strong { font-weight: 600; }
+  .callout-green { background: var(--green-light); }
+  .callout-amber { background: var(--amber-light); }
+  .callout-blue { background: var(--accent-light); }
+  .callout-line { background: var(--line-light); }
+
+  /* ── 步驟 ── */
+  .steps { }
+  .step { display: flex; gap: 1rem; margin-bottom: 1.5rem; align-items: flex-start; }
+  .step-num { width: 28px; height: 28px; border-radius: 50%; background: var(--fg); color: var(--bg); font-size: 13px; font-weight: 600; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+  .step-body h3 { font-size: 15px; margin-bottom: .3rem; }
+  .step-body p { font-size: 14px; margin-bottom: 0; }
+  .step-note { font-size: 13px; color: var(--fg2); background: var(--bg2); border-radius: var(--radius-sm); padding: .5rem .85rem; margin-top: .5rem; border-left: 2px solid var(--bg3); line-height: 1.6; }
+
+  /* ── 程式碼區塊 ── */
+  .code-block { background: #1d1d1f; color: #f8f8f2; border-radius: var(--radius-sm); padding: 1rem 1.25rem; font-family: 'SF Mono', 'Fira Code', monospace; font-size: 13px; line-height: 1.7; margin: .6rem 0; overflow-x: auto; }
+  .code-comment { color: #6e6e73; }
+  .code-key { color: #ff9f0a; }
+  .code-val { color: #30d158; }
+  .code-str { color: #ff453a; }
+
+  /* ── 流程圖 ── */
+  .flow { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin: .75rem 0; }
+  .flow-box { font-size: 12px; padding: 6px 12px; border-radius: 8px; background: var(--bg2); border: 1px solid var(--bg3); color: var(--fg); text-align: center; line-height: 1.4; }
+  .flow-box.highlight { background: var(--green-light); border-color: #9FE1CB; color: var(--green); }
+  .flow-arr { font-size: 14px; color: var(--fg3); flex-shrink: 0; }
+
+  /* ── LINE 對話泡泡 ── */
+  .chat-demo { background: #c5dde8; border-radius: var(--radius); padding: 1rem 1.25rem; margin: .75rem 0; }
+  .chat-label { font-size: 11px; color: #5a7a8a; margin-bottom: .75rem; font-weight: 500; }
+  .bubble-row { display: flex; margin-bottom: .6rem; }
+  .bubble-row.right { justify-content: flex-end; }
+  .bubble { max-width: 75%; padding: .6rem .9rem; border-radius: 18px; font-size: 13px; line-height: 1.6; }
+  .bubble-user { background: #fff; color: var(--fg); border-bottom-left-radius: 4px; }
+  .bubble-bot { background: var(--line-green); color: #fff; border-bottom-right-radius: 4px; }
+  .bubble-name { font-size: 11px; color: #5a7a8a; margin-bottom: 3px; }
+
+  /* ── 資安 ── */
+  .security-row { display: flex; align-items: center; gap: .6rem; padding: .6rem 0; border-bottom: 1px solid var(--bg3); font-size: 13px; color: var(--fg); }
+  .security-row:last-child { border-bottom: none; }
+  .sec-ok { color: var(--green); font-size: 15px; }
+  .sec-warn { color: var(--amber); font-size: 15px; }
+
+  /* ── 工具列 ── */
+  .tool-row { display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1rem; }
+  .tool-chip { display: flex; align-items: center; gap: 8px; background: var(--bg2); border-radius: var(--radius-sm); padding: .6rem 1rem; font-size: 13px; color: var(--fg); }
+  .tool-chip .dot { width: 8px; height: 8px; border-radius: 50%; }
+
+  /* ── 截圖佔位 ── */
+  .screenshot { background: var(--bg2); border: 1px dashed var(--bg3); border-radius: var(--radius); height: 180px; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--fg3); font-size: 13px; gap: 6px; margin: .75rem 0; }
+  .screenshot::before { content: '📷'; font-size: 28px; }
+
+  /* ── 頁尾 ── */
+  .footer { border-top: 1px solid var(--bg3); padding: 2rem; text-align: center; font-size: 13px; color: var(--fg3); }
+  .footer a { color: var(--accent); text-decoration: none; }
+  .footer a:hover { text-decoration: underline; }
+
+  kbd { background: var(--bg2); border: 1px solid var(--bg3); border-radius: 4px; padding: 1px 6px; font-size: 12px; }
+  code { background: var(--bg2); padding: 1px 6px; border-radius: 4px; font-size: 13px; font-family: 'SF Mono', monospace; }
+</style>
+</head>
+<body>
+
+<!-- Nav -->
+<nav class="top-nav">
+  <a class="nav-logo" href="index.html">風城師的AI遊記 <span>/ 案例</span></a>
+  <a class="nav-back" href="tool-gas.html">GAS + Gemini 對話式 AI</a>
+</nav>
+
+<!-- Hero -->
+<div class="hero">
+  <div class="hero-tag">主軸一 · GAS + Gemini 對話式 AI</div>
+  <h1>LINE 行事曆<br>AI 助理</h1>
+  <p>在 LINE 傳一句話，或拍一張活動傳單，AI 幫你自動把行程加進 Google 行事曆，還會提醒你有沒有時間衝突。</p>
+  <div class="hero-badges">
+    <span class="badge">Google Apps Script</span>
+    <span class="badge">Gemini API</span>
+    <span class="badge">LINE Messaging API</span>
+    <span class="badge">免費額度可用</span>
+  </div>
+</div>
+
+<!-- 主內容 -->
+<div class="content">
+
+  <!-- 這是什麼 -->
+  <div class="section-label">這是什麼？</div>
+  <h2>跟 LINE 說一聲，行程自己跑進去</h2>
+  <p>這個工具讓你把 LINE 變成行事曆的入口。不需要打開 Google 行事曆、不需要手動輸入時間——你只要在 LINE 裡傳一段話，例如「下週三下午兩點，學年會議，在圖書館」，或者拍一張家長通知單的照片傳過去，AI 就會自動解析時間、地點，幫你建好行程，還會告訴你那個時段有沒有跟其他行程衝突。</p>
+
+  <div class="callout callout-line">
+    <span class="callout-icon">💬</span>
+    <div class="callout-body">
+      <strong>實際示範：</strong> 傳送「6/15 早上九點，畢業典禮，在大禮堂，記得提前半小時到」，AI 會建立「畢業典禮」行程、設定 9:00 開始，並在說明欄注記「提前半小時到」，還會自動設定 30 分鐘前通知。
+    </div>
+  </div>
+
+  <!-- 對話示範 -->
+  <div class="chat-demo">
+    <div class="chat-label">LINE 對話示意</div>
+    <div class="bubble-row">
+      <div>
+        <div class="bubble-name">老師</div>
+        <div class="bubble bubble-user">下週五下午三點，親師座談，在 302 教室，家長報名截止是本週三</div>
+      </div>
+    </div>
+    <div class="bubble-row right">
+      <div>
+        <div class="bubble bubble-bot">✅ 處理完成！<br><br>📌 行程：親師座談<br>　（時間：2026-05-29 15:00）<br>　📍 地點：302 教室<br>　🔔 提醒：已設定 30 分鐘前通知<br><br>說明欄備注：家長報名截止 5/21 (三)</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- 系統架構 -->
+  <div class="section-label">怎麼運作的？</div>
+  <h2>三個工具串在一起</h2>
+  <p>這個系統由三個免費工具組成，各自負責不同的事：</p>
+
+  <div class="flow">
+    <div class="flow-box">你在 LINE<br>傳訊息或照片</div>
+    <div class="flow-arr">→</div>
+    <div class="flow-box highlight">Google Apps Script<br>接收並轉交給 AI</div>
+    <div class="flow-arr">→</div>
+    <div class="flow-box">Gemini AI<br>解析時間地點</div>
+    <div class="flow-arr">→</div>
+    <div class="flow-box">Google 行事曆<br>自動建立行程</div>
+  </div>
+
+  <div class="tool-row" style="margin-top:1rem;">
+    <div class="tool-chip"><div class="dot" style="background:#00B900;"></div>LINE Messaging API（接收訊息）</div>
+    <div class="tool-chip"><div class="dot" style="background:#4285F4;"></div>Google Apps Script（中間樞紐）</div>
+    <div class="tool-chip"><div class="dot" style="background:#8E75B2;"></div>Gemini 2.0 Flash（AI 解析）</div>
+    <div class="tool-chip"><div class="dot" style="background:#0F9D58;"></div>Google 行事曆（儲存行程）</div>
+  </div>
+
+  <div class="callout callout-blue">
+    <span class="callout-icon">🤔</span>
+    <div class="callout-body">
+      <strong>Google Apps Script 是什麼？</strong> 就像 Google 試算表裡可以寫公式一樣，Apps Script 讓你在 Google 的雲端環境裡寫一小段程式，完全不需要架設自己的伺服器。這個工具幫你把 LINE、Gemini、行事曆三個服務串起來。
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- 優缺點 -->
+  <div class="section-label">優點與限制</div>
+  <h2>什麼情況適合？什麼情況不適合？</h2>
+
+  <div class="pros-cons">
+    <div class="pros">
+      <h3>✦ 適合的地方</h3>
+      <ul class="list">
+        <li data-icon="✓">在最熟悉的 LINE 介面操作，不需學新工具</li>
+        <li data-icon="✓">可以傳照片——拍下家長通知單、活動傳單，AI 自動解讀</li>
+        <li data-icon="✓">自動偵測行程衝突，避免雙重預約</li>
+        <li data-icon="✓">AI 懂得區分「活動時間」和「報名截止日」，不會搞混</li>
+        <li data-icon="✓">每次建立行程自動設定 30 分鐘前通知</li>
+        <li data-icon="✓">使用 Google 免費服務，無額外費用（Gemini 有免費額度）</li>
+        <li data-icon="✓">紀錄每次使用的 AI 費用，清楚掌握成本</li>
+      </ul>
+    </div>
+    <div class="cons">
+      <h3>△ 需要注意的地方</h3>
+      <ul class="list">
+        <li data-icon="△">初次設定需要約 30–45 分鐘，步驟較多</li>
+        <li data-icon="△">需要申請 LINE 開發者帳號（免費，但要填資料）</li>
+        <li data-icon="△">需要申請 Gemini API Key（免費額度每天有限制）</li>
+        <li data-icon="△">AI 偶爾會解析錯誤，建議確認行事曆再離開</li>
+        <li data-icon="△">無法刪除或修改已建立的行程（只能新增）</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- 應用場景 -->
+  <div class="section-label">應用場景</div>
+  <h2>老師的日常可以這樣用</h2>
+
+  <div class="scene-grid">
+    <div class="scene-card">
+      <div class="scene-icon">📋</div>
+      <div class="scene-title">家長通知單</div>
+      <div class="scene-desc">拍下紙本通知單，自動把家長日、校外教學等行程存進行事曆</div>
+    </div>
+    <div class="scene-card">
+      <div class="scene-icon">💬</div>
+      <div class="scene-title">LINE 群組訊息</div>
+      <div class="scene-desc">看到學年群組裡有新的會議通知，複製貼上就能建立行程</div>
+    </div>
+    <div class="scene-card">
+      <div class="scene-icon">📅</div>
+      <div class="scene-title">課表與代課</div>
+      <div class="scene-desc">口語說出「下週一第三節幫XX老師代課」，直接新增到行事曆</div>
+    </div>
+    <div class="scene-card">
+      <div class="scene-icon">🏫</div>
+      <div class="scene-title">研習與進修</div>
+      <div class="scene-desc">拍下研習報名表，AI 自動抓出日期時間地點，一鍵完成</div>
+    </div>
+    <div class="scene-card">
+      <div class="scene-icon">🎭</div>
+      <div class="scene-title">活動籌備</div>
+      <div class="scene-desc">把運動會、畢業典禮等多個子行程一次傳入，逐一建立</div>
+    </div>
+    <div class="scene-card">
+      <div class="scene-icon">📊</div>
+      <div class="scene-title">費用追蹤</div>
+      <div class="scene-desc">每次使用都會記錄到 Google 試算表，清楚看到 AI 費用</div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- 設定步驟 -->
+  <div class="section-label">怎麼設定？</div>
+  <h2>一步一步來，不需要急</h2>
+  <p>整個設定分為四個部分，每個部分都可以休息再繼續。建議第一次先在有網路的環境進行，大約需要 30–45 分鐘。</p>
+
+  <div class="callout callout-amber">
+    <span class="callout-icon">📋</span>
+    <div class="callout-body">
+      <strong>開始前需要準備：</strong> Google 帳號（免費）、LINE 帳號、電腦瀏覽器（Chrome 最佳）
+    </div>
+  </div>
+
+  <!-- Part A -->
+  <h3 style="margin:1.25rem 0 .75rem; padding-left:.75rem; border-left:3px solid var(--green);">第一部分：取得 Gemini API Key</h3>
+
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-body">
+        <h3>前往 Google AI Studio</h3>
+        <p>在瀏覽器開啟 <strong>aistudio.google.com</strong>，用 Google 帳號登入。</p>
+        <div class="screenshot">Google AI Studio 首頁截圖（待補）</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-body">
+        <h3>建立 API Key</h3>
+        <p>點左側選單的 <strong>Get API Key → Create API Key</strong>，選擇建立新的 Google Cloud 專案，複製產生的 Key（一長串字母數字）。</p>
+        <div class="step-note">這個 Key 很重要，等一下會用到，先存到記事本。每天免費額度大約可以發送數百則訊息，一般教師使用完全足夠。</div>
+        <div class="screenshot">取得 API Key 截圖（待補）</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Part B -->
+  <h3 style="margin:1.25rem 0 .75rem; padding-left:.75rem; border-left:3px solid var(--line-green);">第二部分：建立 LINE Bot</h3>
+
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-body">
+        <h3>前往 LINE Developers</h3>
+        <p>開啟 <strong>developers.line.biz</strong>，用你的 LINE 帳號登入，點右上角 <strong>Console</strong>。</p>
+        <div class="screenshot">LINE Developers 登入截圖（待補）</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-body">
+        <h3>建立 Provider 和 Channel</h3>
+        <p>點 <strong>Create a new provider</strong>，輸入你的名字或學校名稱，按 Create。接著點 <strong>Create a Messaging API channel</strong>，填入：</p>
+        <div class="card" style="margin-top:.5rem;">
+          <div class="security-row"><span style="font-size:13px;color:var(--fg2);min-width:120px;">Channel name</span><span style="font-size:13px;">行事曆助理（或任意名稱）</span></div>
+          <div class="security-row"><span style="font-size:13px;color:var(--fg2);min-width:120px;">Category</span><span style="font-size:13px;">Education</span></div>
+          <div class="security-row" style="border:none;"><span style="font-size:13px;color:var(--fg2);min-width:120px;">Subcategory</span><span style="font-size:13px;">Elementary/Junior High School</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">5</div>
+      <div class="step-body">
+        <h3>取得 Channel Access Token</h3>
+        <p>建立好之後，點 <strong>Messaging API</strong> 頁籤，拉到最底下，點 <strong>Issue</strong> 產生 Channel Access Token，複製這個 Token 存到記事本。</p>
+        <div class="step-note">同一頁面也能找到 QR Code，用手機掃描就能加這個 Bot 為好友，之後就是傳訊息給它來新增行程。</div>
+        <div class="screenshot">Channel Access Token 截圖（待補）</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Part C -->
+  <h3 style="margin:1.25rem 0 .75rem; padding-left:.75rem; border-left:3px solid var(--accent);">第三部分：設定 Google Apps Script</h3>
+
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">6</div>
+      <div class="step-body">
+        <h3>建立 Google 試算表（記錄用）</h3>
+        <p>開啟 <strong>sheets.google.com</strong> 建立一個新的空白試算表，複製網址列中間那一長串文字（試算表 ID），存到記事本。</p>
+        <div class="step-note">網址格式：docs.google.com/spreadsheets/d/<strong>這裡就是ID</strong>/edit</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">7</div>
+      <div class="step-body">
+        <h3>建立 Apps Script 專案</h3>
+        <p>開啟 <strong>script.google.com</strong>，點 <strong>新增專案</strong>，把預設的空白程式碼全部刪除。</p>
+        <div class="screenshot">Apps Script 新增專案截圖（待補）</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">8</div>
+      <div class="step-body">
+        <h3>貼上程式碼並填入你的金鑰</h3>
+        <p>前往 <a href="https://github.com/a546291/line-bot-gemini-calendar-assistant" target="_blank" style="color:var(--accent);">GitHub repo</a> 複製 <code>Code.gs</code> 的完整內容，貼到 Apps Script 編輯器，然後修改最上方三行：</p>
+        <div class="code-block"><span class="code-comment">// 把引號裡的文字換成你自己的</span>
+<span class="code-key">const</span> LINE_ACCESS_TOKEN = <span class="code-str">'貼上你的 LINE Channel Access Token'</span>;
+<span class="code-key">const</span> GEMINI_API_KEY    = <span class="code-str">'貼上你的 Gemini API Key'</span>;
+<span class="code-key">const</span> SPREADSHEET_ID    = <span class="code-str">'貼上你的試算表 ID'</span>;</div>
+        <div class="callout callout-amber" style="margin-top:.5rem;">
+          <span class="callout-icon">⚠️</span>
+          <div class="callout-body">填完之後，不要把這個 Apps Script 分享給別人，裡面有你的 API Key。</div>
+        </div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">9</div>
+      <div class="step-body">
+        <h3>初始化試算表標題</h3>
+        <p>在 Apps Script 上方函式選單選擇 <strong>setupSheet</strong>，點執行（▶），系統會要求你授權存取 Google 試算表，點 <strong>允許</strong> 即可。</p>
+        <div class="step-note">執行一次就好，這個步驟幫你在試算表第一列建立「時間、使用者輸入、建立行程標題…」等欄位標題。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">10</div>
+      <div class="step-body">
+        <h3>部署為 Web App</h3>
+        <p>點右上角 <strong>部署 → 新增部署</strong>，設定如下：</p>
+        <div class="card" style="margin-top:.5rem;">
+          <div class="security-row"><span style="font-size:13px;color:var(--fg2);min-width:140px;">類型</span><span style="font-size:13px;">網頁應用程式</span></div>
+          <div class="security-row"><span style="font-size:13px;color:var(--fg2);min-width:140px;">執行身份</span><span style="font-size:13px;">我（你的 Google 帳號）</span></div>
+          <div class="security-row" style="border:none;"><span style="font-size:13px;color:var(--fg2);min-width:140px;">存取權</span><span style="font-size:13px;"><strong>任何人</strong>（LINE 平台需要能連進來）</span></div>
+        </div>
+        <p style="margin-top:.5rem;">點 <strong>部署</strong>，複製產生的網址（Web App URL）存到記事本。</p>
+        <div class="screenshot">Apps Script 部署截圖（待補）</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Part D -->
+  <h3 style="margin:1.25rem 0 .75rem; padding-left:.75rem; border-left:3px solid var(--amber);">第四部分：把 Bot 和 Script 串起來</h3>
+
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">11</div>
+      <div class="step-body">
+        <h3>設定 LINE Webhook</h3>
+        <p>回到 LINE Developers Console，點 <strong>Messaging API</strong> 頁籤，找到 <strong>Webhook URL</strong> 欄位，貼上剛才複製的 Web App URL，點 <strong>Update</strong>，再點 <strong>Verify</strong>。</p>
+        <div class="step-note">如果 Verify 顯示成功（Success），代表 LINE 和你的 Script 已經成功串聯。如果失敗，請確認 Web App 的存取權限是否設為「任何人」。</div>
+        <div class="screenshot">LINE Webhook 設定截圖（待補）</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">12</div>
+      <div class="step-body">
+        <h3>關閉自動回覆、開啟 Webhook</h3>
+        <p>同一頁面，確認：</p>
+        <div class="card" style="margin-top:.5rem;">
+          <div class="security-row"><span class="sec-ok">✓</span> Use webhook：<strong>開啟</strong></div>
+          <div class="security-row" style="border:none;"><span class="sec-warn">✕</span> Auto-reply messages：<strong>關閉</strong>（否則會干擾 AI 回覆）</div>
+        </div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">13</div>
+      <div class="step-body">
+        <h3>測試！傳第一則訊息給 Bot</h3>
+        <p>用手機掃描 QR Code 加 Bot 為好友，傳一則測試訊息：</p>
+        <div class="card" style="font-size:14px; color:var(--fg); font-style:italic;">「明天下午三點，辦公室開會」</div>
+        <p style="margin-top:.5rem;">Bot 應該會回覆建立成功的訊息，並在你的 Google 行事曆出現新行程。</p>
+        <div class="callout callout-green" style="margin-top:.5rem;">
+          <span class="callout-icon">🎉</span>
+          <div class="callout-body">如果成功收到回覆，恭喜你！設定完成。之後只要跟 Bot 說，行程就會自動存進去。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- 常見問題 -->
+  <div class="section-label">遇到問題？</div>
+  <h2>常見疑問</h2>
+
+  <div class="card-white" style="margin-bottom:.6rem;">
+    <h3 style="font-size:14px; margin-bottom:.4rem;">Bot 沒有回覆怎麼辦？</h3>
+    <p style="font-size:14px;">最常見的原因：① Webhook URL 沒有貼正確、② 自動回覆沒有關閉、③ API Key 或 Token 填錯。可以到 Apps Script 點「執行記錄」查看錯誤訊息。</p>
+  </div>
+  <div class="card-white" style="margin-bottom:.6rem;">
+    <h3 style="font-size:14px; margin-bottom:.4rem;">時間被解析成明年怎麼辦？</h3>
+    <p style="font-size:14px;">AI 依賴當下時間做判斷，描述時盡量說「本週五」、「5/30」等明確日期，比「下週五」更準確。發現問題直接到 Google 行事曆手動修改就好。</p>
+  </div>
+  <div class="card-white" style="margin-bottom:.6rem;">
+    <h3 style="font-size:14px; margin-bottom:.4rem;">Gemini 免費額度夠用嗎？</h3>
+    <p style="font-size:14px;">Gemini 2.0 Flash 目前有每日免費使用額度，一般老師一天新增幾個行程完全足夠。試算表也會幫你記錄每次的費用，可以自己觀察。</p>
+  </div>
+  <div class="card-white">
+    <h3 style="font-size:14px; margin-bottom:.4rem;">可以讓同事一起用嗎？</h3>
+    <p style="font-size:14px;">可以，你可以在 LINE Bot 加入多位好友，他們傳的訊息都會建立到你的行事曆。若要讓每個人管理自己的行事曆，需要各自設定一套，程式碼可以照著本文件操作。</p>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- 資安確認 -->
+  <div class="section-label">資安確認</div>
+  <h2>這個工具安全嗎？</h2>
+
+  <div class="card">
+    <div class="security-row"><span class="sec-ok">✓</span> API Key 和 Token 只存在 Apps Script，不會出現在公開程式碼</div>
+    <div class="security-row"><span class="sec-ok">✓</span> GitHub repo 上的程式碼為佔位符，不包含任何真實金鑰</div>
+    <div class="security-row"><span class="sec-ok">✓</span> 不收集任何學生個人資料，僅處理老師自己傳入的訊息</div>
+    <div class="security-row"><span class="sec-ok">✓</span> Google Apps Script 部署在 Google 官方雲端，安全可靠</div>
+    <div class="security-row"><span class="sec-warn">△</span> GAS 部署設為「任何人可存取」—— 這是 LINE Webhook 的必要設定，屬正常架構，並非安全漏洞</div>
+    <div class="security-row"><span class="sec-warn">△</span> 建議：改用 Script Properties 儲存金鑰（進階選項，見下方說明）</div>
+  </div>
+
+  <div class="callout callout-blue">
+    <span class="callout-icon">🔒</span>
+    <div class="callout-body">
+      <strong>進階：更安全的金鑰儲存方式</strong><br>
+      在 Apps Script 點 <strong>專案設定 → 指令碼屬性</strong>，新增三個屬性：<code>LINE_TOKEN</code>、<code>GEMINI_KEY</code>、<code>SHEET_ID</code>，程式碼最上方三行改為：
+      <div class="code-block" style="margin-top:.5rem; font-size:12px;">
+<span class="code-key">const</span> LINE_ACCESS_TOKEN = PropertiesService.getScriptProperties().getProperty(<span class="code-str">'LINE_TOKEN'</span>);
+<span class="code-key">const</span> GEMINI_API_KEY    = PropertiesService.getScriptProperties().getProperty(<span class="code-str">'GEMINI_KEY'</span>);
+<span class="code-key">const</span> SPREADSHEET_ID    = PropertiesService.getScriptProperties().getProperty(<span class="code-str">'SHEET_ID'</span>);</div>
+      這樣即使你分享程式碼給別人，金鑰也不會外洩。
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- 立即體驗 -->
+  <div class="section-label">原始程式碼</div>
+  <h2>自己動手設定</h2>
+  <p>完整程式碼放在 GitHub，你可以直接複製使用，不需要修改任何邏輯，只需要填入你的三個金鑰就完成了。</p>
+
+  <a href="https://github.com/a546291/line-bot-gemini-calendar-assistant" target="_blank"
+     style="display:inline-flex; align-items:center; gap:8px; margin-top:.5rem;
+            background:var(--fg); color:var(--bg); text-decoration:none;
+            padding:.75rem 1.5rem; border-radius:50px; font-size:14px; font-weight:500;">
+    ↗ 前往 GitHub 取得程式碼
+  </a>
+
+</div>
+
+<!-- Footer -->
+<footer class="footer">
+  <p>© 2026 陳盈宏 · 風城師的AI遊記</p>
+  <p style="margin-top:.4rem;">
+    <a href="https://www.facebook.com/alex.yh.chen" target="_blank">Facebook</a>
+    &nbsp;·&nbsp;
+    <a href="https://www.threads.com/@a777x" target="_blank">Threads</a>
+    &nbsp;·&nbsp;
+    <a href="https://x.com/a546291" target="_blank">X</a>
+    &nbsp;·&nbsp;
+    <a href="index.html">回到首頁</a>
+  </p>
+</footer>
+
+</body>
+</html>
