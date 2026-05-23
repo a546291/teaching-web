@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Antigravity 視覺識別 — 風城師的AI遊記</title>
+<style>
+  :root{--fg:#1d1d1f;--fg2:#6e6e73;--fg3:#aeaeb2;--bg:#fff;--bg2:#f5f5f7;--bg3:#e8e8ed;--accent:#0071e3;--accent-light:#e8f0fd;--green:#1d8348;--green-light:#eafaf1;--amber:#b7770d;--amber-light:#fef9e7;--radius:12px;--radius-sm:8px;--font:-apple-system,'SF Pro TC','PingFang TC','Helvetica Neue',sans-serif;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:var(--font);background:var(--bg);color:var(--fg);line-height:1.6;}
+  .top-nav{position:sticky;top:0;z-index:100;background:rgba(255,255,255,0.85);backdrop-filter:saturate(180%) blur(20px);border-bottom:1px solid var(--bg3);padding:0 2rem;display:flex;align-items:center;justify-content:space-between;height:52px;}
+  .nav-logo{font-size:15px;font-weight:500;color:var(--fg);text-decoration:none;}
+  .nav-logo span{color:var(--fg2);font-weight:400;}
+  .nav-back{font-size:13px;color:var(--accent);text-decoration:none;}
+  .nav-back::before{content:'‹ ';font-size:16px;}
+  .hero{padding:4rem 2rem 3rem;max-width:760px;margin:0 auto;text-align:center;}
+  .hero-tag{display:inline-block;font-size:12px;font-weight:500;letter-spacing:.04em;color:var(--accent);background:var(--accent-light);padding:4px 12px;border-radius:20px;margin-bottom:1.25rem;}
+  .hero h1{font-size:clamp(28px,5vw,42px);font-weight:600;letter-spacing:-.02em;color:var(--fg);margin-bottom:.75rem;line-height:1.15;}
+  .hero p{font-size:17px;color:var(--fg2);max-width:520px;margin:0 auto 2rem;line-height:1.7;}
+  .hero-badges{display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap;}
+  .badge{font-size:12px;padding:4px 12px;border-radius:20px;border:1px solid var(--bg3);color:var(--fg2);background:var(--bg2);}
+  .content{max-width:760px;margin:0 auto;padding:0 2rem 6rem;}
+  .divider{height:1px;background:var(--bg3);margin:2.5rem 0;}
+  .section-label{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--fg3);margin-bottom:1rem;}
+  h2{font-size:22px;font-weight:600;letter-spacing:-.01em;color:var(--fg);margin-bottom:.75rem;}
+  h3{font-size:16px;font-weight:600;color:var(--fg);margin-bottom:.5rem;}
+  p{font-size:15px;color:var(--fg2);line-height:1.75;margin-bottom:.75rem;}
+  p:last-child{margin-bottom:0;}
+  .callout{border-radius:var(--radius);padding:1rem 1.25rem;margin-bottom:1rem;display:flex;gap:.75rem;align-items:flex-start;}
+  .callout-icon{font-size:18px;flex-shrink:0;margin-top:1px;}
+  .callout-body{font-size:14px;line-height:1.65;color:var(--fg);}
+  .callout-body strong{font-weight:600;}
+  .callout-green{background:var(--green-light);}
+  .callout-amber{background:var(--amber-light);}
+  .callout-blue{background:var(--accent-light);}
+  .cases-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:1rem;margin-top:1rem;}
+  .case-card{border:1px solid var(--bg3);border-radius:var(--radius);overflow:hidden;text-decoration:none;color:inherit;display:block;background:var(--bg);transition:box-shadow .2s,transform .2s;}
+  .case-card:hover{box-shadow:0 8px 24px rgba(0,0,0,.07);transform:translateY(-2px);}
+  .case-thumb{height:100px;display:flex;align-items:center;justify-content:center;font-size:32px;}
+  .case-body{padding:.85rem 1rem 1rem;}
+  .case-title{font-size:14px;font-weight:600;margin-bottom:.25rem;color:var(--fg);}
+  .case-desc{font-size:12px;color:var(--fg2);line-height:1.55;}
+  .pros-cons{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:1rem;}
+  @media(max-width:560px){.pros-cons{grid-template-columns:1fr;}}
+  .pros{background:var(--green-light);border-radius:var(--radius);padding:1.25rem;}
+  .cons{background:var(--amber-light);border-radius:var(--radius);padding:1.25rem;}
+  .pros h3{color:var(--green);font-size:14px;margin-bottom:.6rem;}
+  .cons h3{color:var(--amber);font-size:14px;margin-bottom:.6rem;}
+  .list{list-style:none;}
+  .list li{font-size:14px;color:var(--fg);padding:5px 0;display:flex;gap:8px;align-items:flex-start;border-bottom:1px solid rgba(0,0,0,.05);line-height:1.5;}
+  .list li:last-child{border-bottom:none;}
+  .list li::before{content:attr(data-icon);flex-shrink:0;margin-top:1px;}
+  .scene-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:.6rem;margin-bottom:1rem;}
+  .scene-card{background:var(--bg2);border-radius:var(--radius-sm);padding:1rem 1.1rem;}
+  .scene-icon{font-size:22px;margin-bottom:.35rem;}
+  .scene-title{font-size:13px;font-weight:600;color:var(--fg);margin-bottom:.2rem;}
+  .scene-desc{font-size:12px;color:var(--fg2);line-height:1.5;}
+  .footer{border-top:1px solid var(--bg3);padding:2rem;text-align:center;font-size:13px;color:var(--fg3);}
+  .footer a{color:var(--accent);text-decoration:none;}
+</style>
+</head>
+<body>
+<nav class="top-nav">
+  <a class="nav-logo" href="index.html">風城師的AI遊記 <span>/ 主軸</span></a>
+  <a class="nav-back" href="index.html">回首頁</a>
+</nav>
+<div class="hero">
+  <div class="hero-tag">主軸二</div>
+  <h1>Antigravity<br>視覺識別</h1>
+  <p>讓 AI 看懂圖片和文件。上傳 PDF 試卷或拍下學生作業，AI 自動辨識內容、萃取資訊、建立結構化資料。</p>
+  <div class="hero-badges">
+    <span class="badge">Gemini Vision</span>
+    <span class="badge">PDF 解析</span>
+    <span class="badge">Python Flask</span>
+    <span class="badge">進階工具</span>
+  </div>
+</div>
+<div class="content">
+  <div class="section-label">這個主軸在做什麼？</div>
+  <h2>讓 AI 的眼睛幫你讀文件</h2>
+  <p>這條路線利用 AI 的視覺能力（Vision）來處理圖片和 PDF 文件。傳統的 OCR 只是把圖片轉成文字，但 Gemini 的視覺 AI 更進一步——它能理解文字的意思、判斷題目類型、修正辨識錯誤，並把資訊整理成結構化的格式。</p>
+  <p>Antigravity 是這個系統的開發平台，讓你不需要架設伺服器，直接在瀏覽器介面操作整個流程。</p>
+  <div class="callout callout-amber">
+    <span class="callout-icon">⚠️</span>
+    <div class="callout-body"><strong>這個主軸的設定比主軸一複雜，</strong> 需要在電腦安裝 Python 環境。建議先熟悉主軸一再來挑戰。沒有時間壓力，想試的時候再來就好。</div>
+  </div>
+  <div class="divider"></div>
+  <div class="section-label">優點與限制</div>
+  <h2>什麼情況適合？什麼情況不適合？</h2>
+  <div class="pros-cons">
+    <div class="pros">
+      <h3>✦ 適合的地方</h3>
+      <ul class="list">
+        <li data-icon="✓">大量 PDF 試卷的批次處理</li>
+        <li data-icon="✓">圖文並茂的試卷，圖片和題目自動對應</li>
+        <li data-icon="✓">AI 自動修正 OCR 錯誤，理解語意</li>
+        <li data-icon="✓">題庫長期累積，越用越有價值</li>
+        <li data-icon="✓">匯出格式整齊的 Word 試卷</li>
+        <li data-icon="✓">正確處理注音符號，適合國文科</li>
+      </ul>
+    </div>
+    <div class="cons">
+      <h3>△ 需要注意的地方</h3>
+      <ul class="list">
+        <li data-icon="△">需要安裝 Python，有一定技術門檻</li>
+        <li data-icon="△">掃描圖片 PDF 辨識精準度較低</li>
+        <li data-icon="△">Gemini API 解析有費用（很低但非完全免費）</li>
+        <li data-icon="△">系統跑在自己電腦，電腦關掉就無法使用</li>
+      </ul>
+    </div>
+  </div>
+  <div class="divider"></div>
+  <div class="section-label">應用場景</div>
+  <h2>視覺 AI 能幫你做什麼</h2>
+  <div class="scene-grid">
+    <div class="scene-card"><div class="scene-icon">📄</div><div class="scene-title">試卷題庫建立</div><div class="scene-desc">上傳歷年試卷，自動萃取題目建成可篩選的題庫</div></div>
+    <div class="scene-card"><div class="scene-icon">✏️</div><div class="scene-title">錯題複習卷</div><div class="scene-desc">從題庫選出錯誤率高的題目，一鍵匯出複習試卷</div></div>
+    <div class="scene-card"><div class="scene-icon">📋</div><div class="scene-title">通知單解讀</div><div class="scene-desc">拍下家長通知單或活動傳單，AI 自動提取關鍵資訊</div></div>
+    <div class="scene-card"><div class="scene-icon">📊</div><div class="scene-title">成績單處理</div><div class="scene-desc">掃描紙本成績單，自動轉成試算表格式</div></div>
+    <div class="scene-card"><div class="scene-icon">🖼️</div><div class="scene-title">圖文題目保留</div><div class="scene-desc">含有附圖的題目，圖片和文字會一起保留並對應</div></div>
+    <div class="scene-card"><div class="scene-icon">🔍</div><div class="scene-title">題目關鍵字搜尋</div><div class="scene-desc">建好題庫後，輸入關鍵字秒找相關題目</div></div>
+  </div>
+  <div class="divider"></div>
+  <div class="section-label">這個主軸的案例</div>
+  <h2>已完成的教學文件</h2>
+  <div class="cases-grid">
+    <a class="case-card" href="case-ocr.html">
+      <div class="case-thumb" style="background:var(--accent-light);">📄</div>
+      <div class="case-body">
+        <div class="case-title">OCR 錯卷題庫系統</div>
+        <div class="case-desc">上傳 PDF 試卷，AI 自動辨識題目、建立題庫，再匯出 Word 試卷。</div>
+      </div>
+    </a>
+    <div class="case-card" style="border-style:dashed;opacity:.4;cursor:default;">
+      <div class="case-thumb" style="background:var(--bg2);">＋</div>
+      <div class="case-body">
+        <div class="case-title" style="color:var(--fg3);">更多案例陸續加入</div>
+        <div class="case-desc" style="color:var(--fg3);">成績單辨識、作業批改等案例製作中。</div>
+      </div>
+    </div>
+  </div>
+</div>
+<footer class="footer">
+  <p>© 2026 陳盈宏 · 風城師的AI遊記</p>
+  <p style="margin-top:.4rem;">
+    <a href="https://www.facebook.com/alex.yh.chen" target="_blank">Facebook</a> &nbsp;·&nbsp;
+    <a href="https://www.threads.com/@a777x" target="_blank">Threads</a> &nbsp;·&nbsp;
+    <a href="https://x.com/a546291" target="_blank">X</a> &nbsp;·&nbsp;
+    <a href="index.html">回到首頁</a>
+  </p>
+</footer>
+</body>
+</html>

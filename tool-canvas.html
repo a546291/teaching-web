@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Canvas 純前端工具 — 風城師的AI遊記</title>
+<style>
+  :root{--fg:#1d1d1f;--fg2:#6e6e73;--fg3:#aeaeb2;--bg:#fff;--bg2:#f5f5f7;--bg3:#e8e8ed;--accent:#0071e3;--accent-light:#e8f0fd;--green:#1d8348;--green-light:#eafaf1;--amber:#b7770d;--amber-light:#fef9e7;--purple:#4a3b8c;--purple-light:#eeedfb;--radius:12px;--radius-sm:8px;--font:-apple-system,'SF Pro TC','PingFang TC','Helvetica Neue',sans-serif;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:var(--font);background:var(--bg);color:var(--fg);line-height:1.6;}
+  .top-nav{position:sticky;top:0;z-index:100;background:rgba(255,255,255,0.85);backdrop-filter:saturate(180%) blur(20px);border-bottom:1px solid var(--bg3);padding:0 2rem;display:flex;align-items:center;justify-content:space-between;height:52px;}
+  .nav-logo{font-size:15px;font-weight:500;color:var(--fg);text-decoration:none;}
+  .nav-logo span{color:var(--fg2);font-weight:400;}
+  .nav-back{font-size:13px;color:var(--accent);text-decoration:none;}
+  .nav-back::before{content:'‹ ';font-size:16px;}
+  .hero{padding:4rem 2rem 3rem;max-width:760px;margin:0 auto;text-align:center;}
+  .hero-tag{display:inline-block;font-size:12px;font-weight:500;letter-spacing:.04em;color:var(--purple);background:var(--purple-light);padding:4px 12px;border-radius:20px;margin-bottom:1.25rem;}
+  .hero h1{font-size:clamp(28px,5vw,42px);font-weight:600;letter-spacing:-.02em;color:var(--fg);margin-bottom:.75rem;line-height:1.15;}
+  .hero p{font-size:17px;color:var(--fg2);max-width:520px;margin:0 auto 2rem;line-height:1.7;}
+  .hero-badges{display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap;}
+  .badge{font-size:12px;padding:4px 12px;border-radius:20px;border:1px solid var(--bg3);color:var(--fg2);background:var(--bg2);}
+  .content{max-width:760px;margin:0 auto;padding:0 2rem 6rem;}
+  .divider{height:1px;background:var(--bg3);margin:2.5rem 0;}
+  .section-label{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--fg3);margin-bottom:1rem;}
+  h2{font-size:22px;font-weight:600;letter-spacing:-.01em;color:var(--fg);margin-bottom:.75rem;}
+  h3{font-size:16px;font-weight:600;color:var(--fg);margin-bottom:.5rem;}
+  p{font-size:15px;color:var(--fg2);line-height:1.75;margin-bottom:.75rem;}
+  p:last-child{margin-bottom:0;}
+  .callout{border-radius:var(--radius);padding:1rem 1.25rem;margin-bottom:1rem;display:flex;gap:.75rem;align-items:flex-start;}
+  .callout-icon{font-size:18px;flex-shrink:0;margin-top:1px;}
+  .callout-body{font-size:14px;line-height:1.65;color:var(--fg);}
+  .callout-body strong{font-weight:600;}
+  .callout-green{background:var(--green-light);}
+  .callout-amber{background:var(--amber-light);}
+  .callout-purple{background:var(--purple-light);}
+  .cases-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:1rem;margin-top:1rem;}
+  .case-card{border:1px solid var(--bg3);border-radius:var(--radius);overflow:hidden;text-decoration:none;color:inherit;display:block;background:var(--bg);transition:box-shadow .2s,transform .2s;}
+  .case-card:hover{box-shadow:0 8px 24px rgba(0,0,0,.07);transform:translateY(-2px);}
+  .case-thumb{height:100px;display:flex;align-items:center;justify-content:center;font-size:32px;}
+  .case-body{padding:.85rem 1rem 1rem;}
+  .case-title{font-size:14px;font-weight:600;margin-bottom:.25rem;color:var(--fg);}
+  .case-desc{font-size:12px;color:var(--fg2);line-height:1.55;}
+  .pros-cons{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:1rem;}
+  @media(max-width:560px){.pros-cons{grid-template-columns:1fr;}}
+  .pros{background:var(--green-light);border-radius:var(--radius);padding:1.25rem;}
+  .cons{background:var(--amber-light);border-radius:var(--radius);padding:1.25rem;}
+  .pros h3{color:var(--green);font-size:14px;margin-bottom:.6rem;}
+  .cons h3{color:var(--amber);font-size:14px;margin-bottom:.6rem;}
+  .list{list-style:none;}
+  .list li{font-size:14px;color:var(--fg);padding:5px 0;display:flex;gap:8px;align-items:flex-start;border-bottom:1px solid rgba(0,0,0,.05);line-height:1.5;}
+  .list li:last-child{border-bottom:none;}
+  .list li::before{content:attr(data-icon);flex-shrink:0;margin-top:1px;}
+  .scene-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:.6rem;margin-bottom:1rem;}
+  .scene-card{background:var(--bg2);border-radius:var(--radius-sm);padding:1rem 1.1rem;}
+  .scene-icon{font-size:22px;margin-bottom:.35rem;}
+  .scene-title{font-size:13px;font-weight:600;color:var(--fg);margin-bottom:.2rem;}
+  .scene-desc{font-size:12px;color:var(--fg2);line-height:1.5;}
+  .footer{border-top:1px solid var(--bg3);padding:2rem;text-align:center;font-size:13px;color:var(--fg3);}
+  .footer a{color:var(--accent);text-decoration:none;}
+</style>
+</head>
+<body>
+<nav class="top-nav">
+  <a class="nav-logo" href="index.html">風城師的AI遊記 <span>/ 主軸</span></a>
+  <a class="nav-back" href="index.html">回首頁</a>
+</nav>
+<div class="hero">
+  <div class="hero-tag">主軸三</div>
+  <h1>Canvas<br>純前端工具</h1>
+  <p>一個 HTML 檔案就是完整的工具。不需要網路、不需要帳號、存進 USB 隨時帶著走，在任何電腦上打開就能用。</p>
+  <div class="hero-badges">
+    <span class="badge">Gemini Canvas</span>
+    <span class="badge">純 HTML</span>
+    <span class="badge">離線可用</span>
+    <span class="badge">最易分享</span>
+  </div>
+</div>
+<div class="content">
+  <div class="section-label">這個主軸在做什麼？</div>
+  <h2>用說的，讓 AI 幫你寫工具</h2>
+  <p>Gemini Canvas 是 Google AI 的一個功能，你用白話文描述想要什麼樣的工具，它會直接幫你產生出一個可以在瀏覽器運作的 HTML 網頁。這個網頁不需要連線、不需要後端伺服器，下載下來就是完整的工具。</p>
+  <p>這條路線的最大特色是<strong>極低的使用門檻</strong>——做好的工具直接傳給同事，他們雙擊打開就能用，完全不需要安裝任何東西。</p>
+  <div class="callout callout-purple" style="background:var(--purple-light);">
+    <span class="callout-icon">💡</span>
+    <div class="callout-body"><strong>這是三個主軸中最容易分享的。</strong> 一個 .html 檔案就是完整工具，傳 Email、傳 LINE、存 USB，對方打開就能用。</div>
+  </div>
+  <div class="divider"></div>
+  <div class="section-label">優點與限制</div>
+  <h2>什麼情況適合？什麼情況不適合？</h2>
+  <div class="pros-cons">
+    <div class="pros">
+      <h3>✦ 適合的地方</h3>
+      <ul class="list">
+        <li data-icon="✓">完全免費，只需要 Google 帳號</li>
+        <li data-icon="✓">不需要安裝任何軟體</li>
+        <li data-icon="✓">離線可用，沒網路也沒問題</li>
+        <li data-icon="✓">一個檔案可以傳給所有同事直接使用</li>
+        <li data-icon="✓">不滿意就繼續跟 AI 說，馬上修改</li>
+        <li data-icon="✓">學生用瀏覽器就能開啟，不需要 App</li>
+      </ul>
+    </div>
+    <div class="cons">
+      <h3>△ 需要注意的地方</h3>
+      <ul class="list">
+        <li data-icon="△">關掉瀏覽器後資料不會自動儲存</li>
+        <li data-icon="△">複雜功能（如連資料庫）無法實現</li>
+        <li data-icon="△">每次使用都需要重新輸入設定</li>
+        <li data-icon="△">無法多人同時共用同一份資料</li>
+      </ul>
+    </div>
+  </div>
+  <div class="divider"></div>
+  <div class="section-label">應用場景</div>
+  <h2>課堂上可以做什麼工具</h2>
+  <div class="scene-grid">
+    <div class="scene-card"><div class="scene-icon">🎡</div><div class="scene-title">抽籤轉盤</div><div class="scene-desc">隨機點名、分組、抽題目，課堂氣氛瞬間活躍</div></div>
+    <div class="scene-card"><div class="scene-icon">⏱️</div><div class="scene-title">課堂計時器</div><div class="scene-desc">倒數計時、分組計時，視覺化讓學生更有節奏感</div></div>
+    <div class="scene-card"><div class="scene-icon">🎮</div><div class="scene-title">互動小遊戲</div><div class="scene-desc">配合課程內容的單字配對、填空練習小遊戲</div></div>
+    <div class="scene-card"><div class="scene-icon">📊</div><div class="scene-title">即時投票</div><div class="scene-desc">學生舉手或在自己裝置選答案，即時顯示統計</div></div>
+    <div class="scene-card"><div class="scene-icon">🧩</div><div class="scene-title">單字卡複習</div><div class="scene-desc">正面題目背面答案的翻卡練習工具</div></div>
+    <div class="scene-card"><div class="scene-icon">🎨</div><div class="scene-title">互動簡報</div><div class="scene-desc">帶有動畫和互動效果的教學展示頁面</div></div>
+  </div>
+  <div class="divider"></div>
+  <div class="section-label">這個主軸的案例</div>
+  <h2>已完成的教學文件</h2>
+  <div class="cases-grid">
+    <a class="case-card" href="case-wheel.html">
+      <div class="case-thumb" style="background:var(--purple-light);">🎡</div>
+      <div class="case-body">
+        <div class="case-title">轉盤抽籤遊戲</div>
+        <div class="case-desc">北門國小母語課的隨機抽籤工具，一個 HTML 檔，離線可用。含 GitHub Pages 部署教學。</div>
+      </div>
+    </a>
+    <div class="case-card" style="border-style:dashed;opacity:.4;cursor:default;">
+      <div class="case-thumb" style="background:var(--bg2);">＋</div>
+      <div class="case-body">
+        <div class="case-title" style="color:var(--fg3);">更多案例陸續加入</div>
+        <div class="case-desc" style="color:var(--fg3);">課堂計時器、單字卡複習等案例製作中。</div>
+      </div>
+    </div>
+  </div>
+</div>
+<footer class="footer">
+  <p>© 2026 陳盈宏 · 風城師的AI遊記</p>
+  <p style="margin-top:.4rem;">
+    <a href="https://www.facebook.com/alex.yh.chen" target="_blank">Facebook</a> &nbsp;·&nbsp;
+    <a href="https://www.threads.com/@a777x" target="_blank">Threads</a> &nbsp;·&nbsp;
+    <a href="https://x.com/a546291" target="_blank">X</a> &nbsp;·&nbsp;
+    <a href="index.html">回到首頁</a>
+  </p>
+</footer>
+</body>
+</html>
