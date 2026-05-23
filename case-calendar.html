@@ -47,11 +47,13 @@
 
   /* ── Hero ── */
   .hero { padding: 4rem 2rem 3rem; max-width: 760px; margin: 0 auto; text-align: center; }
+  .hero-tags { display: flex; gap: .5rem; justify-content: center; flex-wrap: wrap; margin-bottom: 1.25rem; }
   .hero-tag {
     display: inline-block; font-size: 12px; font-weight: 500; letter-spacing: .04em;
     color: var(--green); background: var(--green-light);
-    padding: 4px 12px; border-radius: 20px; margin-bottom: 1.25rem;
+    padding: 4px 12px; border-radius: 20px; text-decoration: none;
   }
+  .hero-tag-line { color: var(--line-green); background: var(--line-light); }
   .hero h1 { font-size: clamp(28px, 5vw, 42px); font-weight: 600; letter-spacing: -.02em; color: var(--fg); margin-bottom: .75rem; line-height: 1.15; }
   .hero p { font-size: 17px; color: var(--fg2); max-width: 520px; margin: 0 auto 2rem; line-height: 1.7; }
   .hero-badges { display: flex; gap: .5rem; justify-content: center; flex-wrap: wrap; }
@@ -159,13 +161,19 @@
 <!-- Nav -->
 <nav class="top-nav">
   <a class="nav-logo" href="index.html">風城師的AI遊記 <span>/ 案例</span></a>
-  <a class="nav-back" href="tool-gas.html">GAS + Gemini 對話式 AI</a>
+  <div style="display:flex;gap:1rem;align-items:center;">
+    <a class="nav-back" href="tool-gas.html">GAS + Gemini</a>
+    <a class="nav-back" style="color:var(--line-green);" href="tool-linebot.html">LINE Bot</a>
+  </div>
 </nav>
 
 <!-- Hero -->
 <div class="hero">
-  <div class="hero-tag">主軸一 · GAS + Gemini 對話式 AI</div>
-  <h1>LINE 行事曆<br>AI 助理</h1>
+  <div class="hero-tags">
+    <a href="tool-gas.html" class="hero-tag">主軸一 · GAS + Gemini</a>
+    <a href="tool-linebot.html" class="hero-tag hero-tag-line">主軸四 · LINE Bot</a>
+  </div>
+  <h1>LINE 行事曆 AI 助理</h1>
   <p>在 LINE 傳一句話，或拍一張活動傳單，AI 幫你自動把行程加進 Google 行事曆，還會提醒你有沒有時間衝突。</p>
   <div class="hero-badges">
     <span class="badge">Google Apps Script</span>
