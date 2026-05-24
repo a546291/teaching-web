@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NKNUBLOCK 學生作品自動批改 — 風城師的AI遊記</title>
+<style>
+  :root {
+    --fg: #1d1d1f;
+    --fg2: #6e6e73;
+    --fg3: #aeaeb2;
+    --bg: #ffffff;
+    --bg2: #f5f5f7;
+    --bg3: #e8e8ed;
+    --accent: #0071e3;
+    --accent-light: #e8f0fd;
+    --green: #1d8348;
+    --green-light: #eafaf1;
+    --amber: #b7770d;
+    --amber-light: #fef9e7;
+    --red: #922b21;
+    --red-light: #fdedec;
+    --purple: #4a3b8c;
+    --purple-light: #eeedfb;
+    --radius: 12px;
+    --radius-sm: 8px;
+    --font: -apple-system, 'SF Pro TC', 'PingFang TC', 'Helvetica Neue', sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font); background: var(--bg); color: var(--fg); line-height: 1.6; }
+
+  /* ── Nav ── */
+  .top-nav {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(255,255,255,0.85);
+    backdrop-filter: saturate(180%) blur(20px);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    border-bottom: 1px solid var(--bg3);
+    padding: 0 2rem;
+    display: flex; align-items: center; justify-content: space-between;
+    height: 52px;
+  }
+  .nav-logo { font-size: 15px; font-weight: 500; color: var(--fg); text-decoration: none; }
+  .nav-logo span { color: var(--fg2); font-weight: 400; }
+  .nav-back { font-size: 13px; color: var(--accent); text-decoration: none; display: flex; align-items: center; gap: 4px; }
+  .nav-back::before { content: '‹'; font-size: 18px; line-height: 1; }
+
+  /* ── Hero ── */
+  .hero { padding: 4rem 2rem 3rem; max-width: 760px; margin: 0 auto; text-align: center; }
+  .hero-tag {
+    display: inline-block; font-size: 12px; font-weight: 500; letter-spacing: .04em;
+    color: var(--amber); background: var(--amber-light);
+    padding: 4px 12px; border-radius: 20px; margin-bottom: 1.25rem;
+  }
+  .hero h1 { font-size: clamp(28px, 5vw, 42px); font-weight: 600; letter-spacing: -.02em; color: var(--fg); margin-bottom: .75rem; line-height: 1.15; }
+  .hero p { font-size: 17px; color: var(--fg2); max-width: 520px; margin: 0 auto 2rem; line-height: 1.7; }
+  .hero-badges { display: flex; gap: .5rem; justify-content: center; flex-wrap: wrap; }
+  .badge { font-size: 12px; padding: 4px 12px; border-radius: 20px; border: 1px solid var(--bg3); color: var(--fg2); background: var(--bg2); }
+
+  /* ── 內容 ── */
+  .content { max-width: 760px; margin: 0 auto; padding: 0 2rem 6rem; }
+  .divider { height: 1px; background: var(--bg3); margin: 2.5rem 0; }
+  .section-label { font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--fg3); margin-bottom: 1rem; }
+  h2 { font-size: 22px; font-weight: 600; letter-spacing: -.01em; color: var(--fg); margin-bottom: .75rem; }
+  h3 { font-size: 16px; font-weight: 600; color: var(--fg); margin-bottom: .5rem; }
+  p { font-size: 15px; color: var(--fg2); line-height: 1.75; margin-bottom: .75rem; }
+  p:last-child { margin-bottom: 0; }
+
+  /* ── 卡片 ── */
+  .card { background: var(--bg2); border-radius: var(--radius); padding: 1.25rem 1.5rem; margin-bottom: .75rem; }
+  .card-white { background: var(--bg); border: 1px solid var(--bg3); border-radius: var(--radius); padding: 1.25rem 1.5rem; margin-bottom: .75rem; }
+
+  /* ── 優缺點 ── */
+  .pros-cons { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; margin-bottom: 1rem; }
+  @media(max-width:560px){ .pros-cons { grid-template-columns: 1fr; } }
+  .pros { background: var(--green-light); border-radius: var(--radius); padding: 1.25rem; }
+  .cons { background: var(--amber-light); border-radius: var(--radius); padding: 1.25rem; }
+  .pros h3 { color: var(--green); font-size: 14px; margin-bottom: .6rem; }
+  .cons h3 { color: var(--amber); font-size: 14px; margin-bottom: .6rem; }
+  .list { list-style: none; }
+  .list li { font-size: 14px; color: var(--fg); padding: 5px 0; display: flex; gap: 8px; align-items: flex-start; border-bottom: 1px solid rgba(0,0,0,.05); line-height: 1.5; }
+  .list li:last-child { border-bottom: none; }
+  .list li::before { content: attr(data-icon); flex-shrink: 0; margin-top: 1px; }
+
+  /* ── 場景 ── */
+  .scene-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: .6rem; margin-bottom: 1rem; }
+  .scene-card { background: var(--bg2); border-radius: var(--radius-sm); padding: 1rem 1.1rem; }
+  .scene-icon { font-size: 22px; margin-bottom: .35rem; }
+  .scene-title { font-size: 13px; font-weight: 600; color: var(--fg); margin-bottom: .2rem; }
+  .scene-desc { font-size: 12px; color: var(--fg2); line-height: 1.5; }
+
+  /* ── 提示框 ── */
+  .callout { border-radius: var(--radius); padding: 1rem 1.25rem; margin-bottom: 1rem; display: flex; gap: .75rem; align-items: flex-start; }
+  .callout-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+  .callout-body { font-size: 14px; line-height: 1.65; color: var(--fg); }
+  .callout-body strong { font-weight: 600; }
+  .callout-green { background: var(--green-light); }
+  .callout-amber { background: var(--amber-light); }
+  .callout-blue { background: var(--accent-light); }
+  .callout-red { background: var(--red-light); }
+
+  /* ── 步驟 ── */
+  .step { display: flex; gap: 1rem; margin-bottom: 1.5rem; align-items: flex-start; }
+  .step-num { width: 28px; height: 28px; border-radius: 50%; background: var(--fg); color: var(--bg); font-size: 13px; font-weight: 600; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+  .step-body h3 { font-size: 15px; margin-bottom: .3rem; }
+  .step-body p { font-size: 14px; margin-bottom: 0; }
+  .step-note { font-size: 13px; color: var(--fg2); background: var(--bg2); border-radius: var(--radius-sm); padding: .5rem .85rem; margin-top: .5rem; border-left: 2px solid var(--bg3); line-height: 1.6; }
+
+  /* ── 程式碼 ── */
+  .code-block { background: #1d1d1f; color: #f8f8f2; border-radius: var(--radius-sm); padding: 1rem 1.25rem; font-family: 'SF Mono', 'Fira Code', monospace; font-size: 13px; line-height: 1.7; margin: .6rem 0; overflow-x: auto; }
+  .code-comment { color: #6e6e73; }
+
+  /* ── 流程 ── */
+  .flow { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin: .75rem 0; }
+  .flow-box { font-size: 12px; padding: 6px 12px; border-radius: 8px; background: var(--bg2); border: 1px solid var(--bg3); color: var(--fg); text-align: center; line-height: 1.4; }
+  .flow-box.hi { background: var(--amber-light); border-color: #f0d080; color: var(--amber); }
+  .flow-arr { font-size: 14px; color: var(--fg3); flex-shrink: 0; }
+
+  /* ── 工具列 ── */
+  .tool-row { display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1rem; }
+  .tool-chip { display: flex; align-items: center; gap: 8px; background: var(--bg2); border-radius: var(--radius-sm); padding: .6rem 1rem; font-size: 13px; color: var(--fg); }
+  .tool-chip .dot { width: 8px; height: 8px; border-radius: 50%; }
+
+  /* ── 評分表 ── */
+  .grade-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 1rem; }
+  .grade-table th { background: var(--bg2); padding: .6rem .85rem; text-align: left; font-weight: 600; color: var(--fg); border-bottom: 1px solid var(--bg3); }
+  .grade-table td { padding: .6rem .85rem; border-bottom: 1px solid var(--bg3); color: var(--fg2); vertical-align: top; }
+  .grade-table tr:last-child td { border-bottom: none; }
+  .score-hi { color: var(--green); font-weight: 600; }
+  .score-lo { color: var(--fg3); }
+
+  /* ── 資安 ── */
+  .security-row { display: flex; align-items: center; gap: .6rem; padding: .6rem 0; border-bottom: 1px solid var(--bg3); font-size: 13px; color: var(--fg); }
+  .security-row:last-child { border-bottom: none; }
+  .sec-ok { color: var(--green); font-size: 15px; }
+  .sec-warn { color: var(--amber); font-size: 15px; }
+
+  /* ── 截圖佔位 ── */
+  .screenshot { background: var(--bg2); border: 1px dashed var(--bg3); border-radius: var(--radius); height: 180px; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--fg3); font-size: 13px; gap: 6px; margin: .75rem 0; }
+  .screenshot::before { content: '📷'; font-size: 28px; }
+
+  /* ── 頁尾 ── */
+  .footer { border-top: 1px solid var(--bg3); padding: 2rem; text-align: center; font-size: 13px; color: var(--fg3); }
+  .footer a { color: var(--accent); text-decoration: none; }
+  .footer a:hover { text-decoration: underline; }
+
+  code { background: var(--bg2); padding: 1px 6px; border-radius: 4px; font-size: 13px; font-family: 'SF Mono', monospace; }
+</style>
+</head>
+<body>
+
+<!-- Nav -->
+<nav class="top-nav">
+  <a class="nav-logo" href="index.html">風城師的AI遊記 <span>/ 案例</span></a>
+  <a class="nav-back" href="tool-python.html">Python 本地工具</a>
+</nav>
+
+<!-- Hero -->
+<div class="hero">
+  <div class="hero-tag">主軸五 · Python 本地工具</div>
+  <h1>NKNUBLOCK<br>學生作品自動批改</h1>
+  <p>讓程式幫你逐一開啟每位學生的 Scratch 作品，自動測試搖桿、聲音、燈光是否正常運作，截圖存證，一鍵匯出 Excel 成績單。</p>
+  <div class="hero-badges">
+    <span class="badge">Python Flask</span>
+    <span class="badge">Playwright 瀏覽器自動化</span>
+    <span class="badge">NKNUBLOCK 模擬器</span>
+    <span class="badge">SQLite 成績記錄</span>
+    <span class="badge">Excel 匯出</span>
+  </div>
+</div>
+
+<!-- 主內容 -->
+<div class="content">
+
+  <!-- 對象說明 -->
+  <div class="callout callout-amber">
+    <span class="callout-icon">🎯</span>
+    <div class="callout-body">
+      <strong>這個工具是為資訊科老師設計的。</strong> 如果你的課程使用 NKNUBLOCK 讓學生設計 Scratch 作品，並且每次批改都要一個個手動開啟測試，這個工具能大幅節省你的時間。<br><br>
+      如果你還不確定 NKNUBLOCK 是什麼，可以先跳過這個案例，從其他比較入門的案例開始。
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- 這是什麼 -->
+  <div class="section-label">這是什麼？</div>
+  <h2>讓程式代替你執行每一份作品</h2>
+  <p>NKNUBLOCK 是一個在瀏覽器裡執行的 Scratch 平台，讓學生可以用 Scratch 積木控制模擬的硬體——搖桿、蜂鳴器、LED 燈條、8x8 點陣顯示器等等。</p>
+  <p>問題是，批改這類作品非常花時間。你需要逐一打開每位學生的 .sb3 檔案、點綠旗執行、觀察搖桿動了嗎、燈亮了嗎、分數有沒有增加……一個班 30 人，每人測試 2–3 分鐘，就要花掉一個多小時。</p>
+  <p>這個工具做的事情很簡單：把你要做的那些動作，讓程式自動做一遍。</p>
+
+  <div class="callout callout-green">
+    <span class="callout-icon">✨</span>
+    <div class="callout-body">
+      <strong>全程不需要真實硬體。</strong> 系統使用 NKNUBLOCK 的模擬模式，搖桿訊號由程式注入，不需要連接任何 Arduino 或實體裝置。
+    </div>
+  </div>
+
+  <!-- 流程圖 -->
+  <div class="flow">
+    <div class="flow-box">上傳 .sb3 檔案<br>（或指定資料夾）</div>
+    <div class="flow-arr">→</div>
+    <div class="flow-box hi">Playwright 自動<br>開啟執行作品</div>
+    <div class="flow-arr">→</div>
+    <div class="flow-box">偵測搖桿<br>聲音 燈光 矩陣</div>
+    <div class="flow-arr">→</div>
+    <div class="flow-box">截圖存證<br>寫入資料庫</div>
+    <div class="flow-arr">→</div>
+    <div class="flow-box">匯出<br>Excel 成績單</div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- 評分項目 -->
+  <div class="section-label">評什麼？怎麼評？</div>
+  <h2>六個評分項目，自動判定</h2>
+  <p>系統根據教具的功能需求，自動偵測下列六個項目，每項顯示 OK、L（部分完成）、或 —（未觸發）：</p>
+
+  <table class="grade-table">
+    <tr>
+      <th>評分項目</th>
+      <th>分數</th>
+      <th>判定方式</th>
+    </tr>
+    <tr>
+      <td><strong>搖桿</strong></td>
+      <td class="score-hi">80 分</td>
+      <td>強制注入搖桿訊號，若精靈 X 座標移動超過 5px → OK</td>
+    </tr>
+    <tr>
+      <td><strong>分數變數</strong></td>
+      <td class="score-hi">+3 分</td>
+      <td>Scratch 的「分數」變數在 30 秒內有增加 → OK</td>
+    </tr>
+    <tr>
+      <td><strong>倒數變數</strong></td>
+      <td class="score-hi">+3 分</td>
+      <td>「倒數時間」變數在 30 秒內有減少 → OK</td>
+    </tr>
+    <tr>
+      <td><strong>聲音（蜂鳴器）</strong></td>
+      <td class="score-hi">+2 分</td>
+      <td>蜂鳴器積木被呼叫到 → OK</td>
+    </tr>
+    <tr>
+      <td><strong>燈光（LED 燈條）</strong></td>
+      <td class="score-hi">+2 分 / L=+1 分</td>
+      <td>燈條亮了又滅 → OK；只亮不滅 → L（部分）</td>
+    </tr>
+    <tr>
+      <td><strong>8×8 點陣</strong></td>
+      <td class="score-hi">+2 分</td>
+      <td>矩陣顯示數字「1」的圖案 → OK</td>
+    </tr>
+  </table>
+
+  <div class="callout callout-blue">
+    <span class="callout-icon">📋</span>
+    <div class="callout-body">
+      <strong>滿分 92 分（搖桿 80 + 其他各項合計 12）。</strong> 分數比例可依需求自行調整程式碼。搖桿佔最高分，是因為它是這系列教具的核心操控方式。
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- 優缺點 -->
+  <div class="section-label">優點與限制</div>
+  <h2>什麼情況適合？什麼情況不適合？</h2>
+
+  <div class="pros-cons">
+    <div class="pros">
+      <h3>✦ 適合的地方</h3>
+      <ul class="list">
+        <li data-icon="✓">一個班 30 份作品，約 15–20 分鐘全部跑完</li>
+        <li data-icon="✓">不需要連接任何實體硬體，純模擬執行</li>
+        <li data-icon="✓">每份作品都有截圖存檔，方便日後查閱或申訴</li>
+        <li data-icon="✓">匯出 Excel 含班級座號、成績，可直接貼到成績系統</li>
+        <li data-icon="✓">學生資料完全留在自己電腦，不上傳任何雲端</li>
+        <li data-icon="✓">程式碼完全公開，可自行調整評分項目與分數</li>
+      </ul>
+    </div>
+    <div class="cons">
+      <h3>△ 需要注意的地方</h3>
+      <ul class="list">
+        <li data-icon="△">僅限 Windows 系統（Playwright 以有介面模式執行 Chromium）</li>
+        <li data-icon="△">需要先安裝 Python，對初學者有一定門檻</li>
+        <li data-icon="△">批改前 NKNUBLOCK 必須已在本機啟動</li>
+        <li data-icon="△">第一次需要設定搖桿座標（之後固定）</li>
+        <li data-icon="△">偵測項目固定，若換新教具型號需調整積木關鍵字</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- 用了哪些技術 -->
+  <div class="section-label">用了哪些技術？</div>
+  <h2>這個系統的組成</h2>
+
+  <div class="tool-row">
+    <div class="tool-chip"><div class="dot" style="background:#3776AB;"></div>Python Flask（後端 Web 介面）</div>
+    <div class="tool-chip"><div class="dot" style="background:#2F9E44;"></div>Playwright（瀏覽器自動化）</div>
+    <div class="tool-chip"><div class="dot" style="background:#003B57;"></div>SQLite（成績記錄）</div>
+    <div class="tool-chip"><div class="dot" style="background:#217346;"></div>openpyxl（Excel 匯出）</div>
+  </div>
+
+  <div class="callout callout-blue">
+    <span class="callout-icon">🤔</span>
+    <div class="callout-body">
+      <strong>不懂這些名詞沒關係。</strong> 簡單說：Playwright 是一個會自動操作瀏覽器的程式，等於讓電腦模仿你打開瀏覽器、點綠旗、等待、截圖這些動作。Flask 讓你用瀏覽器介面設定這些動作，不需要在命令列輸入複雜的指令。
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- 使用流程 -->
+  <div class="section-label">怎麼開始？</div>
+  <h2>三個頁面，完成一次批改</h2>
+  <p>第一次設定約需 30 分鐘，主要花在安裝 Python 和 Playwright。之後每次批改只需要開啟 NKNUBLOCK 和這個工具，約 2 分鐘就能開始。</p>
+
+  <div class="callout callout-amber">
+    <span class="callout-icon">📋</span>
+    <div class="callout-body">
+      <strong>開始前需要準備：</strong> Windows 電腦、已安裝 NKNUBLOCK 並能在瀏覽器開啟、學生 .sb3 作品檔
+    </div>
+  </div>
+
+  <h3 style="margin:1.25rem 0 .75rem; padding-left:.75rem; border-left:3px solid var(--amber);">第一部分：安裝 Python 與相關套件</h3>
+
+  <div class="step">
+    <div class="step-num">1</div>
+    <div class="step-body">
+      <h3>下載並安裝 Python</h3>
+      <p>前往 <strong>python.org/downloads</strong>，下載 3.11 以上版本，執行安裝程式。</p>
+      <div class="step-note">
+        ⚠️ 安裝時有一個選項非常重要：<strong>「Add Python to PATH」</strong> 務必勾選，否則之後的步驟會失敗。
+      </div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">2</div>
+    <div class="step-body">
+      <h3>下載程式碼，安裝套件</h3>
+      <p>將程式碼資料夾放到你熟悉的位置（例如桌面），開啟命令提示字元，切換到該資料夾，輸入：</p>
+      <div class="code-block">pip install -r requirements.txt
+playwright install chromium</div>
+      <div class="step-note">安裝需要幾分鐘。Playwright 會下載一個獨立的 Chromium 瀏覽器供自動化使用，約 150MB。</div>
+    </div>
+  </div>
+
+  <h3 style="margin:1.25rem 0 .75rem; padding-left:.75rem; border-left:3px solid var(--amber);">第二部分：啟動系統</h3>
+
+  <div class="step">
+    <div class="step-num">3</div>
+    <div class="step-body">
+      <h3>先啟動 NKNUBLOCK</h3>
+      <p>用平常的方式開啟 NKNUBLOCK，確認瀏覽器可以看到模擬面板（點燒杯圖示展開）。系統預設 NKNUBLOCK 執行在 <code>http://127.0.0.1:4443</code>。</p>
+      <div class="step-note">這個步驟必須在啟動批改工具之前完成。NKNUBLOCK 關掉或網址不對，後續的批改就無法進行。</div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">4</div>
+    <div class="step-body">
+      <h3>啟動批改工具</h3>
+      <p>在命令提示字元輸入：</p>
+      <div class="code-block">python app.py</div>
+      <p style="margin-top:.5rem;">看到以下訊息代表啟動成功：</p>
+      <div class="code-block"><span class="code-comment"> * Running on http://127.0.0.1:5000</span></div>
+      <div class="step-note">這個黑色視窗要保持開著。之後每次使用重複步驟 3–4 即可。</div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">5</div>
+    <div class="step-body">
+      <h3>在瀏覽器開啟操作介面</h3>
+      <p>打開 Chrome 或 Edge，輸入：</p>
+      <div class="code-block">http://127.0.0.1:5000</div>
+      <p style="margin-top:.5rem;">你會看到設定頁面。</p>
+      <div class="screenshot">批改工具設定頁面截圖（待補）</div>
+    </div>
+  </div>
+
+  <h3 style="margin:1.25rem 0 .75rem; padding-left:.75rem; border-left:3px solid var(--amber);">第三部分：設定並執行批改</h3>
+
+  <div class="step">
+    <div class="step-num">6</div>
+    <div class="step-body">
+      <h3>設定頁：填入基本資訊</h3>
+      <p>設定頁有幾個欄位：</p>
+      <ul class="list" style="margin-top:.5rem;">
+        <li data-icon="·"><strong>教具名稱：</strong>輸入教具型號前半段，例如 <code>5016B</code>，系統會自動比對</li>
+        <li data-icon="·"><strong>執行等待秒數：</strong>點綠旗後等幾秒再截圖（預設 30 秒，視作品複雜度調整）</li>
+        <li data-icon="·"><strong>搖桿座標：</strong>第一次需填入，填完後固定不需再改（見下方說明）</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">7</div>
+    <div class="step-body">
+      <h3>設定搖桿座標（一次性設定）</h3>
+      <p>搖桿偵測需要知道模擬搖桿在螢幕上的位置。在設定頁點「自動偵測搖桿座標」，系統會嘗試自動找到位置並截圖標記。</p>
+      <div class="step-note">
+        若自動偵測失敗，可手動取得：按 F12 開啟開發者工具，切換到 Console，輸入下方指令，然後點搖桿灰色圓圈中心，記下顯示的 X、Y 數字。<br><br>
+        <code>document.addEventListener('click', e => console.log(e.clientX, e.clientY), {"{"}once:true{"}"})</code>
+      </div>
+      <div class="screenshot">搖桿座標偵測截圖（待補）</div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">8</div>
+    <div class="step-body">
+      <h3>上傳學生作品</h3>
+      <p>有兩種方式：</p>
+      <ul class="list" style="margin-top:.5rem;">
+        <li data-icon="①"><strong>直接上傳 .sb3 檔案：</strong>拖曳或選取，檔名即為學生姓名</li>
+        <li data-icon="②"><strong>指定資料夾路徑：</strong>輸入存放所有 .sb3 的資料夾路徑，系統自動掃描全部</li>
+      </ul>
+      <div class="step-note">建議把班級作品統一放在一個資料夾，用方式②批次處理。檔名格式建議為「成績601-猴子-01 陳小明」方便後續匯出時自動對應班級座號。</div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">9</div>
+    <div class="step-body">
+      <h3>執行頁：即時觀看進度</h3>
+      <p>按「開始批改」後，自動跳到執行頁。頁面會即時顯示：</p>
+      <ul class="list" style="margin-top:.5rem;">
+        <li data-icon="·">目前處理到第幾位學生（進度條）</li>
+        <li data-icon="·">正在執行的作品名稱</li>
+        <li data-icon="·">每個步驟的詳細 log（初始化、執行、各項偵測結果）</li>
+      </ul>
+      <div class="screenshot">執行進度頁面截圖（待補）</div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">10</div>
+    <div class="step-body">
+      <h3>結果頁：查看截圖與匯出成績</h3>
+      <p>批改完成後跳到結果頁，顯示所有批改記錄的表格。每筆記錄包含：</p>
+      <ul class="list" style="margin-top:.5rem;">
+        <li data-icon="·">學生姓名、教具、執行秒數</li>
+        <li data-icon="·">六個評分項目的判定結果（OK / L / —）</li>
+        <li data-icon="·">作品截圖（點縮圖可放大查看）</li>
+      </ul>
+      <p style="margin-top:.5rem;">勾選記錄後可「匯出選取」，或直接「全部匯出」成 Excel 成績單。Excel 會自動依班級座號排序，並計算每位學生的總分。</p>
+      <div class="screenshot">結果頁面與截圖縮圖示意（待補）</div>
+    </div>
+  </div>
+
+  <div class="callout callout-green">
+    <span class="callout-icon">🎉</span>
+    <div class="callout-body">
+      完成！下次批改只需要：啟動 NKNUBLOCK → 執行 <code>python app.py</code> → 開啟瀏覽器上傳新的 .sb3 檔案。歷史批改記錄會一直保留在資料庫裡。
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- 常見問題 -->
+  <div class="section-label">遇到問題？</div>
+  <h2>常見疑問</h2>
+
+  <div class="card-white" style="margin-bottom:.6rem;">
+    <h3 style="font-size:14px; margin-bottom:.4rem;">連線逾時，批改沒辦法開始？</h3>
+    <p style="font-size:14px;">最常見原因是 NKNUBLOCK 未啟動，或模擬面板沒有展開（需先點燒杯圖示）。確認 NKNUBLOCK 在瀏覽器的 <code>http://127.0.0.1:4443</code> 可以正常開啟後再試。</p>
+  </div>
+
+  <div class="card-white" style="margin-bottom:.6rem;">
+    <h3 style="font-size:14px; margin-bottom:.4rem;">燈光顯示 L 而不是 OK？</h3>
+    <p style="font-size:14px;">學生程式有點亮燈條，但沒有熄滅的積木。若確認邏輯上應該要亮再滅，可能是積木名稱設定問題；若學生本來就沒有熄燈，L 就是正確結果（部分完成）。</p>
+  </div>
+
+  <div class="card-white" style="margin-bottom:.6rem;">
+    <h3 style="font-size:14px; margin-bottom:.4rem;">搖桿顯示 —，但學生的程式看起來有寫搖桿控制？</h3>
+    <p style="font-size:14px;">可能是作品裡用到的 Scratch 變數名稱不在偵測清單裡。看執行頁 log 的「初始變數：{...}」，找有沒有搖桿相關的變數名稱，再更新系統設定。</p>
+  </div>
+
+  <div class="card-white" style="margin-bottom:.6rem;">
+    <h3 style="font-size:14px; margin-bottom:.4rem;">換了新教具型號，很多項目變成 —？</h3>
+    <p style="font-size:14px;">不同教具使用的積木名稱可能不同（例如蜂鳴器的積木名稱從 <code>NKNU_SetBuzzer</code> 改成其他名稱）。看 log 的「NKNU 呼叫：[...]」，找到新的積木名稱後，更新 <code>playwright_runner.py</code> 開頭的關鍵字清單。</p>
+  </div>
+
+  <div class="card-white">
+    <h3 style="font-size:14px; margin-bottom:.4rem;">Excel 的班級座號欄位是空的？</h3>
+    <p style="font-size:14px;">系統依照「成績601-猴子-02鍾岩希」這樣的格式自動解析班級座號。如果檔名格式不同，匯出時可以在「無法解析」的欄位手動填入，或先統一重新命名 .sb3 檔案。</p>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- 資安確認 -->
+  <div class="section-label">資安確認</div>
+  <h2>學生資料安全嗎？</h2>
+
+  <div class="callout callout-green">
+    <span class="callout-icon">🔒</span>
+    <div class="callout-body">
+      <strong>學生作品和成績完全不離開你的電腦。</strong> 這個工具不使用任何外部 API，不需要 Gemini、OpenAI 或其他雲端服務。所有處理都在本機完成。
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="security-row"><span class="sec-ok">✓</span> 無任何外部 API 金鑰，不需要 Gemini 或其他帳號</div>
+    <div class="security-row"><span class="sec-ok">✓</span> 學生 .sb3 作品在本機執行，不上傳任何伺服器</div>
+    <div class="security-row"><span class="sec-ok">✓</span> 截圖和成績存在本機 SQLite 資料庫，不同步雲端</div>
+    <div class="security-row"><span class="sec-ok">✓</span> 資料庫寫入使用參數化查詢，不受 SQL 注入影響</div>
+    <div class="security-row"><span class="sec-ok">✓</span> 上傳的 .sb3 檔案不對外公開（無對外路由）</div>
+    <div class="security-row"><span class="sec-ok">✓</span> 系統預設只在 127.0.0.1 監聽，外網無法存取</div>
+    <div class="security-row"><span class="sec-warn">△</span> <code>debug=True</code> 目前開啟，若改為多人共用環境請改成 <code>debug=False</code></div>
+    <div class="security-row"><span class="sec-warn">△</span> 建議將 <code>.db</code> 資料庫檔案加入 <code>.gitignore</code>（若有版本控制）</div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- 原始程式碼 -->
+  <div class="section-label">原始程式碼</div>
+  <h2>想自己修改或調整？</h2>
+  <p>程式碼完整公開，包含所有評分邏輯與設定說明。評分分數、偵測項目、積木關鍵字都可以自行修改，不需要重新設計整個系統。</p>
+  <p>如有需要或想一起改進，歡迎透過下方社群連絡。</p>
+
+  <div class="callout callout-blue">
+    <span class="callout-icon">📦</span>
+    <div class="callout-body">
+      <strong>程式碼索取方式：</strong> 目前尚未公開在 GitHub，如果你也在用 NKNUBLOCK 上課，歡迎透過 Facebook 或 Threads 聯絡作者，說明你的教學情境。
+    </div>
+  </div>
+
+</div>
+
+<!-- Footer -->
+<footer class="footer">
+  <p>© 2026 陳盈宏 · 風城師的AI遊記</p>
+  <p style="margin-top:.4rem;">
+    <a href="https://www.facebook.com/alex.yh.chen" target="_blank">Facebook</a>
+    &nbsp;·&nbsp;
+    <a href="https://www.threads.com/@a777x" target="_blank">Threads</a>
+    &nbsp;·&nbsp;
+    <a href="https://x.com/a546291" target="_blank">X</a>
+    &nbsp;·&nbsp;
+    <a href="index.html">回到首頁</a>
+  </p>
+</footer>
+
+</body>
+</html>

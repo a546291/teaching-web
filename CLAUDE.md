@@ -30,10 +30,12 @@
 | case-wheel.html | 轉盤抽籤遊戲（含 GitHub Pages 教學）|
 | case-calendar.html | LINE 行事曆 AI 助理 |
 | case-ocr.html | OCR 錯卷題庫系統 |
+| case-nknublock.html | NKNUBLOCK 學生作品自動批改系統 |
 | tool-gas.html | 主軸一：GAS + Gemini |
 | tool-antigravity.html | 主軸二：Antigravity 視覺識別 |
 | tool-canvas.html | 主軸三：Canvas 純前端工具 |
 | tool-linebot.html | 主軸四：LINE Bot 自動回覆 |
+| tool-python.html | 主軸五：Python 本地工具 |
 | CLAUDE.md | 本說明檔 |
 
 ## 每個案例頁面的固定結構
@@ -101,3 +103,4 @@ git push
 | 轉盤遊戲（wheel-game）| ✅ 整體安全，純前端無金鑰 |
 | LINE 行事曆助理（line-bot-gemini-calendar-assistant）| ✅ 安全，建議改用 Script Properties |
 | OCR 錯卷題庫（OCR-CAD）| ⚠️ 需修正：debug=True+0.0.0.0、uploads 路由、SQL f-string |
+| NKNUBLOCK 自動批改（NKNUBLOCK）| ⚠️ debug=True 需修正；init_db f-string 低風險（硬編碼值）；.db 建議 gitignore |

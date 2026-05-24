@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python 本地工具 — 風城師的AI遊記</title>
+<style>
+  :root{--fg:#1d1d1f;--fg2:#6e6e73;--fg3:#aeaeb2;--bg:#fff;--bg2:#f5f5f7;--bg3:#e8e8ed;--accent:#0071e3;--accent-light:#e8f0fd;--green:#1d8348;--green-light:#eafaf1;--amber:#b7770d;--amber-light:#fef9e7;--radius:12px;--radius-sm:8px;--font:-apple-system,'SF Pro TC','PingFang TC','Helvetica Neue',sans-serif;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:var(--font);background:var(--bg);color:var(--fg);line-height:1.6;}
+  .top-nav{position:sticky;top:0;z-index:100;background:rgba(255,255,255,0.85);backdrop-filter:saturate(180%) blur(20px);border-bottom:1px solid var(--bg3);padding:0 2rem;display:flex;align-items:center;justify-content:space-between;height:52px;}
+  .nav-logo{font-size:15px;font-weight:500;color:var(--fg);text-decoration:none;}
+  .nav-logo span{color:var(--fg2);font-weight:400;}
+  .nav-back{font-size:13px;color:var(--accent);text-decoration:none;}
+  .nav-back::before{content:'‹ ';font-size:16px;}
+  .hero{padding:4rem 2rem 3rem;max-width:760px;margin:0 auto;text-align:center;}
+  .hero-tag{display:inline-block;font-size:12px;font-weight:500;letter-spacing:.04em;color:var(--amber);background:var(--amber-light);padding:4px 12px;border-radius:20px;margin-bottom:1.25rem;}
+  .hero h1{font-size:clamp(28px,5vw,42px);font-weight:600;letter-spacing:-.02em;color:var(--fg);margin-bottom:.75rem;line-height:1.15;}
+  .hero p{font-size:17px;color:var(--fg2);max-width:520px;margin:0 auto 2rem;line-height:1.7;}
+  .hero-badges{display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap;}
+  .badge{font-size:12px;padding:4px 12px;border-radius:20px;border:1px solid var(--bg3);color:var(--fg2);background:var(--bg2);}
+  .content{max-width:760px;margin:0 auto;padding:0 2rem 6rem;}
+  .divider{height:1px;background:var(--bg3);margin:2.5rem 0;}
+  .section-label{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--fg3);margin-bottom:1rem;}
+  h2{font-size:22px;font-weight:600;letter-spacing:-.01em;color:var(--fg);margin-bottom:.75rem;}
+  h3{font-size:16px;font-weight:600;color:var(--fg);margin-bottom:.5rem;}
+  p{font-size:15px;color:var(--fg2);line-height:1.75;margin-bottom:.75rem;}
+  p:last-child{margin-bottom:0;}
+  .callout{border-radius:var(--radius);padding:1rem 1.25rem;margin-bottom:1rem;display:flex;gap:.75rem;align-items:flex-start;}
+  .callout-icon{font-size:18px;flex-shrink:0;margin-top:1px;}
+  .callout-body{font-size:14px;line-height:1.65;color:var(--fg);}
+  .callout-body strong{font-weight:600;}
+  .callout-green{background:var(--green-light);}
+  .callout-amber{background:var(--amber-light);}
+  .callout-blue{background:var(--accent-light);}
+  .cases-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:1rem;margin-top:1rem;}
+  .case-card{border:1px solid var(--bg3);border-radius:var(--radius);overflow:hidden;text-decoration:none;color:inherit;display:block;background:var(--bg);transition:box-shadow .2s,transform .2s;}
+  .case-card:hover{box-shadow:0 8px 24px rgba(0,0,0,.07);transform:translateY(-2px);}
+  .case-thumb{height:100px;display:flex;align-items:center;justify-content:center;font-size:32px;}
+  .case-body{padding:.85rem 1rem 1rem;}
+  .case-title{font-size:14px;font-weight:600;margin-bottom:.25rem;color:var(--fg);}
+  .case-desc{font-size:12px;color:var(--fg2);line-height:1.55;}
+  .pros-cons{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:1rem;}
+  @media(max-width:560px){.pros-cons{grid-template-columns:1fr;}}
+  .pros{background:var(--green-light);border-radius:var(--radius);padding:1.25rem;}
+  .cons{background:var(--amber-light);border-radius:var(--radius);padding:1.25rem;}
+  .pros h3{color:var(--green);font-size:14px;margin-bottom:.6rem;}
+  .cons h3{color:var(--amber);font-size:14px;margin-bottom:.6rem;}
+  .list{list-style:none;}
+  .list li{font-size:14px;color:var(--fg);padding:5px 0;display:flex;gap:8px;align-items:flex-start;border-bottom:1px solid rgba(0,0,0,.05);line-height:1.5;}
+  .list li:last-child{border-bottom:none;}
+  .list li::before{content:attr(data-icon);flex-shrink:0;margin-top:1px;}
+  .scene-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:.6rem;margin-bottom:1rem;}
+  .scene-card{background:var(--bg2);border-radius:var(--radius-sm);padding:1rem 1.1rem;}
+  .scene-icon{font-size:22px;margin-bottom:.35rem;}
+  .scene-title{font-size:13px;font-weight:600;color:var(--fg);margin-bottom:.2rem;}
+  .scene-desc{font-size:12px;color:var(--fg2);line-height:1.5;}
+  /* 比較表 */
+  .compare-table{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:1rem;}
+  .compare-table th{background:var(--bg2);padding:.6rem .85rem;text-align:left;font-weight:600;color:var(--fg);border-bottom:1px solid var(--bg3);}
+  .compare-table td{padding:.6rem .85rem;border-bottom:1px solid var(--bg3);color:var(--fg2);vertical-align:top;}
+  .compare-table tr:last-child td{border-bottom:none;}
+  .tag-ok{color:var(--green);font-weight:500;}
+  .tag-no{color:var(--fg3);}
+  .tag-mid{color:var(--amber);font-weight:500;}
+  .footer{border-top:1px solid var(--bg3);padding:2rem;text-align:center;font-size:13px;color:var(--fg3);}
+  .footer a{color:var(--accent);text-decoration:none;}
+</style>
+</head>
+<body>
+
+<nav class="top-nav">
+  <a class="nav-logo" href="index.html">風城師的AI遊記 <span>/ 主軸</span></a>
+  <a class="nav-back" href="index.html">回首頁</a>
+</nav>
+
+<div class="hero">
+  <div class="hero-tag">主軸五</div>
+  <h1>Python<br>本地工具</h1>
+  <p>在自己的電腦上跑，學生資料不離開本機，沒有月費，也不需要雲端帳號。適合流程固定、重複性高、又需要深度客製的教學任務。</p>
+  <div class="hero-badges">
+    <span class="badge">Python</span>
+    <span class="badge">Flask 本地介面</span>
+    <span class="badge">瀏覽器自動化</span>
+    <span class="badge">資料完全在本機</span>
+  </div>
+</div>
+
+<div class="content">
+
+  <div class="section-label">這個主軸在做什麼？</div>
+  <h2>讓程式幫你做重複的事，資料留在自己手裡</h2>
+  <p>這條路線的核心思路是：<strong>把你每次要重複做的操作，寫成程式讓它自動執行</strong>。你只需要設定一次，之後按一個鍵，程式就會照步驟把事情做完。</p>
+  <p>和其他主軸最大的不同在於，這裡的工具全部跑在你自己的電腦上。沒有 Google 試算表、沒有 LINE Bot、沒有任何外部平台——程式直接開啟瀏覽器、讀取檔案、寫入資料庫，一切在本機完成。</p>
+
+  <div class="callout callout-amber">
+    <span class="callout-icon">⚠️</span>
+    <div class="callout-body">
+      <strong>這是四個主軸裡門檻最高的。</strong> 需要在電腦安裝 Python，第一次設定需要 30–60 分鐘。如果你是第一次接觸 AI 工具，建議先從主軸一（GAS + Gemini）或主軸三（Canvas 純前端）開始，比較容易上手。
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="section-label">和其他主軸的差異</div>
+  <h2>什麼時候選 Python 本地工具？</h2>
+
+  <table class="compare-table">
+    <tr>
+      <th>需求</th>
+      <th>建議主軸</th>
+    </tr>
+    <tr>
+      <td>想快速試試 AI，不想安裝任何東西</td>
+      <td class="tag-ok">主軸一 GAS + Gemini</td>
+    </tr>
+    <tr>
+      <td>要在課堂用轉盤、計時器等小工具</td>
+      <td class="tag-ok">主軸三 Canvas 純前端</td>
+    </tr>
+    <tr>
+      <td>要用 LINE 接收訊息並自動回覆</td>
+      <td class="tag-ok">主軸四 LINE Bot</td>
+    </tr>
+    <tr>
+      <td>要<strong>批次處理大量學生檔案</strong>，或自動化操作某個本機軟體</td>
+      <td class="tag-mid">主軸五 Python 本地工具 ← 這裡</td>
+    </tr>
+    <tr>
+      <td>有資安顧慮，學生資料不能上傳雲端</td>
+      <td class="tag-mid">主軸五 Python 本地工具 ← 這裡</td>
+    </tr>
+  </table>
+
+  <div class="divider"></div>
+
+  <div class="section-label">優點與限制</div>
+  <h2>什麼情況適合？什麼情況不適合？</h2>
+
+  <div class="pros-cons">
+    <div class="pros">
+      <h3>✦ 適合的地方</h3>
+      <ul class="list">
+        <li data-icon="✓">學生資料、成績、作品全部留在本機，不上傳任何雲端</li>
+        <li data-icon="✓">沒有月費或 API 費用（視工具而定）</li>
+        <li data-icon="✓">可以和本機軟體、瀏覽器、本地資料夾直接互動</li>
+        <li data-icon="✓">一次設定，之後重複使用，流程完全固定</li>
+        <li data-icon="✓">彈性最高，幾乎可以做任何自動化任務</li>
+        <li data-icon="✓">程式碼公開，可以依自己需求自由修改</li>
+      </ul>
+    </div>
+    <div class="cons">
+      <h3>△ 需要注意的地方</h3>
+      <ul class="list">
+        <li data-icon="△">需要安裝 Python，第一次有一定門檻</li>
+        <li data-icon="△">工具只在你的電腦跑，電腦關掉就停</li>
+        <li data-icon="△">出問題時需要看 log 除錯，比圖形介面複雜</li>
+        <li data-icon="△">某些工具限 Windows（如涉及瀏覽器自動化）</li>
+        <li data-icon="△">不適合需要隨時隨地存取的場景</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="section-label">應用場景</div>
+  <h2>這條路線能做什麼？</h2>
+
+  <div class="scene-grid">
+    <div class="scene-card">
+      <div class="scene-icon">🤖</div>
+      <div class="scene-title">自動化批改作業</div>
+      <div class="scene-desc">批次執行學生程式作品，自動測試功能、截圖存證、匯出成績</div>
+    </div>
+    <div class="scene-card">
+      <div class="scene-icon">📄</div>
+      <div class="scene-title">文件批次處理</div>
+      <div class="scene-desc">大量 PDF、Word 或試卷，自動解析、整理、分類成題庫</div>
+    </div>
+    <div class="scene-card">
+      <div class="scene-icon">📊</div>
+      <div class="scene-title">成績資料整理</div>
+      <div class="scene-desc">從多個來源蒐集學生資料，自動算分、排序、匯出 Excel</div>
+    </div>
+    <div class="scene-card">
+      <div class="scene-icon">🌐</div>
+      <div class="scene-title">瀏覽器自動操作</div>
+      <div class="scene-desc">讓程式代替你點按瀏覽器，完成重複的網頁操作流程</div>
+    </div>
+    <div class="scene-card">
+      <div class="scene-icon">🖼️</div>
+      <div class="scene-title">截圖與存證</div>
+      <div class="scene-desc">自動截取每位學生的作品畫面，附上時間戳記留存備查</div>
+    </div>
+    <div class="scene-card">
+      <div class="scene-icon">🗄️</div>
+      <div class="scene-title">本機資料庫管理</div>
+      <div class="scene-desc">用 SQLite 建立私有的學生資料庫，不依賴任何線上服務</div>
+    </div>
+  </div>
+
+  <div class="callout callout-blue">
+    <span class="callout-icon">🤔</span>
+    <div class="callout-body">
+      <strong>Python 不是只有工程師才能用。</strong> 這個主軸的每個案例都會提供完整的安裝步驟和設定說明。你不需要會寫程式，只需要照步驟把工具跑起來，之後的事情程式都會自動處理。
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="section-label">這個主軸的案例</div>
+  <h2>已完成的教學文件</h2>
+
+  <div class="cases-grid">
+    <a class="case-card" href="case-nknublock.html">
+      <div class="case-thumb" style="background:var(--amber-light);">🤖</div>
+      <div class="case-body">
+        <div class="case-title">NKNUBLOCK 學生作品自動批改</div>
+        <div class="case-desc">批次執行 Scratch 作品，自動測試搖桿燈光聲音，截圖存證，匯出 Excel 成績單。</div>
+      </div>
+    </a>
+    <div class="case-card" style="border-style:dashed;opacity:.4;cursor:default;">
+      <div class="case-thumb" style="background:var(--bg2);">＋</div>
+      <div class="case-body">
+        <div class="case-title" style="color:var(--fg3);">更多案例陸續加入</div>
+        <div class="case-desc" style="color:var(--fg3);">成績資料整理、文件批次處理等案例製作中。</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<footer class="footer">
+  <p>© 2026 陳盈宏 · 風城師的AI遊記</p>
+  <p style="margin-top:.4rem;">
+    <a href="https://www.facebook.com/alex.yh.chen" target="_blank">Facebook</a> &nbsp;·&nbsp;
+    <a href="https://www.threads.com/@a777x" target="_blank">Threads</a> &nbsp;·&nbsp;
+    <a href="https://x.com/a546291" target="_blank">X</a> &nbsp;·&nbsp;
+    <a href="index.html">回到首頁</a>
+  </p>
+</footer>
+
+</body>
+</html>
