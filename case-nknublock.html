@@ -510,9 +510,9 @@ playwright install chromium</div>
     <div class="security-row"><span class="sec-ok">✓</span> 學生 .sb3 作品在本機執行，不上傳任何伺服器</div>
     <div class="security-row"><span class="sec-ok">✓</span> 截圖和成績存在本機 SQLite 資料庫，不同步雲端</div>
     <div class="security-row"><span class="sec-ok">✓</span> 資料庫寫入使用參數化查詢，不受 SQL 注入影響</div>
-    <div class="security-row"><span class="sec-ok">✓</span> 上傳的 .sb3 檔案不對外公開（無對外路由）</div>
-    <div class="security-row"><span class="sec-ok">✓</span> 系統預設只在 127.0.0.1 監聽，外網無法存取</div>
-    <div class="security-row"><span class="sec-warn">△</span> <code>debug=True</code> 目前開啟，若改為多人共用環境請改成 <code>debug=False</code></div>
+    <div class="security-row"><span class="sec-ok">✓</span> 上傳檔名經過 <code>secure_filename()</code> 清理，防止路徑穿越攻擊</div>
+    <div class="security-row"><span class="sec-ok">✓</span> 前端所有動態插入的學生姓名、檔名均以 <code>escHtml()</code> 跳脫，防止 XSS</div>
+    <div class="security-row"><span class="sec-ok">✓</span> 系統只在 127.0.0.1 監聽（<code>debug=False</code>），外網無法存取</div>
     <div class="security-row"><span class="sec-warn">△</span> 建議將 <code>.db</code> 資料庫檔案加入 <code>.gitignore</code>（若有版本控制）</div>
   </div>
 

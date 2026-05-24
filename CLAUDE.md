@@ -103,4 +103,4 @@ git push
 | 轉盤遊戲（wheel-game）| ✅ 整體安全，純前端無金鑰 |
 | LINE 行事曆助理（line-bot-gemini-calendar-assistant）| ✅ 安全，建議改用 Script Properties |
 | OCR 錯卷題庫（OCR-CAD）| ⚠️ 需修正：debug=True+0.0.0.0、uploads 路由、SQL f-string |
-| NKNUBLOCK 自動批改（NKNUBLOCK）| ⚠️ debug=True 需修正；init_db f-string 低風險（硬編碼值）；.db 建議 gitignore |
+| NKNUBLOCK 自動批改（NKNUBLOCK）| ✅ 已修正：路徑穿越(secure_filename)、XSS(escHtml)、debug=False；init_db f-string 低風險（硬編碼值）；.db 建議 gitignore |
