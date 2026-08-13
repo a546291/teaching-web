@@ -112,14 +112,17 @@ def main():
         print("沒有抓到任何一檔的資料，可能是 API 掛了，放棄寫入。", file=sys.stderr)
         sys.exit(1)
 
-    # 用出現次數最多的交易日當作這次快照的 asOf（正常應該全部一致）
-    as_of = max(set(dates), key=dates.count)
+    # TWSE、TPEx 更新腳步不一定同步（例如某天 TWSE 開放資料還沒放出當日收盤價，
+    # TPEx 卻已經更新），用「最舊」的交易日當 asOf，才能保證這個日期底下
+    # 46 檔全部都是同一天或更早，不會有「asOf 寫 8/13，但某幾檔其實還是
+    # 8/12 舊價」這種不誠實的情況。
+    as_of = min(dates)
 
     if PRICES_PATH.exists():
         with open(PRICES_PATH, encoding="utf-8") as f:
             old = json.load(f)
         if old.get("asOf") == as_of:
-            print(f"交易日 {as_of} 跟現有 prices.json 相同，視為非交易日，不覆寫。")
+            print(f"沒有更完整的新資料（{as_of} 之後至少還有一個市場尚未更新，或今天非交易日），不覆寫。")
             return
 
     snapshot = {
