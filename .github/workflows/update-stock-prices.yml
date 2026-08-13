@@ -1,0 +1,35 @@
+name: 更新台股個股分類表股價
+
+on:
+  schedule:
+    # 平日台灣時間 14:00（UTC 06:00）跑一次，收盤後抓 TWSE/TPEx 當日收盤價
+    - cron: '0 6 * * 1-5'
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  update-prices:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: 抓取並正規化股價
+        run: python3 scripts/update_prices.py
+
+      - name: Commit 並 push（若有變動）
+        run: |
+          if git diff --quiet -- prices.json; then
+            echo "prices.json 沒有變動（非交易日或資料未更新），略過 commit。"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add prices.json
+          git commit -m "自動更新股價快照 $(date -u +%Y-%m-%d)"
+          git push

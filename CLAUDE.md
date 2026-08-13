@@ -36,6 +36,7 @@
 | tool-canvas.html | 主軸三：Canvas 純前端工具 |
 | tool-linebot.html | 主軸四：LINE Bot 自動回覆 |
 | tool-python.html | 主軸五：Python 本地工具 |
+| case-stocks.html | 台股個股分類表（個人整理筆記，不屬於上述任一技術主軸）|
 | CLAUDE.md | 本說明檔 |
 
 ## 每個案例頁面的固定結構
@@ -48,6 +49,32 @@
 7. 常見問題 FAQ
 8. 資安確認（依下方清單）
 9. 立即體驗或原始程式碼連結
+
+## 台股個股分類表（case-stocks.html）的資料架構
+
+這個案例的資料分兩種性質，處理方式完全不同：
+
+### 1. 產業分類／細分類／主要產品 — 人工維護，不可由程式產生
+- 檔案：**stocks.json**（repo 根目錄，跟 index.html 同一層，**不是** data/ 目錄下）
+- 欄位：`industry`（產業分類）、`subcategory`（細分類）、`name`（股票名稱）、`code`（股票代碼）、`products`（主要產品，含比例）
+- 這幾欄是公司自行在財報／法說會揭露的資訊，TWSE／TPEx 的公開資料 API 查不到，**不可嘗試用報價 API 或 AI 推算生成**
+- 原則：沒有揭露明確比例的產品欄位，一律照實寫「未揭露細項比例」，不自己編數字
+- 新增／更新個股：直接手動編輯 stocks.json，加一筆即可，股價欄位不用管
+
+### 2. 股價 — 自動抓取，不可手動編輯
+- 檔案：**prices.json**（repo 根目錄，由 GitHub Actions 自動產生／覆寫）
+- 欄位：`asOf`（交易日）、`updatedAt`（實際執行時間）、`items[code]` = `{ price, change, market }`（market 為 `TWSE` 或 `TPEx`）
+- 資料源：
+  - 上市股票：TWSE OpenAPI `https://openapi.twse.com.tw/v1/exchangeReport/STOCK_DAY_ALL`（免 key），欄位對照 `Code→code`、`ClosingPrice→price`、`Change→change`、`Date`（民國年 7 碼，如 `1150812`）→ 轉換為西元 `2026/08/12`
+  - 上櫃股票：TPEx OpenAPI `https://www.tpex.org.tw/openapi/v1/tpex_mainboard_daily_close_quotes`（免 key），欄位對照 `SecuritiesCompanyCode→code`、`Close→price`、`Change→change`（字串需 trim 並可能非數字如「除息」，此時 change 存 null）
+  - 兩者皆**沒有開放瀏覽器端 CORS**，實測 GET/OPTIONS 回應都沒有 `Access-Control-Allow-Origin`，所以頁面無法在載入當下直接 fetch，必須靠排程先抓好存成同源靜態檔
+- 產生方式：`scripts/update_prices.py`（純標準庫，無需 pip install），由 `.github/workflows/update-stock-prices.yml` 排程執行
+  - 排程：平日（週一至週五）台灣時間 14:00（cron `0 6 * * 1-5`，UTC）收盤後跑一次，另可手動 `workflow_dispatch`
+  - 若抓到的交易日跟現有 prices.json 的 `asOf`相同（代表非交易日），腳本不覆寫檔案，避免產生無意義 commit
+  - 用內建 `GITHUB_TOKEN`（`contents: write`）commit，沒有使用任何個人 PAT 或外部帳號
+
+### 頁面渲染
+case-stocks.html 純前端，載入時 `fetch('stocks.json')` + `fetch('prices.json')`，依 `code` 合併；若 prices.json 抓取失敗或某代碼查無資料，顯示「暫時無法取得」，絕不顯示假數字或 0。
 
 ## 新增案例的 git 流程
 ```
@@ -104,3 +131,4 @@ git push
 | LINE 行事曆助理（line-bot-gemini-calendar-assistant）| ✅ 安全，建議改用 Script Properties |
 | OCR 錯卷題庫（OCR-CAD）| ⚠️ 需修正：debug=True+0.0.0.0、uploads 路由、SQL f-string |
 | NKNUBLOCK 自動批改（NKNUBLOCK）| ✅ 已修正：路徑穿越(secure_filename)、XSS(escHtml)、debug=False；init_db f-string 低風險（硬編碼值）；.db 建議 gitignore |
+| 台股個股分類表（case-stocks.html）| ✅ 整體安全，純前端無金鑰、無後端伺服器、無資料庫；TWSE/TPEx OpenAPI 免 key；前端渲染一律用 textContent、無 innerHTML；GitHub Actions 僅用內建 GITHUB_TOKEN |

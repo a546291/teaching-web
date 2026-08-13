@@ -4,413 +4,321 @@
     "subcategory": "ABF/BT載板",
     "name": "欣興",
     "code": "3037",
-    "products": "ABF/BT載板（用於CPU/GPU/伺服器），未揭露細項比例",
-    "price": 981.0,
-    "price_date": "2026/08/05"
+    "products": "ABF/BT載板（用於CPU/GPU/伺服器），未揭露細項比例"
   },
   {
     "industry": "PCB/載板",
     "subcategory": "ABF/BT載板",
     "name": "南電",
     "code": "8046",
-    "products": "ABF載板，未揭露細項比例",
-    "price": 1070.0,
-    "price_date": "2026/08/05"
+    "products": "ABF載板，未揭露細項比例"
   },
   {
     "industry": "PCB/載板",
     "subcategory": "ABF/BT載板",
     "name": "景碩",
     "code": "3189",
-    "products": "ABF/BT載板，未揭露細項比例",
-    "price": 830.0,
-    "price_date": "2026/08/05"
+    "products": "ABF/BT載板，未揭露細項比例"
   },
   {
     "industry": "PCB/載板",
     "subcategory": "軟板(FPC)",
     "name": "華通",
     "code": "2313",
-    "products": "軟性印刷電路板FPC（蘋果供應鏈為主），近期辦理現增跨入ABF載板",
-    "price": 218.0,
-    "price_date": "2026/08/05"
+    "products": "軟性印刷電路板FPC（蘋果供應鏈為主），近期辦理現增跨入ABF載板"
   },
   {
     "industry": "PCB/載板",
     "subcategory": "軟板(FPC)",
     "name": "台郡",
     "code": "6269",
-    "products": "軟性印刷電路板FPC，未揭露細項比例",
-    "price": 61.7,
-    "price_date": "2026/08/05"
+    "products": "軟性印刷電路板FPC，未揭露細項比例"
   },
   {
     "industry": "PCB/載板",
     "subcategory": "軟板(FPC)",
     "name": "台表科",
     "code": "6278",
-    "products": "軟性印刷電路板FPC，未揭露細項比例",
-    "price": 168.0,
-    "price_date": "2026/08/05"
+    "products": "軟性印刷電路板FPC，未揭露細項比例"
   },
   {
     "industry": "PCB/載板",
     "subcategory": "軟板(FPC)",
     "name": "嘉聯益",
     "code": "6153",
-    "products": "軟性印刷電路板FPC，未揭露細項比例",
-    "price": 15.95,
-    "price_date": "2026/08/05"
+    "products": "軟性印刷電路板FPC，未揭露細項比例"
   },
   {
     "industry": "PCB/載板",
     "subcategory": "硬板/多層板",
     "name": "楠梓電",
     "code": "2316",
-    "products": "硬式多層板（伺服器/網通為主），未揭露細項比例",
-    "price": 158.5,
-    "price_date": "2026/08/05"
+    "products": "硬式多層板（伺服器/網通為主），未揭露細項比例"
   },
   {
     "industry": "PCB/載板",
     "subcategory": "硬板/多層板",
     "name": "健鼎",
     "code": "3044",
-    "products": "硬式多層板/HDI板（伺服器/網通為主），未揭露細項比例",
-    "price": 406.0,
-    "price_date": "2026/08/05"
+    "products": "硬式多層板/HDI板（伺服器/網通為主），未揭露細項比例"
   },
   {
     "industry": "PCB/載板",
     "subcategory": "硬板/多層板",
     "name": "金像電",
     "code": "2368",
-    "products": "硬式高層數印刷電路板（伺服器為主），未揭露細項比例",
-    "price": 944.0,
-    "price_date": "2026/08/05"
+    "products": "硬式高層數印刷電路板（伺服器為主），未揭露細項比例"
   },
   {
     "industry": "PCB/載板",
     "subcategory": "硬板/多層板",
     "name": "志超",
     "code": "8213",
-    "products": "硬式多層印刷電路板，未揭露細項比例",
-    "price": 30.2,
-    "price_date": "2026/08/05"
+    "products": "硬式多層印刷電路板，未揭露細項比例"
   },
   {
     "industry": "PCB/載板",
     "subcategory": "硬板/多層板",
     "name": "高技",
     "code": "5439",
-    "products": "硬式多層印刷電路板（車用/工控為主），未揭露細項比例",
-    "price": 227.5,
-    "price_date": "2026/08/05"
+    "products": "硬式多層印刷電路板（車用/工控為主），未揭露細項比例"
   },
   {
     "industry": "PCB/載板",
     "subcategory": "硬板/多層板",
     "name": "燿華",
     "code": "2367",
-    "products": "硬式多層印刷電路板，未揭露細項比例",
-    "price": 41.6,
-    "price_date": "2026/08/05"
+    "products": "硬式多層印刷電路板，未揭露細項比例"
   },
   {
     "industry": "PCB/載板",
     "subcategory": "硬板/多層板",
     "name": "敬鵬",
     "code": "2355",
-    "products": "硬式多層印刷電路板（車用/工控為主），未揭露細項比例",
-    "price": 40.8,
-    "price_date": "2026/08/05"
+    "products": "硬式多層印刷電路板（車用/工控為主），未揭露細項比例"
   },
   {
     "industry": "PCB/載板",
     "subcategory": "PCB+其他業務雙引擎",
     "name": "精成科",
     "code": "6191",
-    "products": "印刷電路板PCB(約75%)、電子製造服務EMS(約25%)（2025年併購Lincstech後）",
-    "price": 84.7,
-    "price_date": "2026/08/05"
+    "products": "印刷電路板PCB(約75%)、電子製造服務EMS(約25%)（2025年併購Lincstech後）"
   },
   {
     "industry": "PCB/載板",
     "subcategory": "PCB+其他業務雙引擎",
     "name": "柏承",
     "code": "6141",
-    "products": "印刷電路板製造：半導體測試板、消費性HDI板，並跨入相機模組、LED、Mini/Micro LED、CPO載板",
-    "price": 36.6,
-    "price_date": "2026/08/05"
+    "products": "印刷電路板製造：半導體測試板、消費性HDI板，並跨入相機模組、LED、Mini/Micro LED、CPO載板"
   },
   {
     "industry": "PCB/載板",
     "subcategory": "PCB+其他業務雙引擎",
     "name": "泰詠",
     "code": "6266",
-    "products": "電子製造服務EMS／PCBA組裝(SMT表面黏著)，非PCB板材製造本身",
-    "price": 24.2,
-    "price_date": "2026/08/05"
+    "products": "電子製造服務EMS／PCBA組裝(SMT表面黏著)，非PCB板材製造本身"
   },
   {
     "industry": "PCB/載板",
     "subcategory": "PCB上游材料",
     "name": "鉅橡",
     "code": "8074",
-    "products": "印刷電路基板用電木板、絕緣材料、電木管棒，未揭露細項比例",
-    "price": 54.8,
-    "price_date": "2026/08/05"
+    "products": "印刷電路基板用電木板、絕緣材料、電木管棒，未揭露細項比例"
   },
   {
     "industry": "PCB/載板",
     "subcategory": "特殊基板/封裝",
     "name": "同欣電",
     "code": "6271",
-    "products": "陶瓷電路板(LED散熱基板)＋高頻通訊模組(PA)、影像感測器封裝，未揭露細項比例",
-    "price": 188.0,
-    "price_date": "2026/08/05"
+    "products": "陶瓷電路板(LED散熱基板)＋高頻通訊模組(PA)、影像感測器封裝，未揭露細項比例"
   },
   {
     "industry": "PCB/載板",
     "subcategory": "PCB題材、非傳統本業",
     "name": "銘旺科",
     "code": "2429",
-    "products": "光學面板/電子白板產銷為主，另跨足太陽能光電工程、無人載具零件；PCB為市場題材歸類非主要本業",
-    "price": 32.35,
-    "price_date": "2026/08/05"
+    "products": "光學面板/電子白板產銷為主，另跨足太陽能光電工程、無人載具零件；PCB為市場題材歸類非主要本業"
   },
   {
     "industry": "記憶體",
     "subcategory": "DRAM/IC設計",
     "name": "南亞科",
     "code": "2408",
-    "products": "DRAM記憶體",
-    "price": 470.5,
-    "price_date": "2026/08/05（盤中高點）"
+    "products": "DRAM記憶體"
   },
   {
     "industry": "記憶體",
     "subcategory": "DRAM/IC設計",
     "name": "華邦電",
     "code": "2344",
-    "products": "DRAM、SLC NAND記憶體",
-    "price": 172.5,
-    "price_date": "2026/08/05"
+    "products": "DRAM、SLC NAND記憶體"
   },
   {
     "industry": "記憶體",
     "subcategory": "晶圓代工/記憶體代工",
     "name": "力積電",
     "code": "6770",
-    "products": "晶圓代工＋記憶體代工，未揭露細項比例",
-    "price": 66.1,
-    "price_date": "2026/08/05"
+    "products": "晶圓代工＋記憶體代工，未揭露細項比例"
   },
   {
     "industry": "記憶體",
     "subcategory": "利基型IC設計",
     "name": "晶豪科",
     "code": "3006",
-    "products": "利基型記憶體IC設計",
-    "price": 239.0,
-    "price_date": "2026/08/05"
+    "products": "利基型記憶體IC設計"
   },
   {
     "industry": "記憶體",
     "subcategory": "利基型IC設計",
     "name": "鈺創",
     "code": "5351",
-    "products": "利基型DRAM、影像感測晶片IC設計",
-    "price": 98.2,
-    "price_date": "2026/08/05"
+    "products": "利基型DRAM、影像感測晶片IC設計"
   },
   {
     "industry": "記憶體模組",
     "subcategory": "模組品牌廠",
     "name": "威剛",
     "code": "3260",
-    "products": "DRAM模組、SSD、記憶卡（品牌ADATA），未揭露細項比例",
-    "price": 398.5,
-    "price_date": "2026/08/05"
+    "products": "DRAM模組、SSD、記憶卡（品牌ADATA），未揭露細項比例"
   },
   {
     "industry": "記憶體模組",
     "subcategory": "模組品牌廠",
     "name": "十銓",
     "code": "4967",
-    "products": "記憶體模組，電競/工規為主（品牌TEAM GROUP），未揭露細項比例",
-    "price": 240.0,
-    "price_date": "2026/08/05"
+    "products": "記憶體模組，電競/工規為主（品牌TEAM GROUP），未揭露細項比例"
   },
   {
     "industry": "半導體",
     "subcategory": "晶圓代工",
     "name": "台積電",
     "code": "2330",
-    "products": "晶圓代工＋積體電路封裝測試等",
-    "price": 2410.0,
-    "price_date": "2026/08/05"
+    "products": "晶圓代工＋積體電路封裝測試等"
   },
   {
     "industry": "半導體",
     "subcategory": "IC設計",
     "name": "聯發科",
     "code": "2454",
-    "products": "SoC/手機晶片、AI ASIC等IC設計，未揭露細項比例",
-    "price": 4105.0,
-    "price_date": "2026/08/05"
+    "products": "SoC/手機晶片、AI ASIC等IC設計，未揭露細項比例"
   },
   {
     "industry": "工業電腦",
     "subcategory": "IPC",
     "name": "研華",
     "code": "2395",
-    "products": "工業電腦(IPC)",
-    "price": 633.0,
-    "price_date": "2026/08/05"
+    "products": "工業電腦(IPC)"
   },
   {
     "industry": "被動元件",
     "subcategory": "MLCC/電阻",
     "name": "國巨",
     "code": "2327",
-    "products": "積層陶瓷電容MLCC(59.08%)、電阻器(34.89%)、其他(6.99%)",
-    "price": 647.0,
-    "price_date": "2026/08/05"
+    "products": "積層陶瓷電容MLCC(59.08%)、電阻器(34.89%)、其他(6.99%)"
   },
   {
     "industry": "被動元件",
     "subcategory": "電感/連接器等",
     "name": "禾伸堂",
     "code": "3026",
-    "products": "被動元件（電感、連接器等），未揭露細項比例",
-    "price": 459.5,
-    "price_date": "2026/08/05"
+    "products": "被動元件（電感、連接器等），未揭露細項比例"
   },
   {
     "industry": "被動元件",
     "subcategory": "封裝/散熱材料",
     "name": "勤凱科技",
     "code": "4760",
-    "products": "先進封裝接著材料、散熱材料、陶瓷元件導電材料，未揭露細項比例",
-    "price": 368.0,
-    "price_date": "2026/08/05"
+    "products": "先進封裝接著材料、散熱材料、陶瓷元件導電材料，未揭露細項比例"
   },
   {
     "industry": "被動元件",
     "subcategory": "通路商",
     "name": "日電貿",
     "code": "3090",
-    "products": "電子零組件（含被動元件）通路買賣業務，未揭露細項比例",
-    "price": 141.0,
-    "price_date": "2026/08/05"
+    "products": "電子零組件（含被動元件）通路買賣業務，未揭露細項比例"
   },
   {
     "industry": "電子零組件/電源",
     "subcategory": "電源供應器",
     "name": "台達電",
     "code": "2308",
-    "products": "電源及零組件(66.12%)、基礎設施(20.01%)、自動化(11.09%)、其他/勞務等(3.45%)",
-    "price": 1620.0,
-    "price_date": "2026/08/05"
+    "products": "電源及零組件(66.12%)、基礎設施(20.01%)、自動化(11.09%)、其他/勞務等(3.45%)"
   },
   {
     "industry": "重電",
     "subcategory": "馬達/變壓器",
     "name": "士電",
     "code": "1503",
-    "products": "重電設備：馬達、變壓器、配電盤等，未揭露細項比例",
-    "price": 194.5,
-    "price_date": "2026/08/05"
+    "products": "重電設備：馬達、變壓器、配電盤等，未揭露細項比例"
   },
   {
     "industry": "重電",
     "subcategory": "輸配電/工程",
     "name": "中興電",
     "code": "1513",
-    "products": "電機電力業務(26.34%)、工程業務(62.64%)、服務業務(8.92%)、其他業務(2.10%)",
-    "price": 159.0,
-    "price_date": "2026/08/05"
+    "products": "電機電力業務(26.34%)、工程業務(62.64%)、服務業務(8.92%)、其他業務(2.10%)"
   },
   {
     "industry": "其他",
     "subcategory": "矽晶圓",
     "name": "環球晶",
     "code": "6488",
-    "products": "半導體用矽晶圓，未揭露細項比例",
-    "price": 872.0,
-    "price_date": "2026/08/05"
+    "products": "半導體用矽晶圓，未揭露細項比例"
   },
   {
     "industry": "其他",
     "subcategory": "石英元件",
     "name": "晶技",
     "code": "3042",
-    "products": "石英晶體(69.25%)、石英晶體振盪器(15.25%)、其他(16.44%)",
-    "price": 193.5,
-    "price_date": "2026/08/05"
+    "products": "石英晶體(69.25%)、石英晶體振盪器(15.25%)、其他(16.44%)"
   },
   {
     "industry": "散熱/熱管理",
     "subcategory": "均熱片/ASIC封裝零件",
     "name": "健策",
     "code": "3653",
-    "products": "精密沖壓/CNC加工起家，成長動能已轉向AI伺服器均熱片(VC)、ASIC stiffener等GPU封裝散熱零件，未揭露細項比例",
-    "price": 4210.0,
-    "price_date": "2026/08/12"
+    "products": "精密沖壓/CNC加工起家，成長動能已轉向AI伺服器均熱片(VC)、ASIC stiffener等GPU封裝散熱零件，未揭露細項比例"
   },
   {
     "industry": "散熱/熱管理",
     "subcategory": "伺服器散熱模組(氣冷/液冷)",
     "name": "奇鋐",
     "code": "3017",
-    "products": "電腦/伺服器散熱模組（氣冷+液冷散熱解決方案為主），未揭露細項比例",
-    "price": 2910.0,
-    "price_date": "2026/08/12"
+    "products": "電腦/伺服器散熱模組（氣冷+液冷散熱解決方案為主），未揭露細項比例"
   },
   {
     "industry": "工具機/自動化",
     "subcategory": "滾珠螺桿/線性滑軌",
     "name": "上銀",
     "code": "2049",
-    "products": "滾珠螺桿、線性滑軌等工具機/自動化傳動零組件（品牌HIWIN），未揭露細項比例",
-    "price": 387.0,
-    "price_date": "2026/08/12"
+    "products": "滾珠螺桿、線性滑軌等工具機/自動化傳動零組件（品牌HIWIN），未揭露細項比例"
   },
   {
     "industry": "品牌/系統廠",
     "subcategory": "NB/PC品牌(含AI伺服器)",
     "name": "華碩",
     "code": "2357",
-    "products": "3C資訊產品：電腦系統產品、主機板及各類板卡、智慧型手機等手持裝置之設計研發銷售，未揭露細項比例",
-    "price": 810.0,
-    "price_date": "2026/08/12"
+    "products": "3C資訊產品：電腦系統產品、主機板及各類板卡、智慧型手機等手持裝置之設計研發銷售，未揭露細項比例"
   },
   {
     "industry": "品牌/系統廠",
     "subcategory": "ODM/EMS組裝(伺服器/蘋果)",
     "name": "和碩",
     "code": "4938",
-    "products": "電子製造服務ODM/EMS（NB、手機組裝，並含GB300/HGX等AI伺服器組裝），未揭露細項比例",
-    "price": 91.4,
-    "price_date": "2026/08/12"
+    "products": "電子製造服務ODM/EMS（NB、手機組裝，並含GB300/HGX等AI伺服器組裝），未揭露細項比例"
   },
   {
     "industry": "品牌/系統廠",
     "subcategory": "主機板/顯卡品牌廠(含AI伺服器)",
     "name": "技嘉",
     "code": "2376",
-    "products": "電腦主機板(74.80%)、介面卡(25.67%)、系統(4.25%)、其他(3.72%)（原始揭露百分比合計超過100%，可能為分類重疊，如實列出）",
-    "price": 327.0,
-    "price_date": "2026/08/12"
+    "products": "電腦主機板(74.80%)、介面卡(25.67%)、系統(4.25%)、其他(3.72%)（原始揭露百分比合計超過100%，可能為分類重疊，如實列出）"
   },
   {
     "industry": "半導體測試",
     "subcategory": "探針卡(Probe Card)/CPO測試",
     "name": "旺矽",
     "code": "6223",
-    "products": "半導體測試耗材：垂直式探針卡VPC、MEMS探針卡，並跨入CPO(共同封裝光學)測試設備，未揭露細項比例",
-    "price": 6315.0,
-    "price_date": "2026/08/12"
+    "products": "半導體測試耗材：垂直式探針卡VPC、MEMS探針卡，並跨入CPO(共同封裝光學)測試設備，未揭露細項比例"
   }
 ]

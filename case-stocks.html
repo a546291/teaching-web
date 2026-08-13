@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>台股個股分類表 — 風城師的AI遊記</title>
+<style>
+  :root {
+    --fg: #1d1d1f;
+    --fg2: #6e6e73;
+    --fg3: #aeaeb2;
+    --bg: #ffffff;
+    --bg2: #f5f5f7;
+    --bg3: #e8e8ed;
+    --accent: #0071e3;
+    --accent-light: #e8f0fd;
+    --green: #1d8348;
+    --green-light: #eafaf1;
+    --amber: #b7770d;
+    --amber-light: #fef9e7;
+    --red: #922b21;
+    --red-light: #fdedec;
+    --purple: #4a3b8c;
+    --purple-light: #eeedfb;
+    --radius: 12px;
+    --radius-sm: 8px;
+    --font: -apple-system, 'SF Pro TC', 'PingFang TC', 'Helvetica Neue', sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font); background: var(--bg); color: var(--fg); line-height: 1.6; }
+
+  /* ── Nav ── */
+  .top-nav {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(255,255,255,0.85);
+    backdrop-filter: saturate(180%) blur(20px);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    border-bottom: 1px solid var(--bg3);
+    padding: 0 2rem;
+    display: flex; align-items: center; justify-content: space-between;
+    height: 52px;
+  }
+  .nav-logo { font-size: 15px; font-weight: 500; color: var(--fg); text-decoration: none; }
+  .nav-logo span { color: var(--fg2); font-weight: 400; }
+  .nav-back { font-size: 13px; color: var(--accent); text-decoration: none; display: flex; align-items: center; gap: 4px; }
+  .nav-back::before { content: '‹'; font-size: 18px; line-height: 1; }
+
+  /* ── Hero ── */
+  .hero { padding: 4rem 2rem 3rem; max-width: 760px; margin: 0 auto; text-align: center; }
+  .hero-tag {
+    display: inline-block; font-size: 12px; font-weight: 500; letter-spacing: .04em;
+    color: var(--fg2); background: var(--bg2);
+    padding: 4px 12px; border-radius: 20px; margin-bottom: 1.25rem;
+  }
+  .hero h1 { font-size: clamp(28px, 5vw, 42px); font-weight: 600; letter-spacing: -.02em; color: var(--fg); margin-bottom: .75rem; line-height: 1.15; }
+  .hero p { font-size: 17px; color: var(--fg2); max-width: 560px; margin: 0 auto 2rem; line-height: 1.7; }
+  .hero-badges { display: flex; gap: .5rem; justify-content: center; flex-wrap: wrap; }
+  .badge { font-size: 12px; padding: 4px 12px; border-radius: 20px; border: 1px solid var(--bg3); color: var(--fg2); background: var(--bg2); }
+
+  /* ── 內容 ── */
+  .content { max-width: 760px; margin: 0 auto; padding: 0 2rem 6rem; }
+  .content-wide { max-width: 1040px; }
+  .divider { height: 1px; background: var(--bg3); margin: 2.5rem 0; }
+  .section-label { font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--fg3); margin-bottom: 1rem; }
+  h2 { font-size: 22px; font-weight: 600; letter-spacing: -.01em; color: var(--fg); margin-bottom: .75rem; }
+  h3 { font-size: 16px; font-weight: 600; color: var(--fg); margin-bottom: .5rem; }
+  p { font-size: 15px; color: var(--fg2); line-height: 1.75; margin-bottom: .75rem; }
+  p:last-child { margin-bottom: 0; }
+
+  /* ── 卡片 ── */
+  .card { background: var(--bg2); border-radius: var(--radius); padding: 1.25rem 1.5rem; margin-bottom: .75rem; }
+  .card-white { background: var(--bg); border: 1px solid var(--bg3); border-radius: var(--radius); padding: 1.25rem 1.5rem; margin-bottom: .75rem; }
+
+  /* ── 優缺點 ── */
+  .pros-cons { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; margin-bottom: 1rem; }
+  @media(max-width:560px){ .pros-cons { grid-template-columns: 1fr; } }
+  .pros { background: var(--green-light); border-radius: var(--radius); padding: 1.25rem; }
+  .cons { background: var(--amber-light); border-radius: var(--radius); padding: 1.25rem; }
+  .pros h3 { color: var(--green); font-size: 14px; margin-bottom: .6rem; }
+  .cons h3 { color: var(--amber); font-size: 14px; margin-bottom: .6rem; }
+  .list { list-style: none; }
+  .list li { font-size: 14px; color: var(--fg); padding: 5px 0; display: flex; gap: 8px; align-items: flex-start; border-bottom: 1px solid rgba(0,0,0,.05); line-height: 1.5; }
+  .list li:last-child { border-bottom: none; }
+  .list li::before { content: attr(data-icon); flex-shrink: 0; margin-top: 1px; }
+
+  /* ── 場景 ── */
+  .scene-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: .6rem; margin-bottom: 1rem; }
+  .scene-card { background: var(--bg2); border-radius: var(--radius-sm); padding: 1rem 1.1rem; }
+  .scene-icon { font-size: 22px; margin-bottom: .35rem; }
+  .scene-title { font-size: 13px; font-weight: 600; color: var(--fg); margin-bottom: .2rem; }
+  .scene-desc { font-size: 12px; color: var(--fg2); line-height: 1.5; }
+
+  /* ── 提示框 ── */
+  .callout { border-radius: var(--radius); padding: 1rem 1.25rem; margin-bottom: 1rem; display: flex; gap: .75rem; align-items: flex-start; }
+  .callout-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+  .callout-body { font-size: 14px; line-height: 1.65; color: var(--fg); }
+  .callout-body strong { font-weight: 600; }
+  .callout-green { background: var(--green-light); }
+  .callout-amber { background: var(--amber-light); }
+  .callout-blue { background: var(--accent-light); }
+  .callout-red { background: var(--red-light); }
+
+  /* ── 步驟 ── */
+  .step { display: flex; gap: 1rem; margin-bottom: 1.5rem; align-items: flex-start; }
+  .step-num { width: 28px; height: 28px; border-radius: 50%; background: var(--fg); color: var(--bg); font-size: 13px; font-weight: 600; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+  .step-body h3 { font-size: 15px; margin-bottom: .3rem; }
+  .step-body p { font-size: 14px; margin-bottom: 0; }
+  .step-note { font-size: 13px; color: var(--fg2); background: var(--bg2); border-radius: var(--radius-sm); padding: .5rem .85rem; margin-top: .5rem; border-left: 2px solid var(--bg3); line-height: 1.6; }
+
+  /* ── 程式碼 ── */
+  .code-block { background: #1d1d1f; color: #f8f8f2; border-radius: var(--radius-sm); padding: 1rem 1.25rem; font-family: 'SF Mono', 'Fira Code', monospace; font-size: 13px; line-height: 1.7; margin: .6rem 0; overflow-x: auto; white-space: pre; }
+  .code-comment { color: #6e6e73; }
+
+  /* ── 流程 ── */
+  .flow { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin: .75rem 0; }
+  .flow-box { font-size: 12px; padding: 6px 12px; border-radius: 8px; background: var(--bg2); border: 1px solid var(--bg3); color: var(--fg); text-align: center; line-height: 1.4; }
+  .flow-box.hi { background: var(--amber-light); border-color: #f0d080; color: var(--amber); }
+  .flow-arr { font-size: 14px; color: var(--fg3); flex-shrink: 0; }
+
+  /* ── 工具列 ── */
+  .tool-row { display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1rem; }
+  .tool-chip { display: flex; align-items: center; gap: 8px; background: var(--bg2); border-radius: var(--radius-sm); padding: .6rem 1rem; font-size: 13px; color: var(--fg); }
+  .tool-chip .dot { width: 8px; height: 8px; border-radius: 50%; }
+
+  /* ── 資安 ── */
+  .security-row { display: flex; align-items: center; gap: .6rem; padding: .6rem 0; border-bottom: 1px solid var(--bg3); font-size: 13px; color: var(--fg); }
+  .security-row:last-child { border-bottom: none; }
+  .sec-ok { color: var(--green); font-size: 15px; }
+  .sec-warn { color: var(--amber); font-size: 15px; }
+
+  /* ── 截圖佔位 ── */
+  .screenshot { background: var(--bg2); border: 1px dashed var(--bg3); border-radius: var(--radius); height: 180px; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--fg3); font-size: 13px; gap: 6px; margin: .75rem 0; }
+  .screenshot::before { content: '📷'; font-size: 28px; }
+
+  /* ── 頁尾 ── */
+  .footer { border-top: 1px solid var(--bg3); padding: 2rem; text-align: center; font-size: 13px; color: var(--fg3); }
+  .footer a { color: var(--accent); text-decoration: none; }
+  .footer a:hover { text-decoration: underline; }
+
+  code { background: var(--bg2); padding: 1px 6px; border-radius: 4px; font-size: 13px; font-family: 'SF Mono', monospace; }
+
+  /* ── 股票表格 ── */
+  .table-toolbar {
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: .75rem; margin-bottom: 1rem;
+  }
+  .table-controls { display: flex; align-items: center; gap: .6rem; flex-wrap: wrap; }
+  .table-controls label { font-size: 13px; color: var(--fg2); }
+  .table-controls select {
+    font-family: var(--font); font-size: 13px; color: var(--fg);
+    background: var(--bg2); border: 1px solid var(--bg3); border-radius: var(--radius-sm);
+    padding: 6px 10px; cursor: pointer;
+  }
+  .table-status { font-size: 12px; color: var(--fg3); }
+  .table-status strong { color: var(--fg2); font-weight: 500; }
+
+  .table-scroll { overflow-x: auto; border: 1px solid var(--bg3); border-radius: var(--radius); }
+  .stock-table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 640px; }
+  .stock-table th {
+    background: var(--bg2); padding: .7rem .9rem; text-align: left; font-weight: 600;
+    color: var(--fg); border-bottom: 1px solid var(--bg3); white-space: nowrap;
+    position: sticky; top: 0;
+  }
+  .stock-table th.sortable { cursor: pointer; user-select: none; }
+  .stock-table th.sortable:hover { color: var(--accent); }
+  .stock-table th .sort-arrow { font-size: 11px; color: var(--fg3); margin-left: 3px; }
+  .stock-table th.sorted .sort-arrow { color: var(--accent); }
+  .stock-table td { padding: .65rem .9rem; border-bottom: 1px solid var(--bg3); color: var(--fg); vertical-align: top; }
+  .stock-table tr:last-child td { border-bottom: none; }
+  .stock-table td.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .stock-table td.products { color: var(--fg2); font-size: 12.5px; line-height: 1.55; min-width: 240px; }
+  .stock-table td.code { color: var(--fg3); font-variant-numeric: tabular-nums; }
+  .price-up { color: var(--red); }
+  .price-down { color: var(--green); }
+  .price-na { color: var(--fg3); }
+  .empty-row td { text-align: center; color: var(--fg3); padding: 2rem; }
+
+  .industry-legend { display: flex; flex-wrap: wrap; gap: 6px; margin: .75rem 0 1rem; }
+  .legend-chip { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; color: var(--fg2); padding: 3px 9px; border-radius: 20px; }
+  .legend-chip .dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+</style>
+</head>
+<body>
+
+<!-- Nav -->
+<nav class="top-nav">
+  <a class="nav-logo" href="index.html">風城師的AI遊記 <span>/ 案例</span></a>
+  <a class="nav-back" href="index.html">回首頁</a>
+</nav>
+
+<!-- Hero -->
+<div class="hero">
+  <div class="hero-tag">個人整理筆記 · 純前端 + GitHub Actions</div>
+  <h1>台股個股分類表</h1>
+  <p>原本記在 Excel 裡的個股分類筆記，做成一個網頁：產業分類、細分類、主要產品是自己整理的，股價則是每個交易日收盤後自動更新，不用再手動貼價格。</p>
+  <div class="hero-badges">
+    <span class="badge">TWSE OpenAPI</span>
+    <span class="badge">TPEx OpenAPI</span>
+    <span class="badge">GitHub Actions 排程</span>
+    <span class="badge">純前端 · 無後端伺服器</span>
+  </div>
+</div>
+
+<!-- 主內容 -->
+<div class="content">
+
+  <!-- 對象說明 -->
+  <div class="callout callout-amber">
+    <span class="callout-icon">📌</span>
+    <div class="callout-body">
+      <strong>這不是投資建議，只是我自己的整理筆記。</strong> 收錄的 46 檔是我自己在關注的股票，不是全市場篩選器，產業分類與主要產品比例也是我自己讀公開資訊整理的，僅供參考。
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- 這是什麼 -->
+  <div class="section-label">這是什麼？</div>
+  <h2>兩種資料，兩種處理方式</h2>
+  <p>這個表格背後其實是兩種完全不同性質的資料，分開處理：</p>
+  <p><strong>產業分類、細分類、主要產品（含比例）</strong>——這是公司自己在財報、法說會揭露的資訊，證交所、櫃買中心的公開資料 API 查不到這幾欄，只能靠人工讀資料整理。這部分我自己維護在一份 JSON 檔裡，之後要新增或更新個股就手動改這份檔案。</p>
+  <p><strong>股價</strong>——這是每天都會過期的資料，原本在 Excel 裡是貼上去就固定不動，現在改成頁面載入時去讀一份「每個交易日收盤後自動更新」的股價快照，不用我自己每天手動貼。</p>
+
+  <div class="callout callout-blue">
+    <span class="callout-icon">🧭</span>
+    <div class="callout-body">
+      <strong>原則：沒有揭露明確比例的產品欄位，不會自己編數字。</strong> 表格裡看到「未揭露細項比例」，代表這家公司沒有公開拆分產品線占比，就誠實寫「未揭露」，不會用 AI 幫忙腦補一個聽起來合理的百分比。
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- 優缺點 -->
+  <div class="section-label">優點與限制</div>
+  <h2>什麼情況適合？什麼情況不適合？</h2>
+
+  <div class="pros-cons">
+    <div class="pros">
+      <h3>✦ 適合的地方</h3>
+      <ul class="list">
+        <li data-icon="✓">可以依產業分類篩選，快速看某個產業有哪些股票</li>
+        <li data-icon="✓">可以依股價排序，一眼看出區間內比較貴／便宜的個股</li>
+        <li data-icon="✓">股價每個交易日收盤後自動更新，不用手動維護</li>
+        <li data-icon="✓">主要產品說明白話、不誇大，沒有明確比例就照實寫「未揭露」</li>
+        <li data-icon="✓">純靜態網頁，沒有後端伺服器，資安風險單純</li>
+        <li data-icon="✓">資料來源公開透明：股價來自證交所／櫃買中心官方 API</li>
+      </ul>
+    </div>
+    <div class="cons">
+      <h3>△ 需要注意的地方</h3>
+      <ul class="list">
+        <li data-icon="△">只收錄 46 檔自己關注的股票，不是全市場選股工具</li>
+        <li data-icon="△">股價是「收盤後」的資料，盤中看到的是前一交易日收盤價，不是即時報價</li>
+        <li data-icon="△">產業分類、主要產品是人工整理，不會隨公司最新財報自動更新</li>
+        <li data-icon="△">TWSE／TPEx 官方 API 若當天異常，股價欄位會顯示暫時無法取得，不會顯示假數字</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- 應用場景 -->
+  <div class="section-label">應用場景</div>
+  <h2>什麼時候會打開這個表格</h2>
+
+  <div class="scene-grid">
+    <div class="scene-card">
+      <div class="scene-icon">🔍</div>
+      <div class="scene-title">複習某個產業</div>
+      <div class="scene-desc">篩選「PCB/載板」或「半導體」，快速掃過這個產業自己關注的所有個股</div>
+    </div>
+    <div class="scene-card">
+      <div class="scene-icon">🧩</div>
+      <div class="scene-title">新股要分類時</div>
+      <div class="scene-desc">遇到不熟的股票，先看看同產業、同細分類已經整理過的公司在做什麼</div>
+    </div>
+    <div class="scene-card">
+      <div class="scene-icon">💬</div>
+      <div class="scene-title">跟人討論產業時</div>
+      <div class="scene-desc">直接秀出主要產品說明，避免討論時記錯某家公司實際在做什麼</div>
+    </div>
+    <div class="scene-card">
+      <div class="scene-icon">📎</div>
+      <div class="scene-title">取代散落的 Excel</div>
+      <div class="scene-desc">不用再開好幾個分頁、對照舊筆記，一個網址就能看到整理好的分類與現價</div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- 開發工具說明 -->
+  <div class="section-label">用了哪些工具？</div>
+  <h2>純前端 + 一個排程腳本</h2>
+
+  <div class="tool-row">
+    <div class="tool-chip"><div class="dot" style="background:#0071e3;"></div>純 HTML/JS（表格篩選、排序、上色）</div>
+    <div class="tool-chip"><div class="dot" style="background:#1d8348;"></div>TWSE OpenAPI（上市股票收盤價）</div>
+    <div class="tool-chip"><div class="dot" style="background:#b7770d;"></div>TPEx OpenAPI（上櫃股票收盤價）</div>
+    <div class="tool-chip"><div class="dot" style="background:#4a3b8c;"></div>GitHub Actions（排程抓價、自動 commit）</div>
+    <div class="tool-chip"><div class="dot" style="background:#922b21;"></div>GitHub Pages（純靜態網站託管）</div>
+  </div>
+
+  <div class="callout callout-blue">
+    <span class="callout-icon">🤔</span>
+    <div class="callout-body">
+      <strong>為什麼不是「打開頁面當下直接抓報價」？</strong> 實測過 TWSE、TPEx 這兩個官方 API 都沒有開放瀏覽器端的 CORS 存取，靜態網站的 JavaScript 沒辦法在使用者打開頁面的當下直接跟它們要資料。所以改成用 GitHub Actions 這個「排程機器人」，收盤後統一抓一次、整理好存成一份 JSON 檔，頁面再去讀這份同一個網站底下的檔案，就沒有這個限制了。
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- 步驟教學 -->
+  <div class="section-label">怎麼運作的？</div>
+  <h2>從兩個官方 API，到頁面上的一列資料</h2>
+  <p>如果你也想幫自己整理的股票清單做類似的事，流程大致是這樣：</p>
+
+  <div class="flow">
+    <div class="flow-box">stocks.json<br>（人工維護分類）</div>
+    <div class="flow-arr">→</div>
+    <div class="flow-box hi">GitHub Actions<br>收盤後排程執行</div>
+    <div class="flow-arr">→</div>
+    <div class="flow-box">呼叫 TWSE／TPEx<br>正規化成同一格式</div>
+    <div class="flow-arr">→</div>
+    <div class="flow-box">寫入 prices.json<br>並自動 commit</div>
+    <div class="flow-arr">→</div>
+    <div class="flow-box">頁面載入時<br>同源讀取兩份 JSON</div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">1</div>
+    <div class="step-body">
+      <h3>先手動整理分類資料</h3>
+      <p>每檔股票一筆記錄，只放人工才能判斷的欄位：</p>
+      <div class="code-block">{
+  "industry": "PCB/載板",
+  "subcategory": "ABF/BT載板",
+  "name": "欣興",
+  "code": "3037",
+  "products": "ABF/BT載板（用於CPU/GPU/伺服器），未揭露細項比例"
+}</div>
+      <div class="step-note">股價欄位完全不放在這份檔案裡，避免跟自動抓取的資料互相打架、變成兩份互相矛盾的股價。</div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">2</div>
+    <div class="step-body">
+      <h3>寫一支腳本，把兩個交易所的格式對齊</h3>
+      <p>TWSE 的收盤價欄位叫 <code>ClosingPrice</code>、日期是民國年 <code>1150812</code>；TPEx 叫 <code>Close</code>、漲跌欄位還帶正負號字串。腳本把兩邊都轉成同一個 schema：</p>
+      <div class="code-block"><span class="code-comment"># scripts/update_prices.py 節錄</span>
+{
+  "code": {
+    "price": 981.0,
+    "change": 8.0,
+    "market": "TWSE"   <span class="code-comment">// 或 "TPEx"</span>
+  }
+}</div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">3</div>
+    <div class="step-body">
+      <h3>用 GitHub Actions 排程執行，收盤後才動作</h3>
+      <p>平日台灣時間 14:00 觸發一次，只抓這 46 檔需要的代碼。如果抓到的交易日跟現有檔案一樣（代表當天休市），就不會產生一次沒有意義的 commit。</p>
+      <div class="screenshot">GitHub Actions 執行紀錄截圖（待補）</div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">4</div>
+    <div class="step-body">
+      <h3>頁面載入時合併兩份 JSON</h3>
+      <p>頁面本身完全是靜態檔案，載入時用 <code>fetch()</code> 讀 <code>stocks.json</code>（分類資料）和 <code>prices.json</code>（股價快照），依代碼合併後渲染成下面的表格。</p>
+    </div>
+  </div>
+
+  <div class="callout callout-green">
+    <span class="callout-icon">🎉</span>
+    <div class="callout-body">
+      整個過程沒有任何一段是「常駐後端伺服器」——只有一支排程時才執行、執行完就結束的腳本，跟一個純靜態網頁。
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- 常見問題 -->
+  <div class="section-label">遇到問題？</div>
+  <h2>常見疑問</h2>
+
+  <div class="card-white" style="margin-bottom:.6rem;">
+    <h3 style="font-size:14px; margin-bottom:.4rem;">股價為什麼不是即時報價？</h3>
+    <p style="font-size:14px;">因為 TWSE、TPEx 這兩個官方 API 不開放瀏覽器直接跨網域讀取，純靜態網站沒辦法在打開頁面當下即時打 API。改成 GitHub Actions 收盤後排程抓一次收盤價，頁面上會清楚標示「資料更新於某年某月某日」，盤中看到的就是前一個交易日的收盤價。</p>
+  </div>
+
+  <div class="card-white" style="margin-bottom:.6rem;">
+    <h3 style="font-size:14px; margin-bottom:.4rem;">為什麼有些股票的主要產品有寫百分比，有些沒有？</h3>
+    <p style="font-size:14px;">只有公司自己在財報或法說會明確揭露產品線占比時，才會寫出百分比；沒有揭露的一律寫「未揭露細項比例」，不會自己估算或編數字。</p>
+  </div>
+
+  <div class="card-white" style="margin-bottom:.6rem;">
+    <h3 style="font-size:14px; margin-bottom:.4rem;">要怎麼新增或更新一檔股票？</h3>
+    <p style="font-size:14px;">在 <code>stocks.json</code> 手動加一筆（產業、細分類、名稱、代碼、主要產品），存檔推上去就好。股價不用另外設定，只要代碼存在於 TWSE 或 TPEx，下一次排程執行就會自動抓到。</p>
+  </div>
+
+  <div class="card-white" style="margin-bottom:.6rem;">
+    <h3 style="font-size:14px; margin-bottom:.4rem;">如果某天 TWSE 或 TPEx 的 API 掛了怎麼辦？</h3>
+    <p style="font-size:14px;">腳本抓不到資料就不會覆寫，頁面會保留上一次成功抓到的快照，並繼續顯示原本的更新時間；如果某一檔代碼查無資料，股價欄位會顯示「暫時無法取得」，不會顯示 0 或用舊資料冒充成當天資料。</p>
+  </div>
+
+  <div class="card-white">
+    <h3 style="font-size:14px; margin-bottom:.4rem;">這是投資建議嗎？</h3>
+    <p style="font-size:14px;">不是。這只是我自己整理來省麻煩的筆記工具，收錄的股票、分類方式都是主觀判斷，實際投資決策請自己做功課、自行承擔風險。</p>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- 資安確認 -->
+  <div class="section-label">資安確認</div>
+  <h2>這個工具安全嗎？</h2>
+
+  <div class="callout callout-green">
+    <span class="callout-icon">🔒</span>
+    <div class="callout-body">
+      <strong>純靜態網頁，沒有後端伺服器、沒有資料庫、沒有任何金鑰。</strong> TWSE、TPEx 這兩個官方 OpenAPI 都不需要申請、不需要 API Key。
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="security-row"><span class="sec-ok">✓</span> 無任何硬編碼 API Key／帳號密碼（TWSE、TPEx OpenAPI 免金鑰、免申請）</div>
+    <div class="security-row"><span class="sec-ok">✓</span> 沒有常駐後端伺服器，不涉及 debug 模式或 host 綁定風險</div>
+    <div class="security-row"><span class="sec-ok">✓</span> 沒有資料庫，不涉及 SQL 注入或明碼儲存使用者資料的問題</div>
+    <div class="security-row"><span class="sec-ok">✓</span> 前端渲染股票資料一律用 <code>textContent</code> 寫入，不使用 <code>innerHTML</code> 插入資料</div>
+    <div class="security-row"><span class="sec-ok">✓</span> GitHub Actions 只使用內建、範圍限定在本 repo 的 <code>GITHUB_TOKEN</code>，沒有使用個人存取權杖</div>
+    <div class="security-row"><span class="sec-ok">✓</span> 股價、產業分類、主要產品皆為公開資訊，不涉及任何個資或隱私資料</div>
+    <div class="security-row"><span class="sec-ok">✓</span> commit 歷史與程式碼中無真實金鑰</div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- 立即體驗：實際表格 -->
+  <div class="section-label">立即體驗</div>
+  <h2>台股個股分類表</h2>
+  <p>可以依產業分類篩選、點「股價」欄位標題切換排序，每列依產業上底色，比照原本 Excel 版本的分類配色。</p>
+
+  <div class="table-toolbar">
+    <div class="table-controls">
+      <label for="industryFilter">產業分類</label>
+      <select id="industryFilter">
+        <option value="">全部</option>
+      </select>
+    </div>
+    <div class="table-status" id="tableStatus">資料載入中…</div>
+  </div>
+
+  <div class="industry-legend" id="industryLegend"></div>
+
+  <div class="table-scroll">
+    <table class="stock-table">
+      <thead>
+        <tr>
+          <th>產業分類</th>
+          <th>細分類</th>
+          <th>股票</th>
+          <th class="num sortable" id="priceHeader">股價<span class="sort-arrow">↕</span></th>
+          <th class="products">主要產品</th>
+        </tr>
+      </thead>
+      <tbody id="stockTableBody">
+        <tr class="empty-row"><td colspan="5">資料載入中…</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+<!-- Footer -->
+<footer class="footer">
+  <p>© 2026 陳盈宏 · 風城師的AI遊記</p>
+  <p style="margin-top:.4rem;">
+    <a href="https://www.facebook.com/alex.yh.chen" target="_blank">Facebook</a>
+    &nbsp;·&nbsp;
+    <a href="https://www.threads.com/@a777x" target="_blank">Threads</a>
+    &nbsp;·&nbsp;
+    <a href="https://x.com/a546291" target="_blank">X</a>
+    &nbsp;·&nbsp;
+    <a href="index.html">回到首頁</a>
+  </p>
+</footer>
+
+<script>
+(function () {
+  // 產業上底色：固定順序、每個產業一組（淺底色、深字色），比照原 Excel 分類配色概念
+  var INDUSTRY_COLORS = {
+    'PCB/載板':        { bg: '#f8e7e7', fg: '#8e2929' },
+    '記憶體':           { bg: '#f8efe7', fg: '#8e5829' },
+    '記憶體模組':        { bg: '#f8f7e7', fg: '#8e8729' },
+    '半導體':           { bg: '#f2f8e7', fg: '#678e29' },
+    '工業電腦':          { bg: '#eaf8e7', fg: '#398e29' },
+    '被動元件':          { bg: '#e7f8ec', fg: '#298e48' },
+    '電子零組件/電源':    { bg: '#e7f8f4', fg: '#298e77' },
+    '重電':             { bg: '#e7f4f8', fg: '#29778e' },
+    '其他':             { bg: '#e7ecf8', fg: '#29488e' },
+    '散熱/熱管理':       { bg: '#eae7f8', fg: '#39298e' },
+    '工具機/自動化':      { bg: '#f2e7f8', fg: '#67298e' },
+    '品牌/系統廠':       { bg: '#f8e7f7', fg: '#8e2987' },
+    '半導體測試':        { bg: '#f8e7ef', fg: '#8e2958' }
+  };
+  var DEFAULT_COLOR = { bg: '#f5f5f7', fg: '#6e6e73' };
+
+  var state = {
+    stocks: [],
+    prices: null,
+    pricesFailed: false,
+    industryFilter: '',
+    sortDir: null // null | 'asc' | 'desc'
+  };
+
+  function industryColor(industry) {
+    return INDUSTRY_COLORS[industry] || DEFAULT_COLOR;
+  }
+
+  function formatPrice(entry) {
+    if (!entry || entry.price === null || entry.price === undefined) return null;
+    return entry.price;
+  }
+
+  function renderLegend(industries) {
+    var legend = document.getElementById('industryLegend');
+    legend.textContent = '';
+    industries.forEach(function (name) {
+      var color = industryColor(name);
+      var chip = document.createElement('span');
+      chip.className = 'legend-chip';
+      chip.style.background = color.bg;
+      chip.style.color = color.fg;
+      var dot = document.createElement('span');
+      dot.className = 'dot';
+      dot.style.background = color.fg;
+      chip.appendChild(dot);
+      chip.appendChild(document.createTextNode(name));
+      legend.appendChild(chip);
+    });
+  }
+
+  function renderFilterOptions(industries) {
+    var select = document.getElementById('industryFilter');
+    industries.forEach(function (name) {
+      var opt = document.createElement('option');
+      opt.value = name;
+      opt.textContent = name;
+      select.appendChild(opt);
+    });
+  }
+
+  function updateStatus() {
+    var statusEl = document.getElementById('tableStatus');
+    if (state.pricesFailed) {
+      statusEl.textContent = '股價資料暫時無法取得，僅顯示產業分類資料';
+      return;
+    }
+    if (!state.prices) {
+      statusEl.textContent = '資料載入中…';
+      return;
+    }
+    statusEl.textContent = '股價資料更新於 ' + state.prices.asOf + '（收盤價）';
+  }
+
+  function currentRows() {
+    var rows = state.stocks.slice();
+    if (state.industryFilter) {
+      rows = rows.filter(function (s) { return s.industry === state.industryFilter; });
+    }
+    if (state.sortDir) {
+      rows.sort(function (a, b) {
+        var pa = state.prices && state.prices.items[a.code] ? formatPrice(state.prices.items[a.code]) : null;
+        var pb = state.prices && state.prices.items[b.code] ? formatPrice(state.prices.items[b.code]) : null;
+        if (pa === null && pb === null) return 0;
+        if (pa === null) return 1;
+        if (pb === null) return -1;
+        return state.sortDir === 'asc' ? pa - pb : pb - pa;
+      });
+    }
+    return rows;
+  }
+
+  function renderTable() {
+    var tbody = document.getElementById('stockTableBody');
+    tbody.textContent = '';
+    var rows = currentRows();
+
+    if (rows.length === 0) {
+      var emptyTr = document.createElement('tr');
+      emptyTr.className = 'empty-row';
+      var emptyTd = document.createElement('td');
+      emptyTd.colSpan = 5;
+      emptyTd.textContent = '這個分類目前沒有資料';
+      emptyTr.appendChild(emptyTd);
+      tbody.appendChild(emptyTr);
+      return;
+    }
+
+    rows.forEach(function (stock) {
+      var tr = document.createElement('tr');
+      var color = industryColor(stock.industry);
+      tr.style.background = color.bg;
+
+      var tdIndustry = document.createElement('td');
+      tdIndustry.style.color = color.fg;
+      tdIndustry.style.fontWeight = '600';
+      tdIndustry.textContent = stock.industry;
+      tr.appendChild(tdIndustry);
+
+      var tdSub = document.createElement('td');
+      tdSub.textContent = stock.subcategory;
+      tr.appendChild(tdSub);
+
+      var tdName = document.createElement('td');
+      tdName.textContent = stock.name;
+      var codeSpan = document.createElement('span');
+      codeSpan.className = 'code';
+      codeSpan.textContent = ' ' + stock.code;
+      tdName.appendChild(codeSpan);
+      tr.appendChild(tdName);
+
+      var tdPrice = document.createElement('td');
+      tdPrice.className = 'num';
+      var entry = state.prices && state.prices.items[stock.code];
+      var price = formatPrice(entry);
+      if (price === null || price === undefined) {
+        tdPrice.classList.add('price-na');
+        tdPrice.textContent = '－';
+      } else {
+        var change = entry.change;
+        var priceText = price.toLocaleString('zh-TW');
+        if (typeof change === 'number') {
+          if (change > 0) { tdPrice.classList.add('price-up'); priceText += ' ▲' + change; }
+          else if (change < 0) { tdPrice.classList.add('price-down'); priceText += ' ▼' + Math.abs(change); }
+        }
+        tdPrice.textContent = priceText;
+      }
+      tr.appendChild(tdPrice);
+
+      var tdProducts = document.createElement('td');
+      tdProducts.className = 'products';
+      tdProducts.textContent = stock.products;
+      tr.appendChild(tdProducts);
+
+      tbody.appendChild(tr);
+    });
+  }
+
+  function setupFilter() {
+    document.getElementById('industryFilter').addEventListener('change', function (e) {
+      state.industryFilter = e.target.value;
+      renderTable();
+    });
+  }
+
+  function setupSort() {
+    var header = document.getElementById('priceHeader');
+    header.addEventListener('click', function () {
+      if (state.sortDir === null) state.sortDir = 'desc';
+      else if (state.sortDir === 'desc') state.sortDir = 'asc';
+      else state.sortDir = null;
+
+      header.classList.toggle('sorted', state.sortDir !== null);
+      var arrow = header.querySelector('.sort-arrow');
+      arrow.textContent = state.sortDir === 'asc' ? '↑' : state.sortDir === 'desc' ? '↓' : '↕';
+      renderTable();
+    });
+  }
+
+  function init() {
+    setupFilter();
+    setupSort();
+
+    fetch('stocks.json')
+      .then(function (r) { return r.json(); })
+      .then(function (stocks) {
+        state.stocks = stocks;
+        var industries = [];
+        stocks.forEach(function (s) {
+          if (industries.indexOf(s.industry) === -1) industries.push(s.industry);
+        });
+        renderLegend(industries);
+        renderFilterOptions(industries);
+        renderTable();
+      })
+      .catch(function () {
+        document.getElementById('stockTableBody').innerHTML = '';
+        var tr = document.createElement('tr');
+        tr.className = 'empty-row';
+        var td = document.createElement('td');
+        td.colSpan = 5;
+        td.textContent = '分類資料載入失敗，請稍後重新整理頁面';
+        tr.appendChild(td);
+        document.getElementById('stockTableBody').appendChild(tr);
+      });
+
+    fetch('prices.json')
+      .then(function (r) {
+        if (!r.ok) throw new Error('prices.json not ok');
+        return r.json();
+      })
+      .then(function (prices) {
+        state.prices = prices;
+        updateStatus();
+        renderTable();
+      })
+      .catch(function () {
+        state.pricesFailed = true;
+        updateStatus();
+      });
+  }
+
+  init();
+})();
+</script>
+
+<script data-goatcounter="https://yhchen5168.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+</body>
+</html>
