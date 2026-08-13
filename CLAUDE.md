@@ -65,12 +65,13 @@
 - 檔案：**prices.json**（repo 根目錄，由 GitHub Actions 自動產生／覆寫）
 - 欄位：`asOf`（交易日）、`updatedAt`（實際執行時間）、`items[code]` = `{ price, change, market }`（market 為 `TWSE` 或 `TPEx`）
 - 資料源：
-  - 上市股票：TWSE OpenAPI `https://openapi.twse.com.tw/v1/exchangeReport/STOCK_DAY_ALL`（免 key），欄位對照 `Code→code`、`ClosingPrice→price`、`Change→change`、`Date`（民國年 7 碼，如 `1150812`）→ 轉換為西元 `2026/08/12`
-  - 上櫃股票：TPEx OpenAPI `https://www.tpex.org.tw/openapi/v1/tpex_mainboard_daily_close_quotes`（免 key），欄位對照 `SecuritiesCompanyCode→code`、`Close→price`、`Change→change`（字串需 trim 並可能非數字如「除息」，此時 change 存 null）
-  - 兩者皆**沒有開放瀏覽器端 CORS**，實測 GET/OPTIONS 回應都沒有 `Access-Control-Allow-Origin`，所以頁面無法在載入當下直接 fetch，必須靠排程先抓好存成同源靜態檔
+  - 上市股票：證交所「個股日成交資訊」`https://www.twse.com.tw/exchangeReport/STOCK_DAY?response=json&date=YYYYMMDD&stockNo=代碼`（免 key），逐檔查詢當月資料，取最後一筆（最新交易日）。欄位對照：`data` 每列第 0 欄為日期（`115/08/13` 格式，斜線分隔）、第 6 欄收盤價、第 7 欄漲跌價差（帶正負號字串，如 `+20.00`；除權息等不比價會是 `X0.00`，此時 change 存 null）。
+    - 原本用過整批查詢的 `openapi.twse.com.tw/v1/exchangeReport/STOCK_DAY_ALL`，但實測發現它收盤後常常隔了很久（曾經到傍晚 6 點半都還沒更新）才放出當日收盤價；改用逐檔查詢的 STOCK_DAY 後，同一天傍晚就查得到，資料比較即時，代價是要對 38 檔各發一次請求（腳本內建每次間隔 3 秒，避免太密集被擋）。
+  - 上櫃股票：TPEx OpenAPI `https://www.tpex.org.tw/openapi/v1/tpex_mainboard_daily_close_quotes`（免 key，整批查詢），欄位對照 `SecuritiesCompanyCode→code`、`Close→price`、`Change→change`（字串需 trim 並可能非數字如「除息」，此時 change 存 null）；實測更新速度正常，維持整批查詢
+  - 兩者皆**沒有開放瀏覽器端 CORS**（`STOCK_DAY` 例外：這支有回 `Access-Control-Allow-Origin: *`，但為了架構一致、且 STOCK_DAY_ALL／TPEx 仍無 CORS，還是統一走 GitHub Actions 排程，不在頁面直接呼叫），所以頁面無法在載入當下直接 fetch，必須靠排程先抓好存成同源靜態檔
 - 產生方式：`scripts/update_prices.py`（純標準庫，無需 pip install），由 `.github/workflows/update-stock-prices.yml` 排程執行
   - 排程：平日（週一至週五）台灣時間 14:00（cron `0 6 * * 1-5`，UTC）收盤後跑一次，另可手動 `workflow_dispatch`
-  - 若抓到的交易日跟現有 prices.json 的 `asOf`相同（代表非交易日），腳本不覆寫檔案，避免產生無意義 commit
+  - 若抓到的交易日跟現有 prices.json 的 `asOf` 相同，腳本不覆寫檔案，避免產生無意義 commit；`asOf` 取「這批資料裡最舊的交易日」而非多數決，確保這個日期底下 46 檔都保證同一天或更早，不會有「asOf 寫今天，但某幾檔其實還是舊價」的不誠實情況
   - 用內建 `GITHUB_TOKEN`（`contents: write`）commit，沒有使用任何個人 PAT 或外部帳號
 
 ### 頁面渲染

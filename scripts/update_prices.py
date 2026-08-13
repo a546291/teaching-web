@@ -1,10 +1,14 @@
 #!/usr/bin/env python3
 """
-從 TWSE / TPEx OpenAPI 抓取收盤價，只保留 stocks.json 裡的 46 檔，
+從 TWSE / TPEx 抓取收盤價，只保留 stocks.json 裡的 46 檔，
 正規化成同一個 schema 寫入 prices.json。
 
-- TWSE：上市股票，STOCK_DAY_ALL
-- TPEx：上櫃股票，tpex_mainboard_daily_close_quotes
+- TWSE：上市股票，用證交所「個股日成交資訊」查詢（STOCK_DAY，逐檔查詢）。
+  原本用過 STOCK_DAY_ALL（一次回傳全部上市股票），但實測發現 STOCK_DAY_ALL
+  收盤後常常隔了很久才更新，個股查詢頁背後的 STOCK_DAY 反而當天傍晚就有資料，
+  所以改用這個逐檔查詢的版本，代價是要對 38 檔各發一次請求。
+- TPEx：上櫃股票，tpex_mainboard_daily_close_quotes（一次回傳全部上櫃股票，
+  實測更新速度正常，維持原本的整批查詢）。
 兩邊都不需要 API Key。
 
 若抓到的交易日跟現有 prices.json 的 asOf 相同（代表當天休市或尚未收盤），
@@ -12,6 +16,7 @@
 """
 import json
 import sys
+import time
 import urllib.request
 from datetime import datetime, timedelta, timezone
 
@@ -19,10 +24,11 @@ ROOT = __import__("pathlib").Path(__file__).resolve().parent.parent
 STOCKS_PATH = ROOT / "stocks.json"
 PRICES_PATH = ROOT / "prices.json"
 
-TWSE_URL = "https://openapi.twse.com.tw/v1/exchangeReport/STOCK_DAY_ALL"
+TWSE_STOCK_DAY_URL = "https://www.twse.com.tw/exchangeReport/STOCK_DAY"
 TPEX_URL = "https://www.tpex.org.tw/openapi/v1/tpex_mainboard_daily_close_quotes"
 
 TAIPEI = timezone(timedelta(hours=8))
+REQUEST_DELAY_SEC = 3  # 逐檔查詢 TWSE 時，避免太密集被視為濫用而擋掉
 
 
 def fetch_json(url):
@@ -32,11 +38,11 @@ def fetch_json(url):
 
 
 def roc_date_to_ad(roc_str):
-    # 例："1150812" -> "2026/08/12"
-    roc_str = roc_str.strip()
-    year = int(roc_str[:3]) + 1911
-    month = roc_str[3:5]
-    day = roc_str[5:7]
+    # 例："1150812" -> "2026/08/12"，或 "115/08/12" -> "2026/08/12"
+    digits = roc_str.strip().replace("/", "")
+    year = int(digits[:3]) + 1911
+    month = digits[3:5]
+    day = digits[5:7]
     return f"{year}/{month}/{day}"
 
 
@@ -46,25 +52,36 @@ def load_codes():
     return [s["code"] for s in stocks]
 
 
-def build_twse_index():
-    rows = fetch_json(TWSE_URL)
-    index = {}
-    for row in rows:
-        try:
-            price = float(row["ClosingPrice"])
-        except (TypeError, ValueError):
-            continue
-        try:
-            change = float(row["Change"])
-        except (TypeError, ValueError):
-            change = None
-        index[row["Code"]] = {
-            "price": price,
-            "change": change,
-            "market": "TWSE",
-            "date": roc_date_to_ad(row["Date"]),
-        }
-    return index
+def fetch_twse_stock_day(code):
+    """查單一上市股票當月每日收盤價，回傳當月最後一筆（最新交易日）。"""
+    today = datetime.now(TAIPEI).strftime("%Y%m%d")
+    url = f"{TWSE_STOCK_DAY_URL}?response=json&date={today}&stockNo={code}"
+    try:
+        payload = fetch_json(url)
+    except Exception as e:
+        print(f"  {code}: TWSE 查詢失敗（{e}）", file=sys.stderr)
+        return None
+
+    if payload.get("stat") != "OK" or not payload.get("data"):
+        return None  # 不是上市股票，或當月剛好查不到資料
+
+    last_row = payload["data"][-1]
+    try:
+        price = float(last_row[6].replace(",", ""))
+    except (TypeError, ValueError, IndexError):
+        return None
+    try:
+        change = float(last_row[7].replace(",", ""))
+    except (TypeError, ValueError, IndexError):
+        # 例如 "X0.00"（除權息等不比價註記），漲跌顯示為未知
+        change = None
+
+    return {
+        "price": price,
+        "change": change,
+        "market": "TWSE",
+        "date": roc_date_to_ad(last_row[0]),
+    }
 
 
 def build_tpex_index():
@@ -91,13 +108,20 @@ def build_tpex_index():
 
 def main():
     codes = load_codes()
-    twse_index = build_twse_index()
-    tpex_index = build_tpex_index()
+    tpex_index = build_tpex_index()  # 整批查詢，先查這邊比較便宜
 
     items = {}
     dates = []
+    twse_query_count = 0
     for code in codes:
-        hit = twse_index.get(code) or tpex_index.get(code)
+        hit = tpex_index.get(code)
+        if hit is None:
+            # 不在上櫃清單裡，逐檔查證交所個股日成交資訊
+            if twse_query_count > 0:
+                time.sleep(REQUEST_DELAY_SEC)
+            twse_query_count += 1
+            hit = fetch_twse_stock_day(code)
+
         if hit is None:
             items[code] = {"price": None, "change": None, "market": None}
             continue

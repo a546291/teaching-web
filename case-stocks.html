@@ -303,7 +303,7 @@
   <div class="callout callout-blue">
     <span class="callout-icon">🤔</span>
     <div class="callout-body">
-      <strong>為什麼不是「打開頁面當下直接抓報價」？</strong> 實測過 TWSE、TPEx 這兩個官方 API 都沒有開放瀏覽器端的 CORS 存取，靜態網站的 JavaScript 沒辦法在使用者打開頁面的當下直接跟它們要資料。所以改成用 GitHub Actions 這個「排程機器人」，收盤後統一抓一次、整理好存成一份 JSON 檔，頁面再去讀這份同一個網站底下的檔案，就沒有這個限制了。
+      <strong>為什麼不是「打開頁面當下直接抓報價」？</strong> 實測過 TWSE、TPEx 主要用到的官方 API 都沒有開放瀏覽器端的 CORS 存取，靜態網站的 JavaScript 沒辦法在使用者打開頁面的當下直接跟它們要資料。所以改成用 GitHub Actions 這個「排程機器人」，收盤後統一抓一次、整理好存成一份 JSON 檔，頁面再去讀這份同一個網站底下的檔案，就沒有這個限制了。
     </div>
   </div>
 
@@ -346,7 +346,7 @@
     <div class="step-num">2</div>
     <div class="step-body">
       <h3>寫一支腳本，把兩個交易所的格式對齊</h3>
-      <p>TWSE 的收盤價欄位叫 <code>ClosingPrice</code>、日期是民國年 <code>1150812</code>；TPEx 叫 <code>Close</code>、漲跌欄位還帶正負號字串。腳本把兩邊都轉成同一個 schema：</p>
+      <p>上市股票用證交所「個股日成交資訊」逐檔查詢（收盤價在回傳資料每列的第 7 欄，日期是民國年格式 <code>115/08/13</code>）；上櫃股票用 TPEx 整批查詢，欄位叫 <code>Close</code>、漲跌欄位還帶正負號字串。腳本把兩邊都轉成同一個 schema：</p>
       <div class="code-block"><span class="code-comment"># scripts/update_prices.py 節錄</span>
 {
   "code": {
