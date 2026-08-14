@@ -167,6 +167,7 @@
   .stock-table th.sorted .sort-arrow { color: var(--accent); }
   .stock-table td { padding: .65rem .9rem; border-bottom: 1px solid var(--bg3); color: var(--fg); vertical-align: top; }
   .stock-table tr:last-child td { border-bottom: none; }
+  .stock-table tr.group-start td { border-top: 2px solid #c7c7cc; }
   .stock-table td.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
   .stock-table td.products { color: var(--fg2); font-size: 12.5px; line-height: 1.55; min-width: 240px; }
   .stock-table td.code { color: var(--fg3); font-variant-numeric: tabular-nums; }
@@ -646,10 +647,15 @@
       return;
     }
 
+    var previousIndustry = null;
     rows.forEach(function (stock) {
       var tr = document.createElement('tr');
       var color = industryColor(stock.industry);
       tr.style.background = color.bg;
+      if (state.sortDir === null && previousIndustry !== null && stock.industry !== previousIndustry) {
+        tr.classList.add('group-start');
+      }
+      previousIndustry = stock.industry;
 
       var tdIndustry = document.createElement('td');
       tdIndustry.style.color = color.fg;
