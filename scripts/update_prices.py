@@ -123,11 +123,17 @@ def main():
             hit = fetch_twse_stock_day(code)
 
         if hit is None:
-            items[code] = {"price": None, "change": None, "market": None}
+            items[code] = {"price": None, "change": None, "changePercent": None, "market": None}
             continue
+        change_percent = None
+        if hit["change"] is not None:
+            prev_close = hit["price"] - hit["change"]
+            if prev_close:
+                change_percent = round(hit["change"] / prev_close * 100, 2)
         items[code] = {
             "price": hit["price"],
             "change": hit["change"],
+            "changePercent": change_percent,
             "market": hit["market"],
         }
         dates.append(hit["date"])

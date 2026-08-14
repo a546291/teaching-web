@@ -20,7 +20,7 @@
 ## 設計原則
 - 蘋果風格：白底、簡潔、不華麗
 - 首頁：先案例，再從案例展開到技術主軸
-- 導覽列：下拉選單分別連結「案例」「技術主軸」「關於」
+- 導覽列：下拉選單依序為「案例」「技術主軸」「投資那些事」「關於」
 - 每個新案例獨立一個 HTML 檔案，更新目錄即可
 
 ## 已完成檔案
@@ -36,7 +36,7 @@
 | tool-canvas.html | 主軸三：Canvas 純前端工具 |
 | tool-linebot.html | 主軸四：LINE Bot 自動回覆 |
 | tool-python.html | 主軸五：Python 本地工具 |
-| case-stocks.html | 台股個股分類表（個人整理筆記，不屬於上述任一技術主軸）|
+| case-stocks.html | 台股分類表（獨立分類「投資那些事」，不掛在「案例」或任一技術主軸下；開頁即表格，說明文字收在「如何做」浮動視窗）|
 | CLAUDE.md | 本說明檔 |
 
 ## 每個案例頁面的固定結構
@@ -63,7 +63,7 @@
 
 ### 2. 股價 — 自動抓取，不可手動編輯
 - 檔案：**prices.json**（repo 根目錄，由 GitHub Actions 自動產生／覆寫）
-- 欄位：`asOf`（交易日）、`updatedAt`（實際執行時間）、`items[code]` = `{ price, change, market }`（market 為 `TWSE` 或 `TPEx`）
+- 欄位：`asOf`（交易日）、`updatedAt`（實際執行時間）、`items[code]` = `{ price, change, changePercent, market }`（changePercent 由 change / (price - change) * 100 算出，四捨五入到小數點後 2 位；market 為 `TWSE` 或 `TPEx`）
 - 資料源：
   - 上市股票：證交所「個股日成交資訊」`https://www.twse.com.tw/exchangeReport/STOCK_DAY?response=json&date=YYYYMMDD&stockNo=代碼`（免 key），逐檔查詢當月資料，取最後一筆（最新交易日）。欄位對照：`data` 每列第 0 欄為日期（`115/08/13` 格式，斜線分隔）、第 6 欄收盤價、第 7 欄漲跌價差（帶正負號字串，如 `+20.00`；除權息等不比價會是 `X0.00`，此時 change 存 null）。
     - 原本用過整批查詢的 `openapi.twse.com.tw/v1/exchangeReport/STOCK_DAY_ALL`，但實測發現它收盤後常常隔了很久（曾經到傍晚 6 點半都還沒更新）才放出當日收盤價；改用逐檔查詢的 STOCK_DAY 後，同一天傍晚就查得到，資料比較即時，代價是要對 38 檔各發一次請求（腳本內建每次間隔 3 秒，避免太密集被擋）。
@@ -76,6 +76,9 @@
 
 ### 頁面渲染
 case-stocks.html 純前端，載入時 `fetch('stocks.json')` + `fetch('prices.json')`，依 `code` 合併；若 prices.json 抓取失敗或某代碼查無資料，顯示「暫時無法取得」，絕不顯示假數字或 0。
+
+### 頁面結構（跟其他案例頁不同，不套用固定案例結構）
+開頁即直接顯示表格（標題＋一句話副標＋篩選/排序表格），不是先看一大段介紹文字。原本案例頁固定結構的「這是什麼／優點與限制／應用場景／開發工具說明／步驟教學／FAQ／資安確認」七段文字都保留、內容不變，只是收進標頭「💡 如何做」按鈕觸發的浮動視窗（`#howtoOverlay`），用 ✕ 按鈕／Esc／點背景都可以關閉。這是因為這個頁面掛在「投資那些事」分類、不是「案例」，目的是工具本身能立刻用，不是教學導向的案例研讀。
 
 ## 新增案例的 git 流程
 ```
@@ -132,4 +135,4 @@ git push
 | LINE 行事曆助理（line-bot-gemini-calendar-assistant）| ✅ 安全，建議改用 Script Properties |
 | OCR 錯卷題庫（OCR-CAD）| ⚠️ 需修正：debug=True+0.0.0.0、uploads 路由、SQL f-string |
 | NKNUBLOCK 自動批改（NKNUBLOCK）| ✅ 已修正：路徑穿越(secure_filename)、XSS(escHtml)、debug=False；init_db f-string 低風險（硬編碼值）；.db 建議 gitignore |
-| 台股個股分類表（case-stocks.html）| ✅ 整體安全，純前端無金鑰、無後端伺服器、無資料庫；TWSE/TPEx OpenAPI 免 key；前端渲染一律用 textContent、無 innerHTML；GitHub Actions 僅用內建 GITHUB_TOKEN |
+| 台股分類表（case-stocks.html）| ✅ 整體安全，純前端無金鑰、無後端伺服器、無資料庫；TWSE/TPEx OpenAPI 免 key；前端渲染一律用 textContent、無 innerHTML；GitHub Actions 僅用內建 GITHUB_TOKEN |
