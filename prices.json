@@ -1,281 +1,281 @@
 {
-  "asOf": "2026/08/25",
-  "updatedAt": "2026-08-26T14:56:03+08:00",
+  "asOf": "2026/08/27",
+  "updatedAt": "2026-08-28T01:29:27+08:00",
   "items": {
     "3037": {
-      "price": 1160.0,
-      "change": 65.0,
-      "changePercent": 5.94,
-      "market": "TWSE"
-    },
-    "8046": {
       "price": 1180.0,
       "change": 20.0,
       "changePercent": 1.72,
       "market": "TWSE"
     },
+    "8046": {
+      "price": 1295.0,
+      "change": 115.0,
+      "changePercent": 9.75,
+      "market": "TWSE"
+    },
     "3189": {
-      "price": 881.0,
-      "change": 46.0,
-      "changePercent": 5.51,
+      "price": 914.0,
+      "change": 33.0,
+      "changePercent": 3.75,
       "market": "TWSE"
     },
     "2313": {
-      "price": 222.0,
-      "change": 4.5,
-      "changePercent": 2.07,
+      "price": 244.0,
+      "change": 22.0,
+      "changePercent": 9.91,
       "market": "TWSE"
     },
     "6269": {
-      "price": 66.3,
-      "change": 4.4,
-      "changePercent": 7.11,
+      "price": 72.9,
+      "change": 6.6,
+      "changePercent": 9.95,
       "market": "TWSE"
     },
     "6278": {
-      "price": 199.5,
-      "change": 18.0,
-      "changePercent": 9.92,
+      "price": 206.0,
+      "change": 6.5,
+      "changePercent": 3.26,
       "market": "TWSE"
     },
     "6153": {
-      "price": 17.0,
-      "change": 0.5,
-      "changePercent": 3.03,
+      "price": 17.25,
+      "change": 0.25,
+      "changePercent": 1.47,
       "market": "TWSE"
     },
     "2316": {
-      "price": 161.0,
-      "change": 5.0,
-      "changePercent": 3.21,
+      "price": 160.5,
+      "change": -0.5,
+      "changePercent": -0.31,
       "market": "TWSE"
     },
     "3044": {
       "price": 481.0,
-      "change": 18.0,
-      "changePercent": 3.89,
+      "change": 0.0,
+      "changePercent": 0.0,
       "market": "TWSE"
     },
     "2368": {
-      "price": 1040.0,
-      "change": 69.0,
-      "changePercent": 7.11,
+      "price": 1030.0,
+      "change": -10.0,
+      "changePercent": -0.96,
       "market": "TWSE"
     },
     "8213": {
-      "price": 32.8,
-      "change": 0.15,
-      "changePercent": 0.46,
+      "price": 33.15,
+      "change": 0.35,
+      "changePercent": 1.07,
       "market": "TWSE"
     },
     "5439": {
-      "price": 241.5,
-      "change": 2.0,
-      "changePercent": 0.84,
+      "price": 262.0,
+      "change": 14.0,
+      "changePercent": 5.65,
       "market": "TPEx"
     },
     "2367": {
-      "price": 44.8,
-      "change": 1.75,
-      "changePercent": 4.07,
+      "price": 45.55,
+      "change": 0.75,
+      "changePercent": 1.67,
       "market": "TWSE"
     },
     "2355": {
-      "price": 42.65,
-      "change": 1.0,
-      "changePercent": 2.4,
+      "price": 44.4,
+      "change": 1.75,
+      "changePercent": 4.1,
       "market": "TWSE"
     },
     "6191": {
-      "price": 82.1,
-      "change": 1.2,
-      "changePercent": 1.48,
+      "price": 83.1,
+      "change": 1.0,
+      "changePercent": 1.22,
       "market": "TWSE"
     },
     "6141": {
-      "price": 50.4,
-      "change": 4.55,
-      "changePercent": 9.92,
+      "price": 54.9,
+      "change": 4.5,
+      "changePercent": 8.93,
       "market": "TWSE"
     },
     "6266": {
       "price": 25.15,
-      "change": 0.0,
-      "changePercent": 0.0,
+      "change": -0.05,
+      "changePercent": -0.2,
       "market": "TPEx"
     },
     "8074": {
-      "price": 54.1,
-      "change": 0.5,
-      "changePercent": 0.93,
+      "price": 57.0,
+      "change": 0.1,
+      "changePercent": 0.18,
       "market": "TPEx"
     },
     "6271": {
-      "price": 208.0,
-      "change": 8.5,
-      "changePercent": 4.26,
+      "price": 210.0,
+      "change": 2.0,
+      "changePercent": 0.96,
       "market": "TWSE"
     },
     "2429": {
-      "price": 33.95,
-      "change": 1.2,
-      "changePercent": 3.66,
+      "price": 34.0,
+      "change": 0.05,
+      "changePercent": 0.15,
       "market": "TWSE"
     },
     "2408": {
-      "price": 517.0,
-      "change": 7.0,
-      "changePercent": 1.37,
+      "price": 541.0,
+      "change": 24.0,
+      "changePercent": 4.64,
       "market": "TWSE"
     },
     "2344": {
-      "price": 181.5,
-      "change": 2.5,
-      "changePercent": 1.4,
+      "price": 186.0,
+      "change": 4.5,
+      "changePercent": 2.48,
       "market": "TWSE"
     },
     "6770": {
-      "price": 70.2,
-      "change": 1.2,
-      "changePercent": 1.74,
+      "price": 69.6,
+      "change": null,
+      "changePercent": null,
       "market": "TWSE"
     },
     "3006": {
-      "price": 273.5,
-      "change": 3.5,
-      "changePercent": 1.3,
+      "price": 274.0,
+      "change": 0.5,
+      "changePercent": 0.18,
       "market": "TWSE"
     },
     "5351": {
-      "price": 115.5,
-      "change": -2.5,
-      "changePercent": -2.12,
+      "price": 116.5,
+      "change": -0.5,
+      "changePercent": -0.43,
       "market": "TPEx"
     },
     "3260": {
-      "price": 418.5,
-      "change": -20.0,
-      "changePercent": -4.56,
+      "price": 415.5,
+      "change": -0.5,
+      "changePercent": -0.12,
       "market": "TPEx"
     },
     "4967": {
-      "price": 272.5,
-      "change": 0.0,
-      "changePercent": 0.0,
+      "price": 275.5,
+      "change": 3.0,
+      "changePercent": 1.1,
       "market": "TWSE"
     },
     "2330": {
-      "price": 2415.0,
-      "change": 15.0,
-      "changePercent": 0.62,
+      "price": 2410.0,
+      "change": -5.0,
+      "changePercent": -0.21,
       "market": "TWSE"
     },
     "2454": {
-      "price": 3945.0,
-      "change": 210.0,
-      "changePercent": 5.62,
+      "price": 3865.0,
+      "change": -80.0,
+      "changePercent": -2.03,
       "market": "TWSE"
     },
     "2395": {
-      "price": 688.0,
-      "change": 18.0,
-      "changePercent": 2.69,
+      "price": 675.0,
+      "change": -13.0,
+      "changePercent": -1.89,
       "market": "TWSE"
     },
     "2327": {
-      "price": 537.0,
-      "change": -7.0,
-      "changePercent": -1.29,
+      "price": 555.0,
+      "change": 18.0,
+      "changePercent": 3.35,
       "market": "TWSE"
     },
     "3026": {
-      "price": 614.0,
-      "change": -14.0,
-      "changePercent": -2.23,
+      "price": 675.0,
+      "change": 61.0,
+      "changePercent": 9.93,
       "market": "TWSE"
     },
     "4760": {
-      "price": 251.5,
-      "change": -4.5,
-      "changePercent": -1.76,
+      "price": 260.5,
+      "change": 5.0,
+      "changePercent": 1.96,
       "market": "TPEx"
     },
     "3090": {
-      "price": 165.5,
-      "change": -0.5,
-      "changePercent": -0.3,
+      "price": 168.5,
+      "change": 3.0,
+      "changePercent": 1.81,
       "market": "TWSE"
     },
     "2308": {
-      "price": 1750.0,
-      "change": 40.0,
-      "changePercent": 2.34,
+      "price": 1770.0,
+      "change": 20.0,
+      "changePercent": 1.14,
       "market": "TWSE"
     },
     "1503": {
-      "price": 202.0,
-      "change": 2.5,
-      "changePercent": 1.25,
+      "price": 212.5,
+      "change": 10.5,
+      "changePercent": 5.2,
       "market": "TWSE"
     },
     "1513": {
-      "price": 166.0,
-      "change": 0.5,
-      "changePercent": 0.3,
+      "price": 170.5,
+      "change": 4.5,
+      "changePercent": 2.71,
       "market": "TWSE"
     },
     "6488": {
-      "price": 980.0,
-      "change": -30.0,
-      "changePercent": -2.97,
+      "price": 958.0,
+      "change": 9.0,
+      "changePercent": 0.95,
       "market": "TPEx"
     },
     "3042": {
-      "price": 185.5,
-      "change": 0.5,
-      "changePercent": 0.27,
+      "price": 192.0,
+      "change": 6.5,
+      "changePercent": 3.5,
       "market": "TWSE"
     },
     "3653": {
-      "price": 5725.0,
-      "change": 520.0,
-      "changePercent": 9.99,
+      "price": 5645.0,
+      "change": -80.0,
+      "changePercent": -1.4,
       "market": "TWSE"
     },
     "3017": {
-      "price": 3155.0,
-      "change": 205.0,
-      "changePercent": 6.95,
+      "price": 3340.0,
+      "change": 185.0,
+      "changePercent": 5.86,
       "market": "TWSE"
     },
     "2049": {
-      "price": 353.0,
-      "change": 7.5,
-      "changePercent": 2.17,
+      "price": 359.5,
+      "change": 6.5,
+      "changePercent": 1.84,
       "market": "TWSE"
     },
     "2357": {
-      "price": 971.0,
-      "change": 46.0,
-      "changePercent": 4.97,
+      "price": 968.0,
+      "change": -3.0,
+      "changePercent": -0.31,
       "market": "TWSE"
     },
     "4938": {
-      "price": 89.3,
-      "change": 0.5,
-      "changePercent": 0.56,
+      "price": 89.4,
+      "change": 0.1,
+      "changePercent": 0.11,
       "market": "TWSE"
     },
     "2376": {
-      "price": 351.5,
-      "change": 4.0,
-      "changePercent": 1.15,
+      "price": 345.0,
+      "change": -6.5,
+      "changePercent": -1.85,
       "market": "TWSE"
     },
     "6223": {
-      "price": 5600.0,
-      "change": 35.0,
-      "changePercent": 0.63,
+      "price": 5090.0,
+      "change": 50.0,
+      "changePercent": 0.99,
       "market": "TPEx"
     }
   }
