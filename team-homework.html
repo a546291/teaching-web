@@ -32,6 +32,16 @@
   }
   input[type=text]:focus{outline:2px solid var(--accent); outline-offset:1px; border-color:transparent;}
   .hint{font-size:.82rem; color:var(--fg3); margin-top:6px;}
+  .hint-warning{font-size:1.05rem; font-weight:700; color:var(--err); margin-top:6px;}
+  .blink-tag{
+    display:inline-block; font-weight:700; color:#fff; background:var(--err);
+    padding:1px 8px; border-radius:6px; margin-right:6px;
+    animation:blink-fade 1s ease-in-out infinite;
+  }
+  @keyframes blink-fade{
+    0%,100%{opacity:1;}
+    50%{opacity:.25;}
+  }
   .drop{
     border:2px dashed var(--line); border-radius:var(--r); background:#fff;
     padding:36px 20px; text-align:center; cursor:pointer; transition:.15s;
@@ -116,7 +126,7 @@
   <div id="result" class="hidden">
     <h2>你的作品代碼</h2>
     <div class="code" id="myCode"></div>
-    <p class="hint">請抄在聯絡簿上。9 月 11 日的實作測驗要用這組代碼取回你的作品。</p>
+    <p class="hint-warning"><span class="blink-tag">注意</span>請抄在聯絡簿上。9 月 11 日的實作測驗要用這組代碼取回你的作品。</p>
   </div>
 
   <h2>上傳紀錄</h2>
