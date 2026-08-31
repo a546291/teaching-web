@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>線上作業 — 北門國小資訊校隊</title>
+<style>
+  :root{
+    --bg:#ffffff; --bg2:#f5f5f7; --line:#e5e5ea;
+    --fg:#1d1d1f; --fg2:#424245; --fg3:#86868b;
+    --accent:#0071e3; --ok:#1d8a4e; --warn:#b25000; --err:#c22a2a;
+    --r:14px;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:var(--bg); color:var(--fg);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif;
+    line-height:1.7; -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:720px; margin:0 auto; padding:0 20px 80px;}
+  header{padding:56px 0 32px; border-bottom:1px solid var(--line); margin-bottom:36px;}
+  .eyebrow{font-size:.8rem; letter-spacing:.12em; color:var(--fg3); margin-bottom:10px;}
+  h1{font-size:2.1rem; font-weight:600; letter-spacing:-.02em; margin:0 0 10px;}
+  .sub{color:var(--fg2); margin:0;}
+  h2{font-size:1.15rem; font-weight:600; margin:40px 0 14px;}
+  .card{background:var(--bg2); border-radius:var(--r); padding:22px; margin:16px 0;}
+  label{display:block; font-size:.9rem; color:var(--fg2); margin:16px 0 6px; font-weight:500;}
+  input[type=text]{
+    width:100%; padding:12px 14px; font-size:1rem; font-family:inherit;
+    border:1px solid var(--line); border-radius:10px; background:#fff; color:var(--fg);
+  }
+  input[type=text]:focus{outline:2px solid var(--accent); outline-offset:1px; border-color:transparent;}
+  .hint{font-size:.82rem; color:var(--fg3); margin-top:6px;}
+  .drop{
+    border:2px dashed var(--line); border-radius:var(--r); background:#fff;
+    padding:36px 20px; text-align:center; cursor:pointer; transition:.15s;
+  }
+  .drop:hover,.drop.over{border-color:var(--accent); background:#f0f7ff;}
+  .drop strong{display:block; font-size:1rem; margin-bottom:4px;}
+  button{
+    font-family:inherit; font-size:1rem; font-weight:500; cursor:pointer;
+    background:var(--accent); color:#fff; border:0; border-radius:980px;
+    padding:13px 30px; transition:.15s;
+  }
+  button:hover:not(:disabled){filter:brightness(1.08);}
+  button:disabled{background:var(--line); color:var(--fg3); cursor:not-allowed;}
+  button:focus-visible{outline:2px solid var(--fg); outline-offset:3px;}
+  .ghost{background:transparent; color:var(--accent); padding:8px 0;}
+  .ghost:disabled{background:transparent;}
+  .status{padding:14px 18px; border-radius:10px; margin:16px 0; font-size:.92rem;}
+  .status.ok{background:#e8f5ed; color:var(--ok);}
+  .status.warn{background:#fff4e5; color:var(--warn);}
+  .status.err{background:#fdeaea; color:var(--err);}
+  .bar{height:6px; background:var(--line); border-radius:999px; overflow:hidden; margin:14px 0;}
+  .bar span{display:block; height:100%; width:0; background:var(--accent); transition:width .25s;}
+  table{width:100%; border-collapse:collapse; font-size:.9rem; margin-top:10px;}
+  th,td{text-align:left; padding:10px 8px; border-bottom:1px solid var(--line); vertical-align:top;}
+  th{color:var(--fg3); font-weight:500; font-size:.82rem;}
+  .code{
+    font-family:"SF Mono",Menlo,Consolas,monospace; font-size:1.9rem; font-weight:600;
+    letter-spacing:.22em; color:var(--fg); background:#fff; border:1px solid var(--line);
+    border-radius:10px; padding:14px; text-align:center; margin:12px 0;
+  }
+  .chips{display:flex; flex-wrap:wrap; gap:8px; margin-top:12px;}
+  .chip{background:#fff; border:1px solid var(--line); border-radius:999px; padding:5px 12px; font-size:.82rem; color:var(--fg2);}
+  .privacy{font-size:.8rem; color:var(--fg3); border-top:1px solid var(--line); margin-top:48px; padding-top:20px;}
+  .hidden{display:none;}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="eyebrow">北門國小資訊校隊</div>
+  <h1>線上作業繳交</h1>
+  <p class="sub">猴子接香蕉 2.0 — 上傳你的 Scratch 作品</p>
+</header>
+
+<div id="gate" class="status warn">正在確認開放狀態…</div>
+
+<main id="app" class="hidden">
+
+  <div class="card">
+    <label for="cls">班級</label>
+    <input type="text" id="cls" placeholder="例如：601" autocomplete="off">
+
+    <label for="name">姓名</label>
+    <input type="text" id="name" placeholder="請填寫全名" autocomplete="off">
+
+    <label for="code">作品代碼<span style="color:var(--fg3);font-weight:400;">（第一次上傳請留空）</span></label>
+    <input type="text" id="code" placeholder="例如：K7M2Q9" autocomplete="off" style="text-transform:uppercase;">
+    <p class="hint">第一次上傳後系統會給你一組代碼。之後再上傳新版本時填入，作品才會接在同一份紀錄下。</p>
+  </div>
+
+  <h2>選擇作品檔</h2>
+  <div class="drop" id="drop" tabindex="0" role="button" aria-label="選擇 sb3 檔案">
+    <strong id="dropTitle">點這裡選擇 .sb3 檔</strong>
+    <span class="hint">也可以直接把檔案拖進來 · 上限 15MB</span>
+  </div>
+  <input type="file" id="file" accept=".sb3" class="hidden">
+
+  <div id="analysis" class="card hidden">
+    <strong style="font-size:.95rem;">這個檔案的內容</strong>
+    <div class="chips" id="chips"></div>
+  </div>
+
+  <div class="bar hidden" id="barBox"><span id="bar"></span></div>
+  <div id="msg"></div>
+
+  <p style="margin-top:24px;">
+    <button id="send" disabled>上傳作品</button>
+  </p>
+
+  <div id="result" class="hidden">
+    <h2>你的作品代碼</h2>
+    <div class="code" id="myCode"></div>
+    <p class="hint">請抄在聯絡簿上。9 月 11 日的實作測驗要用這組代碼取回你的作品。</p>
+  </div>
+
+  <h2>上傳紀錄</h2>
+  <p><button class="ghost" id="loadVer">查詢我的上傳紀錄</button></p>
+  <div id="versions"></div>
+
+</main>
+
+<p class="privacy">
+  這個頁面會記錄你的班級、姓名與上傳的作品檔，用途僅限資訊校隊選拔評分。
+  資料存放於指導老師的 Google 雲端硬碟，選拔結束後保存一學年即刪除。
+  如果不希望提供，請直接向資訊老師領取紙本方式繳交。
+</p>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script>
+// ⬇️ 部署後把這裡換成你的 GAS 網頁應用程式網址（.../exec）
+const API = 'https://script.google.com/macros/s/AKfycbwhOoDmIOSE_fnmyWcAeQN7RnX1YXVFTGSYKyqwY7CXFfjoX4119nJGmCN508CEpvFG/exec';
+
+const CHUNK = 3 * 1024 * 1024;   // 每塊 3MB
+const MAX   = 15 * 1024 * 1024;  // 上限 15MB
+
+const $ = id => document.getElementById(id);
+let picked = null, metrics = null, projectJson = null;
+
+// GAS 不支援 CORS 預檢，所以用 text/plain 送 JSON
+async function api(payload){
+  const r = await fetch(API, {
+    method:'POST',
+    headers:{'Content-Type':'text/plain;charset=utf-8'},
+    body: JSON.stringify(payload)
+  });
+  const d = await r.json();
+  if(!d.ok) throw new Error(d.error || '伺服器沒有回應');
+  return d;
+}
+
+function note(text, kind){
+  $('msg').innerHTML = '<div class="status '+kind+'">'+text+'</div>';
+}
+
+// ---------- 開放狀態 ----------
+(async function(){
+  try{
+    const s = await api({action:'status'});
+    const fmt = t => new Date(t).toLocaleString('zh-TW',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'});
+    if(s.reason === 'notyet'){
+      $('gate').className = 'status warn';
+      $('gate').textContent = '尚未開放，開放時間為 ' + fmt(s.openFrom);
+    }else if(s.reason === 'closed'){
+      $('gate').className = 'status err';
+      $('gate').textContent = '已超過繳交期限（' + fmt(s.deadline) + '），系統不再收件。';
+    }else{
+      $('gate').className = 'status ok';
+      $('gate').textContent = '開放上傳中 · 繳交期限 ' + fmt(s.deadline);
+      $('app').classList.remove('hidden');
+    }
+  }catch(e){
+    $('gate').className = 'status err';
+    $('gate').textContent = '無法連上伺服器，請告訴老師。（' + e.message + '）';
+  }
+})();
+
+// ---------- 選檔 ----------
+$('drop').onclick = () => $('file').click();
+$('drop').onkeydown = e => { if(e.key==='Enter'||e.key===' '){ e.preventDefault(); $('file').click(); } };
+['dragover','dragenter'].forEach(ev => $('drop').addEventListener(ev, e => {
+  e.preventDefault(); $('drop').classList.add('over');
+}));
+['dragleave','drop'].forEach(ev => $('drop').addEventListener(ev, e => {
+  e.preventDefault(); $('drop').classList.remove('over');
+}));
+$('drop').addEventListener('drop', e => { if(e.dataTransfer.files[0]) take(e.dataTransfer.files[0]); });
+$('file').onchange = e => { if(e.target.files[0]) take(e.target.files[0]); };
+
+async function take(f){
+  if(!f.name.toLowerCase().endsWith('.sb3')){
+    note('這不是 Scratch 檔案。請上傳副檔名為 .sb3 的檔案。','err'); return;
+  }
+  if(f.size > MAX){
+    note('檔案 '+(f.size/1048576).toFixed(1)+'MB，超過 15MB 上限。請刪掉用不到的造型或音效再存一次。','err'); return;
+  }
+  picked = f;
+  $('dropTitle').textContent = f.name + '（' + (f.size/1048576).toFixed(1) + 'MB）';
+  note('正在讀取作品內容…','warn');
+
+  try{
+    const zip = await JSZip.loadAsync(f);
+    const entry = zip.file('project.json');
+    if(!entry) throw new Error('檔案裡找不到 project.json');
+    projectJson = await entry.async('string');
+    metrics = analyse(JSON.parse(projectJson));
+    showChips(metrics);
+    note('讀取完成，可以上傳了。','ok');
+    $('send').disabled = false;
+  }catch(err){
+    note('這個檔案讀不出來，可能已損壞，請在 Scratch 重新另存一次。','err');
+    $('send').disabled = true;
+  }
+}
+
+// ---------- 解析 sb3 ----------
+function analyse(pj){
+  const m = {積木數:0,角色數:0,造型數:0,音效數:0,條件:0,迴圈:0,分身:0,自訂積木:0,
+             變數清單:[],廣播清單:[],角色清單:[]};
+  const bset = new Set();
+  (pj.targets||[]).forEach(t => {
+    if(!t.isStage){ m.角色數++; m.角色清單.push(t.name); }
+    m.造型數 += (t.costumes||[]).length;
+    m.音效數 += (t.sounds||[]).length;
+    Object.values(t.variables||{}).forEach(v => m.變數清單.push(v[0]));
+    Object.values(t.lists||{}).forEach(v => m.變數清單.push('清單:'+v[0]));
+    Object.values(t.broadcasts||{}).forEach(b => bset.add(b));
+    Object.values(t.blocks||{}).forEach(b => {
+      if(!b || typeof b !== 'object' || Array.isArray(b)) return;
+      const op = b.opcode; if(!op) return;
+      m.積木數++;
+      if(op==='control_if'||op==='control_if_else') m.條件++;
+      if(op==='control_forever'||op==='control_repeat'||op==='control_repeat_until') m.迴圈++;
+      if(op==='control_create_clone_of'||op==='control_start_as_clone') m.分身++;
+      if(op==='procedures_prototype') m.自訂積木++;
+    });
+  });
+  m.變數清單 = [...new Set(m.變數清單)].sort();
+  m.廣播清單 = [...bset].sort();
+  return m;
+}
+
+function showChips(m){
+  const items = [
+    ['積木', m.積木數], ['角色', m.角色數], ['造型', m.造型數], ['音效', m.音效數],
+    ['變數', m.變數清單.length], ['廣播', m.廣播清單.length],
+    ['條件判斷', m.條件], ['迴圈', m.迴圈]
+  ];
+  $('chips').innerHTML = items.map(([k,v]) => '<span class="chip">'+k+' '+v+'</span>').join('');
+  $('analysis').classList.remove('hidden');
+}
+
+// ---------- 上傳 ----------
+$('send').onclick = async () => {
+  const cls  = $('cls').value.trim();
+  const name = $('name').value.trim();
+  if(!cls || !name){ note('請先填寫班級與姓名。','err'); return; }
+  if(!picked){ note('請先選擇 .sb3 檔案。','err'); return; }
+
+  $('send').disabled = true;
+  $('barBox').classList.remove('hidden');
+  const setBar = p => $('bar').style.width = p + '%';
+
+  try{
+    const b64 = await toBase64(picked);
+    const chunks = [];
+    for(let i=0; i<b64.length; i+=CHUNK) chunks.push(b64.slice(i, i+CHUNK));
+
+    note('連線中…','warn'); setBar(4);
+    const init = await api({
+      action:'initUpload', 班級:cls, 姓名:name,
+      代碼:$('code').value.trim().toUpperCase(),
+      檔名:picked.name, 檔案大小:picked.size, 塊數:chunks.length, metrics:metrics
+    });
+
+    for(let i=0; i<chunks.length; i++){
+      note('上傳中… '+(i+1)+' / '+chunks.length,'warn');
+      await api({action:'uploadChunk', uploadId:init.uploadId, index:i, data:chunks[i]});
+      setBar(4 + Math.round((i+1)/chunks.length*86));
+    }
+
+    note('處理中…','warn'); setBar(94);
+    const fin = await api({action:'finishUpload', uploadId:init.uploadId, projectJson:projectJson});
+    setBar(100);
+
+    note('上傳成功，這是第 '+fin.版本+' 版。<br>與前一版比較：<strong>'+fin.差異+'</strong>','ok');
+    $('code').value = fin.代碼;
+    $('myCode').textContent = fin.代碼;
+    $('result').classList.remove('hidden');
+    loadVersions();
+  }catch(e){
+    note('上傳失敗：'+e.message+'<br>請再試一次，若持續失敗請告訴老師。','err');
+    setBar(0);
+  }finally{
+    $('send').disabled = false;
+  }
+};
+
+function toBase64(file){
+  return new Promise((res, rej) => {
+    const r = new FileReader();
+    r.onload = () => res(r.result.split(',')[1]);
+    r.onerror = () => rej(new Error('檔案讀取失敗'));
+    r.readAsDataURL(file);
+  });
+}
+
+// ---------- 版本紀錄 ----------
+$('loadVer').onclick = loadVersions;
+
+async function loadVersions(){
+  const code = $('code').value.trim().toUpperCase();
+  if(!code){ $('versions').innerHTML = '<p class="hint">請先填入作品代碼。</p>'; return; }
+  $('loadVer').disabled = true;
+  try{
+    const d = await api({action:'myVersions', 代碼:code});
+    if(!d.versions.length){ $('versions').innerHTML = '<p class="hint">還沒有上傳紀錄。</p>'; return; }
+    $('versions').innerHTML =
+      '<p class="hint">'+d.班級+' '+d.姓名+'</p><table><tr><th>版本</th><th>時間</th><th>積木數</th><th>這次改了什麼</th></tr>'
+      + d.versions.map(v =>
+          '<tr><td>v'+v.版本+'</td><td>'+v.時間+'</td><td>'+v.積木數+'</td><td>'+v.差異+'</td></tr>'
+        ).join('')
+      + '</table>';
+  }catch(e){
+    $('versions').innerHTML = '<div class="status err">'+e.message+'</div>';
+  }finally{
+    $('loadVer').disabled = false;
+  }
+}
+</script>
+</body>
+</html>
