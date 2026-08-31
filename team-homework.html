@@ -31,6 +31,13 @@
     border:1px solid var(--line); border-radius:10px; background:#fff; color:var(--fg);
   }
   input[type=text]:focus{outline:2px solid var(--accent); outline-offset:1px; border-color:transparent;}
+  input[type=text] + input[type=text]{margin-top:8px;}
+  textarea{
+    width:100%; padding:12px 14px; font-size:1rem; font-family:inherit;
+    border:1px solid var(--line); border-radius:10px; background:#fff; color:var(--fg);
+    resize:vertical; min-height:76px; line-height:1.6;
+  }
+  textarea:focus{outline:2px solid var(--accent); outline-offset:1px; border-color:transparent;}
   .hint{font-size:.82rem; color:var(--fg3); margin-top:6px;}
   .hint-warning{font-size:1.05rem; font-weight:700; color:var(--err); margin-top:6px;}
   .blink-tag{
@@ -102,6 +109,36 @@
     <label for="code">作品代碼<span style="color:var(--fg3);font-weight:400;">（第一次上傳請留空）</span></label>
     <input type="text" id="code" placeholder="例如：K7M2Q9" autocomplete="off" style="text-transform:uppercase;">
     <p class="hint">第一次上傳後系統會給你一組代碼。之後再上傳新版本時填入，作品才會接在同一份紀錄下。</p>
+  </div>
+
+  <h2>A1：程式升級（作業要求）</h2>
+  <div class="card">
+    <p class="hint" style="font-size:.9rem;">你已經做過「猴子接香蕉」了，裡面有計分和生命值。現在請把它升級成 2.0 版：</p>
+    <ul style="margin:10px 0 0; padding-left:20px; font-size:.9rem; color:var(--fg2); line-height:1.9;">
+      <li><strong>必做：</strong>加入「開始畫面」——一開始不要直接進遊戲，先出現一個有遊戲名稱的畫面，按下按鍵或用滑鼠點一下才開始玩。</li>
+      <li><strong>必做：</strong>加入「第二關」——分數到達某個數字時進入第二關，且要讓玩家一眼看得出來不一樣（例如背景換了、香蕉掉得更快、出現更多東西）。</li>
+      <li>有時間再做（加分）：加入一種新的掉落物，碰到它會發生跟香蕉不一樣的事（扣分、扣生命、變慢……都可以）。</li>
+    </ul>
+    <p class="hint" style="margin-top:10px;">檔名請存成：<strong>接香蕉2.0_你的名字.sb3</strong></p>
+  </div>
+
+  <h2>A2：作品說明</h2>
+  <div class="card">
+    <p class="hint" style="font-size:.9rem;">用文字回答，不要只寫關鍵字，要寫完整的句子。</p>
+
+    <label for="a2q1">1. 玩家在這個遊戲要做什麼？（用一句話講完）</label>
+    <input type="text" id="a2q1" placeholder="例如：控制籃子接住掉下來的香蕉" autocomplete="off">
+
+    <label>2. 這個遊戲的規則是什麼？（至少寫三條）</label>
+    <input type="text" id="a2q2a" placeholder="規則一" autocomplete="off">
+    <input type="text" id="a2q2b" placeholder="規則二" autocomplete="off">
+    <input type="text" id="a2q2c" placeholder="規則三" autocomplete="off">
+
+    <label for="a2q3">3. 玩家要怎樣才算贏？怎樣算輸？</label>
+    <textarea id="a2q3" placeholder="請完整描述輸贏的條件"></textarea>
+
+    <label for="a2q4">4. 你做「第二關」的時候，遇到最大的困難是什麼？後來怎麼解決的？</label>
+    <textarea id="a2q4" placeholder="如果一路都很順利，請寫「沒有遇到困難」——誠實作答不會扣分"></textarea>
   </div>
 
   <h2>選擇作品檔</h2>
@@ -274,6 +311,18 @@ $('send').onclick = async () => {
   if(!cls || !name){ note('請先填寫班級與姓名。','err'); return; }
   if(!picked){ note('請先選擇 .sb3 檔案。','err'); return; }
 
+  const a2 = {
+    q1:  $('a2q1').value.trim(),
+    q2a: $('a2q2a').value.trim(),
+    q2b: $('a2q2b').value.trim(),
+    q2c: $('a2q2c').value.trim(),
+    q3:  $('a2q3').value.trim(),
+    q4:  $('a2q4').value.trim()
+  };
+  if(!a2.q1 || !a2.q2a || !a2.q2b || !a2.q2c || !a2.q3 || !a2.q4){
+    note('請完整回答「A2：作品說明」的每一題，再上傳。','err'); return;
+  }
+
   $('send').disabled = true;
   $('barBox').classList.remove('hidden');
   const setBar = p => $('bar').style.width = p + '%';
@@ -287,7 +336,8 @@ $('send').onclick = async () => {
     const init = await api({
       action:'initUpload', 班級:cls, 姓名:name,
       代碼:$('code').value.trim().toUpperCase(),
-      檔名:picked.name, 檔案大小:picked.size, 塊數:chunks.length, metrics:metrics
+      檔名:picked.name, 檔案大小:picked.size, 塊數:chunks.length, metrics:metrics,
+      A2:a2
     });
 
     for(let i=0; i<chunks.length; i++){
