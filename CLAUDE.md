@@ -36,6 +36,7 @@
 | tool-canvas.html | 主軸三：Canvas 純前端工具 |
 | tool-linebot.html | 主軸四：LINE Bot 自動回覆 |
 | tool-python.html | 主軸五：Python 本地工具 |
+| auto-grade/ | 雲端郵件作業自動評分（子目錄）：index.html 教材、grader.html 純前端評分工具、grader-core.js 評分規則、export_homework.gs Apps Script 匯出程式 |
 | case-stocks.html | 台股分類表（獨立分類「投資那些事」，不掛在「案例」或任一技術主軸下；開頁即表格，說明文字收在「如何做」浮動視窗）|
 | CLAUDE.md | 本說明檔 |
 
@@ -136,3 +137,4 @@ git push
 | OCR 錯卷題庫（OCR-CAD）| ⚠️ 需修正：debug=True+0.0.0.0、uploads 路由、SQL f-string |
 | NKNUBLOCK 自動批改（NKNUBLOCK）| ✅ 已修正：路徑穿越(secure_filename)、XSS(escHtml)、debug=False；init_db f-string 低風險（硬編碼值）；.db 建議 gitignore |
 | 台股分類表（case-stocks.html）| ✅ 整體安全，純前端無金鑰、無後端伺服器、無資料庫；TWSE/TPEx OpenAPI 免 key；前端渲染一律用 textContent、無 innerHTML；GitHub Actions 僅用內建 GITHUB_TOKEN |
+| 雲端郵件作業自動評分（auto-grade/）| ✅ 安全，純前端無金鑰、無後端；CSV／點名簿只在瀏覽器處理不上傳；顯示一律 textContent；Apps Script 唯讀（Gmail、Drive），僅建立老師自己的試算表；CDN 為 jsDelivr 鎖版本（papaparse@5.4.1、exceljs@4.4.0）|

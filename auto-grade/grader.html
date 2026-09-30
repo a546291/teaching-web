@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>雲端郵件作業評分工具 — 風城師的AI遊記</title>
+<style>
+  :root {
+    --fg: #1d1d1f; --fg2: #6e6e73; --fg3: #aeaeb2;
+    --bg: #ffffff; --bg2: #f5f5f7; --bg3: #e8e8ed;
+    --accent: #0071e3; --accent-light: #e8f0fd;
+    --green: #1d8348; --green-light: #eafaf1;
+    --amber: #b7770d; --amber-light: #fef9e7;
+    --red: #922b21; --red-light: #fdedec;
+    --radius: 12px; --radius-sm: 8px;
+    --font: -apple-system, 'SF Pro TC', 'PingFang TC', 'Helvetica Neue', sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font); background: var(--bg); color: var(--fg); line-height: 1.6; }
+  .top-nav { position: sticky; top: 0; z-index: 100; background: rgba(255,255,255,0.85); backdrop-filter: saturate(180%) blur(20px); -webkit-backdrop-filter: saturate(180%) blur(20px); border-bottom: 1px solid var(--bg3); padding: 0 2rem; display: flex; align-items: center; justify-content: space-between; height: 52px; }
+  .nav-logo { font-size: 15px; font-weight: 500; color: var(--fg); text-decoration: none; }
+  .nav-logo span { color: var(--fg2); font-weight: 400; }
+  .nav-back { font-size: 13px; color: var(--accent); text-decoration: none; }
+  .content { max-width: 860px; margin: 0 auto; padding: 2.5rem 1rem 5rem; }
+  h1 { font-size: clamp(24px, 4vw, 32px); font-weight: 600; letter-spacing: -.02em; margin-bottom: .4rem; }
+  h2 { font-size: 18px; font-weight: 600; margin-bottom: .75rem; }
+  .lead { font-size: 15px; color: var(--fg2); margin-bottom: 1.5rem; }
+  .panel { background: var(--bg2); border-radius: var(--radius); padding: 1.25rem 1.5rem; margin-bottom: 1rem; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: .75rem 1rem; }
+  label { display: block; font-size: 13px; color: var(--fg2); margin-bottom: .25rem; }
+  input[type=number], input[type=text] { width: 100%; font: inherit; font-size: 14px; padding: .45rem .6rem; border: 1px solid var(--bg3); border-radius: var(--radius-sm); background: var(--bg); color: var(--fg); }
+  input[type=file] { font-size: 13px; max-width: 100%; }
+  .file-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  @media (max-width: 560px) { .file-row { grid-template-columns: 1fr; } .top-nav { padding: 0 1rem; } }
+  .btn { font: inherit; font-size: 14px; font-weight: 500; border: none; border-radius: 20px; padding: .55rem 1.3rem; cursor: pointer; background: var(--accent); color: #fff; }
+  .btn:disabled { background: var(--bg3); color: var(--fg3); cursor: not-allowed; }
+  .btn-ghost { background: var(--bg); color: var(--accent); border: 1px solid var(--accent); }
+  .actions { display: flex; gap: .6rem; flex-wrap: wrap; margin-top: 1rem; }
+  .msg { font-size: 14px; border-radius: var(--radius-sm); padding: .7rem 1rem; margin-top: 1rem; display: none; }
+  .msg.show { display: block; }
+  .msg.ok { background: var(--green-light); color: var(--green); }
+  .msg.warn { background: var(--amber-light); color: var(--amber); }
+  .msg.err { background: var(--red-light); color: var(--red); }
+  .stats { display: flex; gap: .75rem; flex-wrap: wrap; margin-bottom: 1rem; }
+  .stat { background: var(--bg); border: 1px solid var(--bg3); border-radius: var(--radius-sm); padding: .6rem 1rem; min-width: 110px; }
+  .stat b { display: block; font-size: 20px; font-weight: 600; }
+  .stat span { font-size: 12px; color: var(--fg2); }
+  .table-wrap { overflow-x: auto; border: 1px solid var(--bg3); border-radius: var(--radius-sm); background: var(--bg); }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { background: var(--bg2); text-align: left; padding: .5rem .7rem; font-weight: 600; white-space: nowrap; position: sticky; top: 0; }
+  td { padding: .5rem .7rem; border-top: 1px solid var(--bg3); color: var(--fg2); vertical-align: top; }
+  td.num { text-align: right; font-weight: 600; color: var(--fg); white-space: nowrap; }
+  .privacy { font-size: 13px; color: var(--green); background: var(--green-light); border-radius: var(--radius-sm); padding: .6rem 1rem; margin-bottom: 1rem; }
+  #results { display: none; }
+  .footer { border-top: 1px solid var(--bg3); padding: 2rem; text-align: center; font-size: 13px; color: var(--fg3); }
+  .footer a { color: var(--accent); text-decoration: none; }
+</style>
+</head>
+<body>
+
+<nav class="top-nav">
+  <a class="nav-logo" href="../index.html">風城師的AI遊記 <span>/ 自動評分作業</span></a>
+  <a class="nav-back" href="index.html">‹ 教材說明</a>
+</nav>
+
+<div class="content">
+  <h1>雲端郵件作業評分工具</h1>
+  <p class="lead">上傳匯出 CSV 與點名簿，計算成績，下載已填成績的點名簿。</p>
+
+  <div class="privacy">🔒 檔案只在本機瀏覽器處理，不上傳伺服器，不留存。</div>
+
+  <div class="panel">
+    <h2>1. 上傳檔案</h2>
+    <div class="file-row">
+      <div>
+        <label for="csvFile">匯出 CSV（Apps Script 產生）</label>
+        <input type="file" id="csvFile" accept=".csv,text/csv">
+      </div>
+      <div>
+        <label for="xlsxFile">點名簿 .xlsx（每個工作表一班，第 1 列含「座號」「姓名」「帳號」）</label>
+        <input type="file" id="xlsxFile" accept=".xlsx">
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>2. 評分設定</h2>
+    <div class="grid">
+      <div><label for="fullScore">滿分</label><input type="number" id="fullScore" value="20" min="1"></div>
+      <div><label for="linkPenalty">連結錯誤扣分</label><input type="number" id="linkPenalty" value="3" min="0"></div>
+      <div><label for="itemPenalty">其他項目扣分</label><input type="number" id="itemPenalty" value="1" min="0"></div>
+      <div><label for="keepLatest">每人取最新幾封</label><input type="number" id="keepLatest" value="2" min="1"></div>
+      <div><label for="week">週次</label><input type="number" id="week" value="1" min="1" max="20"></div>
+      <div><label for="folderPrefix">資料夾名稱開頭</label><input type="text" id="folderPrefix" value="五年級資訊課"></div>
+      <div><label for="column">寫入欄位</label><input type="text" id="column" value="AA" maxlength="3"></div>
+      <div><label for="header">欄位標題</label><input type="text" id="header" value="雲端郵件"></div>
+    </div>
+    <div class="actions">
+      <button class="btn" id="runBtn" disabled>計算成績</button>
+    </div>
+    <div class="msg" id="msg"></div>
+  </div>
+
+  <div id="results">
+    <div class="panel">
+      <h2>3. 結果</h2>
+      <div class="stats" id="stats"></div>
+      <div class="table-wrap" style="margin-bottom:1rem;">
+        <table><thead><tr><th>班級</th><th>寫入欄</th><th>有成績</th><th>全班</th></tr></thead><tbody id="classBody"></tbody></table>
+      </div>
+      <div class="actions">
+        <button class="btn" id="dlRoster">下載已填成績的點名簿</button>
+        <button class="btn btn-ghost" id="dlDetail">下載評分明細</button>
+      </div>
+    </div>
+    <div class="table-wrap" style="max-height:520px;">
+      <table>
+        <thead><tr><th>班級</th><th>座號</th><th>姓名</th><th>寄信時間</th><th>分數</th><th>扣分原因</th></tr></thead>
+        <tbody id="detailBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<footer class="footer">
+  <p>© 2026 陳盈宏 · 風城師的AI遊記 · <a href="index.html">教材說明</a> · <a href="../index.html">回到首頁</a></p>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
+<script src="grader-core.js"></script>
+<script>
+(function () {
+  'use strict';
+  var $ = function (id) { return document.getElementById(id); };
+  var state = { rosterName: '', workbook: null, result: null };
+
+  function showMsg(kind, text) {
+    var m = $('msg');
+    m.className = 'msg show ' + kind;
+    m.textContent = text;
+  }
+
+  function toggleRun() {
+    $('runBtn').disabled = !($('csvFile').files.length && $('xlsxFile').files.length);
+  }
+  $('csvFile').addEventListener('change', toggleRun);
+  $('xlsxFile').addEventListener('change', toggleRun);
+
+  function readConfig() {
+    var num = function (id) { return parseInt($(id).value, 10); };
+    var cfg = {
+      fullScore: num('fullScore'), linkPenalty: num('linkPenalty'), itemPenalty: num('itemPenalty'),
+      keepLatest: num('keepLatest'), week: num('week'), folderPrefix: $('folderPrefix').value.trim()
+    };
+    var column = $('column').value.trim().toUpperCase();
+    var header = $('header').value.trim();
+    if (Object.keys(cfg).some(function (k) { return typeof cfg[k] === 'number' && (isNaN(cfg[k]) || cfg[k] < 0); }))
+      throw new Error('評分設定需為 0 以上的整數。');
+    if (cfg.keepLatest < 1 || cfg.week < 1 || cfg.week > 20) throw new Error('「每人取最新幾封」至少 1；「週次」需介於 1 到 20。');
+    if (!cfg.folderPrefix) throw new Error('請填寫資料夾名稱開頭。');
+    if (!/^[A-Z]{1,3}$/.test(column)) throw new Error('寫入欄位需為英文字母，例如 AA。');
+    if (!header) throw new Error('請填寫欄位標題。');
+    return { cfg: cfg, column: column, header: header };
+  }
+
+  function parseCsv(file) {
+    return new Promise(function (resolve, reject) {
+      Papa.parse(file, { header: true, skipEmptyLines: true, complete: function (r) { resolve(r.data); }, error: reject });
+    });
+  }
+
+  function cell(tr, text, cls) {
+    var td = document.createElement('td');
+    td.textContent = text;
+    if (cls) td.className = cls;
+    tr.appendChild(td);
+  }
+
+  function stat(label, value) {
+    var d = document.createElement('div');
+    d.className = 'stat';
+    var b = document.createElement('b'); b.textContent = value;
+    var s = document.createElement('span'); s.textContent = label;
+    d.appendChild(b); d.appendChild(s);
+    $('stats').appendChild(d);
+  }
+
+  function render(result, report) {
+    $('stats').textContent = '';
+    var scores = result.best.map(function (b) { return b.score; });
+    var avg = scores.reduce(function (a, b) { return a + b; }, 0) / (scores.length || 1);
+    stat('評分人數', scores.length);
+    stat('信件數', result.all.length);
+    stat('平均', avg.toFixed(2));
+    stat('最低', scores.length ? Math.min.apply(null, scores) : '-');
+    stat('最高', scores.length ? Math.max.apply(null, scores) : '-');
+
+    var cb = $('classBody'); cb.textContent = '';
+    report.forEach(function (r) {
+      var tr = document.createElement('tr');
+      cell(tr, r.cls); cell(tr, r.column + (r.moved ? '（原欄有資料，已改寫）' : ''));
+      cell(tr, r.filled, 'num'); cell(tr, r.total, 'num');
+      cb.appendChild(tr);
+    });
+
+    var db = $('detailBody'); db.textContent = '';
+    result.best.forEach(function (b) {
+      var tr = document.createElement('tr');
+      cell(tr, b.cls); cell(tr, b.seat); cell(tr, b.name); cell(tr, b.dateText);
+      cell(tr, b.score, 'num'); cell(tr, b.reasons || '—');
+      db.appendChild(tr);
+    });
+    $('results').style.display = 'block';
+  }
+
+  $('runBtn').addEventListener('click', async function () {
+    var btn = this;
+    btn.disabled = true;
+    try {
+      var opts = readConfig();
+      var rows = await parseCsv($('csvFile').files[0]);
+      if (!rows.length || !('寄件信箱' in rows[0]) || !('連結類型' in rows[0]))
+        throw new Error('CSV 欄位不符，請使用 export_homework.gs 匯出的檔案。');
+
+      var wb = new ExcelJS.Workbook();
+      await wb.xlsx.load(await $('xlsxFile').files[0].arrayBuffer());
+      var roster = GraderCore.readRoster(wb);
+      if (!Object.keys(roster).length) throw new Error('點名簿找不到含「座號」「姓名」「帳號」的工作表。');
+
+      var result = GraderCore.gradeAll(rows, roster, opts.cfg);
+      var report = GraderCore.writeScores(wb, result.best, { column: opts.column, header: opts.header });
+      state.workbook = wb;
+      state.result = result;
+      state.rosterName = $('xlsxFile').files[0].name.replace(/\.xlsx$/i, '');
+      render(result, report);
+
+      var moved = report.filter(function (r) { return r.moved; }).map(function (r) { return r.cls; });
+      var notes = [];
+      if (result.unmatched.length) notes.push('點名簿查無帳號 ' + result.unmatched.length + ' 個：' + result.unmatched.join('、'));
+      if (moved.length) notes.push(moved.join('、') + ' 的 ' + opts.column + ' 欄已有資料，改寫到右側空白欄。');
+      showMsg(notes.length ? 'warn' : 'ok', notes.length ? notes.join(' ') : '完成，共 ' + result.best.length + ' 人。');
+    } catch (e) {
+      showMsg('err', '處理失敗：' + (e && e.message ? e.message : e));
+    } finally {
+      btn.disabled = false;
+    }
+  });
+
+  function download(buffer, filename) {
+    var blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = filename;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function () { URL.revokeObjectURL(a.href); }, 1000);
+  }
+
+  $('dlRoster').addEventListener('click', async function () {
+    try { download(await state.workbook.xlsx.writeBuffer(), state.rosterName + '_已評分.xlsx'); }
+    catch (e) { showMsg('err', '下載失敗：' + e.message); }
+  });
+
+  $('dlDetail').addEventListener('click', async function () {
+    try {
+      var wb = new ExcelJS.Workbook();
+      var cols = [['班級', 'cls', 8], ['座號', 'seat', 6], ['姓名', 'name', 10], ['帳號', 'account', 16],
+        ['寄信時間', 'dateText', 20], ['主旨', 'subject', 40], ['分數', 'score', 6], ['扣分原因', 'reasons', 60]];
+      [['最終成績', state.result.best], ['全部信件評分', state.result.all]].forEach(function (pair) {
+        var ws = wb.addWorksheet(pair[0]);
+        ws.columns = cols.map(function (c) { return { header: c[0], key: c[1], width: c[2] }; });
+        pair[1].forEach(function (r) { ws.addRow(r); });
+        ws.getRow(1).font = { bold: true };
+      });
+      download(await wb.xlsx.writeBuffer(), '評分明細.xlsx');
+    } catch (e) { showMsg('err', '下載失敗：' + e.message); }
+  });
+})();
+</script>
+<script data-goatcounter="https://yhchen5168.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+</body>
+</html>

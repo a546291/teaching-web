@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>雲端郵件作業自動評分 — 風城師的AI遊記</title>
+<style>
+  :root {
+    --fg: #1d1d1f; --fg2: #6e6e73; --fg3: #aeaeb2;
+    --bg: #ffffff; --bg2: #f5f5f7; --bg3: #e8e8ed;
+    --accent: #0071e3; --accent-light: #e8f0fd;
+    --green: #1d8348; --green-light: #eafaf1;
+    --amber: #b7770d; --amber-light: #fef9e7;
+    --red: #922b21; --red-light: #fdedec;
+    --radius: 12px; --radius-sm: 8px;
+    --font: -apple-system, 'SF Pro TC', 'PingFang TC', 'Helvetica Neue', sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font); background: var(--bg); color: var(--fg); line-height: 1.6; }
+  .top-nav { position: sticky; top: 0; z-index: 100; background: rgba(255,255,255,0.85); backdrop-filter: saturate(180%) blur(20px); -webkit-backdrop-filter: saturate(180%) blur(20px); border-bottom: 1px solid var(--bg3); padding: 0 2rem; display: flex; align-items: center; justify-content: space-between; height: 52px; }
+  .nav-logo { font-size: 15px; font-weight: 500; color: var(--fg); text-decoration: none; }
+  .nav-logo span { color: var(--fg2); font-weight: 400; }
+  .nav-back { font-size: 13px; color: var(--accent); text-decoration: none; }
+  .hero { padding: 4rem 1rem 3rem; max-width: 760px; margin: 0 auto; text-align: center; }
+  .hero-tag { display: inline-block; font-size: 12px; font-weight: 500; letter-spacing: .04em; color: var(--green); background: var(--green-light); padding: 4px 12px; border-radius: 20px; margin-bottom: 1.25rem; }
+  .hero h1 { font-size: clamp(28px, 5vw, 42px); font-weight: 600; letter-spacing: -.02em; margin-bottom: .75rem; line-height: 1.15; }
+  .hero p { font-size: 17px; color: var(--fg2); max-width: 540px; margin: 0 auto 2rem; line-height: 1.7; }
+  .hero-badges { display: flex; gap: .5rem; justify-content: center; flex-wrap: wrap; }
+  .badge { font-size: 12px; padding: 4px 12px; border-radius: 20px; border: 1px solid var(--bg3); color: var(--fg2); background: var(--bg2); }
+  .hero-cta { margin-top: 1.75rem; display: flex; gap: .6rem; justify-content: center; flex-wrap: wrap; }
+  .btn { display: inline-block; font-size: 14px; font-weight: 500; text-decoration: none; border-radius: 20px; padding: .55rem 1.3rem; background: var(--accent); color: #fff; }
+  .btn-ghost { background: var(--bg); color: var(--accent); border: 1px solid var(--accent); }
+  .content { max-width: 760px; margin: 0 auto; padding: 0 1rem 6rem; }
+  .divider { height: 1px; background: var(--bg3); margin: 2.5rem 0; }
+  .section-label { font-size: 11px; font-weight: 600; letter-spacing: .08em; color: var(--fg3); margin-bottom: 1rem; }
+  h2 { font-size: 22px; font-weight: 600; letter-spacing: -.01em; margin-bottom: .75rem; }
+  h3 { font-size: 16px; font-weight: 600; margin-bottom: .5rem; }
+  p { font-size: 15px; color: var(--fg2); line-height: 1.75; margin-bottom: .75rem; }
+  .card { background: var(--bg2); border-radius: var(--radius); padding: 1.25rem 1.5rem; margin-bottom: .75rem; }
+  .card-white { background: var(--bg); border: 1px solid var(--bg3); border-radius: var(--radius); padding: 1.1rem 1.4rem; margin-bottom: .6rem; }
+  .card-white h3 { font-size: 14px; margin-bottom: .35rem; }
+  .card-white p { font-size: 14px; margin-bottom: 0; }
+  .pros-cons { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; margin-bottom: 1rem; }
+  @media (max-width: 560px) { .pros-cons { grid-template-columns: 1fr; } .top-nav { padding: 0 1rem; } }
+  .pros { background: var(--green-light); border-radius: var(--radius); padding: 1.25rem; }
+  .cons { background: var(--amber-light); border-radius: var(--radius); padding: 1.25rem; }
+  .pros h3 { color: var(--green); font-size: 14px; margin-bottom: .6rem; }
+  .cons h3 { color: var(--amber); font-size: 14px; margin-bottom: .6rem; }
+  .list { list-style: none; }
+  .list li { font-size: 14px; color: var(--fg); padding: 5px 0; display: flex; gap: 8px; align-items: flex-start; border-bottom: 1px solid rgba(0,0,0,.05); line-height: 1.5; }
+  .list li:last-child { border-bottom: none; }
+  .list li::before { content: attr(data-icon); flex-shrink: 0; }
+  .callout { border-radius: var(--radius); padding: 1rem 1.25rem; margin-bottom: 1rem; display: flex; gap: .75rem; align-items: flex-start; }
+  .callout-icon { font-size: 18px; flex-shrink: 0; }
+  .callout-body { font-size: 14px; line-height: 1.65; color: var(--fg); }
+  .callout-green { background: var(--green-light); }
+  .callout-amber { background: var(--amber-light); }
+  .callout-blue { background: var(--accent-light); }
+  .step { display: flex; gap: 1rem; margin-bottom: 1.25rem; align-items: flex-start; }
+  .step-num { width: 28px; height: 28px; border-radius: 50%; background: var(--fg); color: var(--bg); font-size: 13px; font-weight: 600; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .step-body { min-width: 0; }
+  .step-body h3 { font-size: 15px; margin-bottom: .3rem; }
+  .step-body p { font-size: 14px; margin-bottom: 0; }
+  .step-note { font-size: 13px; color: var(--fg2); background: var(--bg2); border-radius: var(--radius-sm); padding: .5rem .85rem; margin-top: .5rem; border-left: 2px solid var(--bg3); line-height: 1.6; }
+  .part { margin: 1.5rem 0 .9rem; padding-left: .75rem; border-left: 3px solid var(--green); font-size: 16px; font-weight: 600; }
+  .flow { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin: .75rem 0 1rem; }
+  .flow-box { font-size: 12px; padding: 6px 12px; border-radius: 8px; background: var(--bg2); border: 1px solid var(--bg3); text-align: center; line-height: 1.4; }
+  .flow-box.hi { background: var(--green-light); border-color: #a9dfbf; color: var(--green); }
+  .flow-arr { font-size: 14px; color: var(--fg3); }
+  .table-wrap { overflow-x: auto; margin-bottom: 1rem; }
+  .grade-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .grade-table th { background: var(--bg2); padding: .6rem .85rem; text-align: left; font-weight: 600; border-bottom: 1px solid var(--bg3); white-space: nowrap; }
+  .grade-table td { padding: .6rem .85rem; border-bottom: 1px solid var(--bg3); color: var(--fg2); vertical-align: top; }
+  .grade-table tr:last-child td { border-bottom: none; }
+  .minus { color: var(--red); font-weight: 600; white-space: nowrap; }
+  .example { font-family: 'SF Mono', 'Fira Code', monospace; font-size: 13px; background: #1d1d1f; color: #f8f8f2; border-radius: var(--radius-sm); padding: 1rem 1.25rem; line-height: 1.8; overflow-x: auto; white-space: pre; margin: .5rem 0 1rem; }
+  .security-row { display: flex; align-items: flex-start; gap: .6rem; padding: .6rem 0; border-bottom: 1px solid var(--bg3); font-size: 13px; }
+  .security-row:last-child { border-bottom: none; }
+  .sec-ok { color: var(--green); }
+  .sec-warn { color: var(--amber); }
+  .dl-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: .6rem; }
+  .dl-card { display: block; text-decoration: none; background: var(--bg2); border-radius: var(--radius-sm); padding: 1rem 1.1rem; color: var(--fg); }
+  .dl-card:hover { background: var(--bg3); }
+  .dl-title { font-size: 14px; font-weight: 600; margin-bottom: .2rem; }
+  .dl-desc { font-size: 12px; color: var(--fg2); line-height: 1.5; }
+  code { background: var(--bg2); padding: 1px 6px; border-radius: 4px; font-size: 13px; font-family: 'SF Mono', monospace; }
+  .footer { border-top: 1px solid var(--bg3); padding: 2rem; text-align: center; font-size: 13px; color: var(--fg3); }
+  .footer a { color: var(--accent); text-decoration: none; }
+</style>
+</head>
+<body>
+
+<nav class="top-nav">
+  <a class="nav-logo" href="../index.html">風城師的AI遊記 <span>/ 案例</span></a>
+  <a class="nav-back" href="../tool-gas.html">‹ GAS + Gemini</a>
+</nav>
+
+<div class="hero">
+  <div class="hero-tag">主軸一 · Google Apps Script</div>
+  <h1>雲端郵件作業<br>自動評分</h1>
+  <p>學生用 Gmail 繳交雲端資料夾連結。Apps Script 匯出信件與連結檢查結果，網頁工具計算成績並填入點名簿。</p>
+  <div class="hero-badges">
+    <span class="badge">Google Apps Script</span>
+    <span class="badge">Gmail · 雲端硬碟</span>
+    <span class="badge">純前端評分</span>
+    <span class="badge">Excel 點名簿</span>
+  </div>
+  <div class="hero-cta">
+    <a class="btn" href="grader.html">開啟評分工具</a>
+    <a class="btn btn-ghost" href="export_homework.gs" download>下載 Apps Script</a>
+  </div>
+</div>
+
+<div class="content">
+
+  <div class="callout callout-blue">
+    <span class="callout-icon">🎯</span>
+    <div class="callout-body"><strong>適用對象：</strong>資訊課教師。一班約 25 人，七個班約 190 封信，人工批改需數小時；本流程約 15 分鐘完成。</div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- 這是什麼 -->
+  <div class="section-label">流程總覽</div>
+  <h2>三個步驟完成評分</h2>
+  <div class="flow">
+    <div class="flow-box">學生寄信<br>附資料夾連結</div>
+    <div class="flow-arr">→</div>
+    <div class="flow-box hi">Apps Script<br>匯出 CSV</div>
+    <div class="flow-arr">→</div>
+    <div class="flow-box hi">評分工具<br>上傳 CSV＋點名簿</div>
+    <div class="flow-arr">→</div>
+    <div class="flow-box">下載<br>已評分點名簿</div>
+  </div>
+  <p>Apps Script 在老師的學校帳號執行，讀取作業信，並以未登入狀態開啟每個連結，確認是否為「知道連結的任何人均可檢視」。評分工具依評分標準扣分，依帳號與座號對應點名簿，寫入成績欄。</p>
+
+  <div class="divider"></div>
+
+  <!-- 作業內容 -->
+  <div class="section-label">作業內容</div>
+  <h2>第 1 週作業：雲端硬碟與 Gmail</h2>
+  <p>發給學生的作業說明：</p>
+  <div class="card">
+    <ul class="list">
+      <li data-icon="1.">登入 Google 雲端硬碟，在根目錄建立新資料夾。</li>
+      <li data-icon="2.">資料夾命名為「五年級資訊課-5XX-座號-姓名」。</li>
+      <li data-icon="3.">找一張北門校園風景照片，以「檔案上傳」方式上傳到資料夾。</li>
+      <li data-icon="4.">一般存取權設定為「知道連結的任何人均可檢視」，複製連結。</li>
+      <li data-icon="5.">登入 Gmail 撰寫新信，收件人填老師信箱。</li>
+      <li data-icon="6.">主旨格式：「5XX-座號-姓名-第1週作業」。</li>
+      <li data-icon="7.">內文包含稱呼（老師您好）、事由說明、資料夾連結、署名（學生某某敬上），寄出。</li>
+    </ul>
+  </div>
+  <p>範例：</p>
+  <div class="example">資料夾：五年級資訊課-501-01-張小明
+主　旨：501-01-張小明-第1週作業
+內　文：老師您好：
+　　　　我要繳交第1週作業，照片是北門國小百齡樓。
+　　　　https://drive.google.com/drive/folders/xxxxxxxx
+　　　　學生張小明敬上</div>
+
+  <div class="divider"></div>
+
+  <!-- 評分標準 -->
+  <div class="section-label">評分標準</div>
+  <h2>滿分 20 分，逐項扣分</h2>
+  <div class="table-wrap">
+    <table class="grade-table">
+      <tr><th>項目</th><th>扣分</th><th>判定方式</th></tr>
+      <tr><td><strong>資料夾連結</strong></td><td class="minus">−3</td><td>內文須有雲端資料夾連結，且未登入狀態可開啟</td></tr>
+      <tr><td><strong>資料夾名稱</strong></td><td class="minus">−1</td><td>符合「五年級資訊課-班級-座號-姓名」，班級、座號、姓名與點名簿一致</td></tr>
+      <tr><td><strong>照片</strong></td><td class="minus">−1</td><td>資料夾內至少一個圖片檔</td></tr>
+      <tr><td><strong>主旨</strong></td><td class="minus">−1</td><td>符合「班級-座號-姓名-第1週作業」</td></tr>
+      <tr><td><strong>稱呼</strong></td><td class="minus">−1</td><td>內文有「老師您好」或同義稱呼</td></tr>
+      <tr><td><strong>事由說明</strong></td><td class="minus">−1</td><td>去除連結、稱呼、署名後，仍有說明寄信原因的文字</td></tr>
+      <tr><td><strong>署名</strong></td><td class="minus">−1</td><td>內文有「敬上」</td></tr>
+    </table>
+  </div>
+
+  <h3>連結錯誤的情形（−3）</h3>
+  <ul class="list" style="margin-bottom:1rem;">
+    <li data-icon="·">內文無雲端連結，只有圖片或其他網站網址</li>
+    <li data-icon="·">連結只放在主旨，內文沒有</li>
+    <li data-icon="·">連結中間有空格或缺字，例如 <code>https:// drive...</code></li>
+    <li data-icon="·">連結指向單一檔案，不是資料夾</li>
+    <li data-icon="·">未登入狀態無法開啟（權限為「限制」或「僅限校內」）</li>
+  </ul>
+  <p>連結錯誤時看不到資料夾，資料夾名稱與照片兩項不再扣分。</p>
+
+  <div class="pros-cons">
+    <div class="pros">
+      <h3>✦ 放寬</h3>
+      <ul class="list">
+        <li data-icon="✓">「第1週」「第一週」皆可，「週」「周」皆可</li>
+        <li data-icon="✓">座號補 0 可接受，例如 01</li>
+        <li data-icon="✓">「老師你好」「老師好」「親愛的老師」視為稱呼</li>
+        <li data-icon="✓">署名有「敬上」即可，不強制「學生」二字</li>
+        <li data-icon="✓">「啓／啟」「温／溫」視為同字</li>
+      </ul>
+    </div>
+    <div class="cons">
+      <h3>△ 從嚴</h3>
+      <ul class="list">
+        <li data-icon="✗">多寫「座號」「姓名」字樣</li>
+        <li data-icon="✗">缺連字號，或用空格取代</li>
+        <li data-icon="✗">「5年級」取代「五年級」</li>
+        <li data-icon="✗">加上「」或句號</li>
+        <li data-icon="✗">姓名錯字</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="callout callout-amber">
+    <span class="callout-icon">📌</span>
+    <div class="callout-body"><strong>多次寄信：</strong>同一寄件人只取最新兩封，保留分數較高者。學生可修正後重寄，舊錯誤不影響成績。</div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- 步驟教學 -->
+  <div class="section-label">操作步驟</div>
+  <h2>第一次設定約 10 分鐘，之後每次約 5 分鐘</h2>
+
+  <div class="callout callout-amber">
+    <span class="callout-icon">📋</span>
+    <div class="callout-body"><strong>事前準備：</strong>收作業的學校 Google 帳號；點名簿 .xlsx，每個工作表一班，工作表名稱為班級（例如 501），第 1 列有「座號」「姓名」「帳號」三欄，帳號為學生信箱 @ 前的部分。</div>
+  </div>
+
+  <div class="part">第一部分：匯出作業信</div>
+
+  <div class="step"><div class="step-num">1</div><div class="step-body">
+    <h3>建立 Apps Script 專案</h3>
+    <p>以收作業的學校帳號開啟 <code>script.google.com</code>，點「新專案」。</p>
+  </div></div>
+
+  <div class="step"><div class="step-num">2</div><div class="step-body">
+    <h3>貼上程式並修改設定區</h3>
+    <p>刪除預設內容，貼上 <a href="export_homework.gs" download>export_homework.gs</a> 全文，修改開頭設定區：</p>
+    <div class="example">const TEACHER_EMAIL = 'yourname@tmail.hc.edu.tw'; // 老師信箱
+const START_DATE = '2026/09/01';                  // 搜尋起始日
+const KEYWORDS = '(作業 OR drive.google.com)';     // 關鍵字</div>
+  </div></div>
+
+  <div class="step"><div class="step-num">3</div><div class="step-body">
+    <h3>執行並授權</h3>
+    <p>上方函式選單選 <code>exportHomework</code>，按「執行」。第一次執行需授權 Gmail、雲端硬碟、試算表、外部連線。</p>
+    <div class="step-note">出現「Google 尚未驗證這個應用程式」時，點「進階」→「前往（不安全）」。這是自己寫的程式，未送 Google 審核，屬正常情形。</div>
+  </div></div>
+
+  <div class="step"><div class="step-num">4</div><div class="step-body">
+    <h3>下載 CSV</h3>
+    <p>執行記錄顯示試算表網址。開啟試算表 →「檔案」→「下載」→「逗號分隔值 (.csv)」。</p>
+  </div></div>
+
+  <div class="part">第二部分：計算成績</div>
+
+  <div class="step"><div class="step-num">5</div><div class="step-body">
+    <h3>開啟評分工具，上傳兩個檔案</h3>
+    <p>開啟 <a href="grader.html">評分工具</a>，選擇 CSV 與點名簿。</p>
+  </div></div>
+
+  <div class="step"><div class="step-num">6</div><div class="step-body">
+    <h3>確認評分設定</h3>
+    <p>預設值：滿分 20、連結 −3、其他 −1、取最新 2 封、第 1 週、資料夾開頭「五年級資訊課」、寫入 AA 欄、標題「雲端郵件」。依需要修改後按「計算成績」。</p>
+    <div class="step-note">寫入欄已有其他資料時，自動改寫到右側第一個空白欄，不覆蓋原資料。欄位標題相同時直接覆寫，可重複執行。</div>
+  </div></div>
+
+  <div class="step"><div class="step-num">7</div><div class="step-body">
+    <h3>檢查結果並下載</h3>
+    <p>頁面列出每班寫入人數與每位學生的扣分原因。按「下載已填成績的點名簿」取得新檔；「下載評分明細」取得最終成績與逐封評分。</p>
+    <div class="step-note">建議抽查扣分較多的學生，確認判定合理。點名簿查無帳號的寄件人會顯示在提示訊息。</div>
+  </div></div>
+
+  <div class="divider"></div>
+
+  <!-- 優點與限制 -->
+  <div class="section-label">優點與限制</div>
+  <h2>適用範圍</h2>
+  <div class="pros-cons">
+    <div class="pros">
+      <h3>✦ 優點</h3>
+      <ul class="list">
+        <li data-icon="✓">權限檢查以未登入狀態實測，結果與學生設定一致</li>
+        <li data-icon="✓">評分標準固定，各班一致</li>
+        <li data-icon="✓">每項扣分附原因，可回覆學生</li>
+        <li data-icon="✓">不需安裝軟體，瀏覽器即可使用</li>
+        <li data-icon="✓">學生資料不上傳第三方伺服器</li>
+      </ul>
+    </div>
+    <div class="cons">
+      <h3>△ 限制</h3>
+      <ul class="list">
+        <li data-icon="△">無法判斷照片內容是否為北門校園，只檢查有無圖片</li>
+        <li data-icon="△">事由說明以關鍵字判斷，建議人工抽查</li>
+        <li data-icon="△">只檢查內文第一個雲端連結</li>
+        <li data-icon="△">點名簿帳號錯誤時無法對應</li>
+        <li data-icon="△">Apps Script 單次執行上限 6 分鐘，信件過多時需縮小日期範圍</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- FAQ -->
+  <div class="section-label">常見問題</div>
+  <h2>疑難排解</h2>
+
+  <div class="card-white">
+    <h3>執行後找不到任何信件</h3>
+    <p>確認以收作業的帳號執行，並檢查 <code>TEACHER_EMAIL</code> 與 <code>START_DATE</code>。可先在 Gmail 搜尋列輸入 <code>to:老師信箱 after:2026/09/01</code> 驗證。</p>
+  </div>
+  <div class="card-white">
+    <h3>「匿名可開啟」全部顯示「否」</h3>
+    <p>抽一個連結以無痕視窗開啟。可開啟表示檢查程式受阻，確認第一次執行時已授權「連線到外部服務」；無法開啟表示學生權限設定確實有誤。</p>
+  </div>
+  <div class="card-white">
+    <h3>學生說已設定公開，仍被扣連結分數</h3>
+    <p>常見原因：選成「僅限校內使用者」、分享的是照片檔而非資料夾、連結複製不完整。請學生改正後重寄，系統取最新兩封中較高分者。</p>
+  </div>
+  <div class="card-white">
+    <h3>點名簿有學生沒有成績</h3>
+    <p>未寄信，或寄件信箱 @ 前的帳號與點名簿「帳號」欄不同。帳號比對不分大小寫。</p>
+  </div>
+  <div class="card-white">
+    <h3>下載的點名簿格式跑掉</h3>
+    <p>一般儲存格格式、欄寬、日期會保留；巨集、樞紐分析表、圖表不支援。先保留原檔備份。</p>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- 資安 -->
+  <div class="section-label">資安確認</div>
+  <h2>學生資料處理方式</h2>
+  <div class="callout callout-green">
+    <span class="callout-icon">🔒</span>
+    <div class="callout-body"><strong>成績計算在老師的瀏覽器完成。</strong>評分工具為純前端頁面，CSV 與點名簿不上傳任何伺服器，關閉頁面即清除。</div>
+  </div>
+  <div class="card">
+    <div class="security-row"><span class="sec-ok">✓</span> 無 API 金鑰、帳號、密碼，不使用 AI 服務</div>
+    <div class="security-row"><span class="sec-ok">✓</span> Apps Script 只讀取信件與檔案，不寄信、不刪信、不修改權限</div>
+    <div class="security-row"><span class="sec-ok">✓</span> 匯出試算表建立在老師自己的雲端硬碟，預設不分享</div>
+    <div class="security-row"><span class="sec-ok">✓</span> 評分工具以 <code>textContent</code> 顯示學生資料，不使用 innerHTML，無 XSS 風險</div>
+    <div class="security-row"><span class="sec-ok">✓</span> 外部程式庫僅 PapaParse、ExcelJS，來源 jsDelivr 並鎖定版本</div>
+    <div class="security-row"><span class="sec-warn">△</span> 匯出 CSV 含學生姓名、信箱與信件內容，用畢刪除，勿上傳公開位置</div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- 下載 -->
+  <div class="section-label">下載與工具</div>
+  <h2>程式與工具</h2>
+  <div class="dl-grid">
+    <a class="dl-card" href="grader.html">
+      <div class="dl-title">🧮 評分工具</div>
+      <div class="dl-desc">上傳 CSV 與點名簿，下載已評分點名簿</div>
+    </a>
+    <a class="dl-card" href="export_homework.gs" download>
+      <div class="dl-title">📨 export_homework.gs</div>
+      <div class="dl-desc">Apps Script 匯出程式，貼到 script.google.com 執行</div>
+    </a>
+    <a class="dl-card" href="grader-core.js" download>
+      <div class="dl-title">⚙️ grader-core.js</div>
+      <div class="dl-desc">評分規則原始碼，可調整關鍵字與判定方式</div>
+    </a>
+  </div>
+
+</div>
+
+<footer class="footer">
+  <p>© 2026 陳盈宏 · 風城師的AI遊記</p>
+  <p style="margin-top:.4rem;">
+    <a href="https://www.facebook.com/alex.yh.chen" target="_blank" rel="noopener">Facebook</a> &nbsp;·&nbsp;
+    <a href="https://www.threads.com/@a777x" target="_blank" rel="noopener">Threads</a> &nbsp;·&nbsp;
+    <a href="https://x.com/a546291" target="_blank" rel="noopener">X</a> &nbsp;·&nbsp;
+    <a href="../index.html">回到首頁</a>
+  </p>
+</footer>
+
+<script data-goatcounter="https://yhchen5168.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+</body>
+</html>
